@@ -1,0 +1,14 @@
+if [ -n "$HUSKY_RUNNING" ]; then exit 0; fi
+export HUSKY_RUNNING=1
+
+echo "Running pre-commit hook..."
+
+# Formatting and checking linting before committing
+npm run lint || exit 1
+npm run format
+
+# Stage any changes made by the formatters
+git add -u
+
+# Building
+npm run build || exit 1
