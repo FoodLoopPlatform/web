@@ -31,7 +31,6 @@ export function LocationMapPreview({
     const leftPct = x / rect.width;
     const topPct = y / rect.height;
 
-    // Map to mock Egypt boundaries (lat: 22-32, lng: 25-37)
     const latVal = Number((32 - topPct * 10).toFixed(4));
     const lngVal = Number((25 + leftPct * 12).toFixed(4));
 
@@ -61,7 +60,6 @@ export function LocationMapPreview({
     );
   };
 
-  // Coordinates mapping values
   const markerPos = {
     top: Math.max(0, Math.min(100, 100 - ((latitude - 22) / 10) * 100)),
     left: Math.max(0, Math.min(100, ((longitude - 25) / 12) * 100)),
@@ -81,7 +79,6 @@ export function LocationMapPreview({
         }}
       />
 
-      {/* Action Buttons (Top Left in RTL / end-3) - Responsive Flex layout */}
       <div className="absolute top-3 end-3 z-10 flex flex-col sm:flex-row items-end sm:items-center gap-1.5">
         <button
           type="button"
@@ -102,7 +99,6 @@ export function LocationMapPreview({
         )}
       </div>
 
-      {/* Status Badge (Bottom Left in RTL / end-3) - Avoids overlapping with top action controls */}
       <div className="absolute bottom-3 end-3 z-10 flex items-center gap-1.5 px-2.5 py-2 bg-surface-container-lowest/95 backdrop-blur border rounded-xl shadow-sm">
         {pinPlaced ? (
           <>
@@ -123,7 +119,6 @@ export function LocationMapPreview({
         )}
       </div>
 
-      {/* Zoom Controls Overlay (Bottom Right in RTL / start-3) */}
       <div className="absolute bottom-3 start-3 z-10 flex flex-col gap-2 shadow-md">
         <button
           type="button"
@@ -141,7 +136,6 @@ export function LocationMapPreview({
         </button>
       </div>
 
-      {/* Dynamic Interactive Delivery Radius Overlay centered on Pin marker */}
       {pinPlaced && (
         <div
           className="absolute pointer-events-none flex items-center justify-center"
@@ -150,7 +144,6 @@ export function LocationMapPreview({
             left: `${markerPos.left}%`,
           }}
         >
-          {/* Translucent Range Circle */}
           <div
             className="rounded-full bg-[#003820]/15 border-2 border-[#003820]/45 shadow-inner transition-all duration-300 flex items-center justify-center"
             style={{
@@ -158,11 +151,9 @@ export function LocationMapPreview({
               height: `${circleSizePx}px`,
             }}
           >
-            {/* Subtle radiating pulse */}
             <div className="w-full h-full rounded-full border border-[#003820]/10 animate-ping opacity-25" />
           </div>
 
-          {/* Red Pin marker */}
           <div className="absolute -translate-y-[85%] flex flex-col items-center">
             <div className="bg-[#003820] text-white text-[10px] px-2 py-0.5 rounded-md shadow whitespace-nowrap mb-1 font-semibold">
               {latitude.toFixed(3)} , {longitude.toFixed(3)}

@@ -40,7 +40,6 @@ export function ProfileIdentitySection({
       <div className="lg:col-span-2">
         <Card.Root className="border border-outline-variant/40 bg-[#fbfaf7] rounded-xl shadow-sm overflow-hidden">
           <Card.Body className="p-6 flex flex-col gap-6">
-            {/* Cover Image Box */}
             <div
               onClick={() => coverInputRef.current?.click()}
               className="relative h-44 w-full cursor-pointer rounded-lg border-2 border-dashed border-outline-variant/80 bg-surface-container-low hover:bg-surface-container-high/40 transition-all overflow-hidden flex flex-col items-center justify-center gap-2 group"
@@ -69,7 +68,6 @@ export function ProfileIdentitySection({
               />
             </div>
 
-            {/* Logo Circle Overlay Row */}
             <div className="flex items-center gap-5 mt-2">
               <div
                 onClick={() => logoInputRef.current?.click()}

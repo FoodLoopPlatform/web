@@ -25,7 +25,6 @@ export function ProfileGeneralSection({
 }: ProfileGeneralSectionProps) {
   return (
     <>
-      {/* 2. General Info */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
         <div className="lg:col-span-1 flex flex-col gap-2">
           <Heading level="md" className="text-[#003820] font-bold">
@@ -116,7 +115,6 @@ export function ProfileGeneralSection({
         </div>
       </div>
 
-      {/* 3. Contact Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
         <div className="lg:col-span-1 flex flex-col gap-2">
           <Heading level="md" className="text-[#003820] font-bold">

@@ -25,7 +25,6 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
   return (
     <div className="flex flex-col h-full bg-[#f2f4f0] border-l border-outline-variant/30 w-64 p-6 select-none justify-between">
       <div className="flex flex-col gap-8">
-        {/* Brand Logo Header */}
         <div className="flex flex-col gap-1 px-2">
           <Link href="/portal/dashboard" className="flex flex-col">
             <span className="font-plus-jakarta-sans text-2xl font-extrabold text-[#003820] tracking-tight">
@@ -37,7 +36,6 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
           </Link>
         </div>
 
-        {/* Primary Navigation Links */}
         <nav className="flex flex-col gap-1.5">
           {menuItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
@@ -60,7 +58,6 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
                   />
                   <span className="text-body-md font-sans">{item.label}</span>
                 </div>
-                {/* Active left indicator line in RTL */}
                 {isActive && (
                   <span className="absolute start-0 inset-y-3 w-[4px] rounded-r-md bg-[#003820]" />
                 )}
@@ -71,7 +68,6 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
       </div>
 
       <div className="flex flex-col gap-6">
-        {/* Bottom Support Navigation */}
         <div className="flex flex-col gap-1">
           <Link
             href="#"
@@ -93,10 +89,8 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
           </Link>
         </div>
 
-        {/* Profile Card */}
         <div className="flex items-center gap-3.5 p-3 rounded-xl bg-[#e5e9e2]/60 border border-outline-variant/10">
           <div className="h-10 w-10 shrink-0 rounded-full bg-[#003820]/15 overflow-hidden flex items-center justify-center border border-outline-variant/40">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
               alt="Merchant Avatar"
