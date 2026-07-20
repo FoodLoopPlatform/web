@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getMany, updateOne, type ApiResponse } from "@/utils/server";
 import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
 
@@ -10,7 +11,6 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Local storage keys for persistent mock testing
 const PROFILE_STORAGE_KEY = "foodloop_mock_profile";
 const LOCATION_STORAGE_KEY = "foodloop_mock_location";
 
@@ -41,7 +41,7 @@ const defaultProfile: ProfileSaveInput & { lastUpdated?: string } = {
   suggestDonation: true,
   arrangeDelivery: false,
   deliveryNotes: "",
-  lastUpdated: new Date(Date.now() - 4 * 3600 * 1000).toISOString(), // 4 hours ago
+  lastUpdated: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
 };
 
 const defaultLocation: LocationSettingsInput & { lastUpdated?: string } = {
@@ -56,7 +56,6 @@ const defaultLocation: LocationSettingsInput & { lastUpdated?: string } = {
   lastUpdated: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
 };
 
-// Client-side local storage helpers for mock persistence
 function getStoredProfile(): ProfileSaveInput & { lastUpdated?: string } {
   if (typeof window === "undefined") return defaultProfile;
   const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
@@ -89,42 +88,38 @@ function setStoredLocation(
   localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(data));
 }
 
-/**
- * Fetch store profile settings
- */
-export async function getStoreProfile(): Promise<
-  ApiResponse<ProfileSaveInput & { lastUpdated?: string }>
-> {
-  try {
-    const res = await getMany<ProfileSaveInput & { lastUpdated?: string }>(
-      "/business/profile",
-    );
-    if (res.data) {
-      return { data: res.data };
+export const getStoreProfile = cache(
+  async (): Promise<
+    ApiResponse<ProfileSaveInput & { lastUpdated?: string }>
+  > => {
+    if (process.env.NEXT_PUBLIC_USE_REAL_API === "true") {
+      try {
+        const res = await getMany<ProfileSaveInput & { lastUpdated?: string }>(
+          "/business/profile",
+        );
+        if (res.data) {
+          return { data: res.data };
+        }
+      } catch (error: unknown) {
+        if (process.env.NODE_ENV === "production") {
+          const errMsg =
+            error instanceof Error
+              ? error.message
+              : "فشل الاتصال بالخادم، يرجى التحقق من اتصال الشبكة";
+          return {
+            error: errMsg,
+          };
+        }
+      }
     }
-  } catch (error: unknown) {
-    if (process.env.NODE_ENV === "production") {
-      const errMsg =
-        error instanceof Error
-          ? error.message
-          : "فشل الاتصال بالخادم، يرجى التحقق من اتصال الشبكة";
-      return {
-        error: errMsg,
-      };
-    }
-  }
 
-  await delay(LATENCY_MS);
-  return { data: getStoredProfile() };
-}
+    return { data: getStoredProfile() };
+  },
+);
 
-/**
- * Update store profile settings
- */
 export async function updateStoreProfile(
   data: ProfileSaveInput,
 ): Promise<ApiResponse<{ success: true; lastUpdated: string }>> {
-  // Enforce server-side hard limits matching spec
   if (data.maxDiscount > 15) {
     return {
       error: "الحد الأقصى للخصم المسموح به هو 15% (قيد مفروض من الخادم)",
@@ -157,42 +152,38 @@ export async function updateStoreProfile(
   return { data: { success: true, lastUpdated } };
 }
 
-/**
- * Fetch location settings
- */
-export async function getLocationSettings(): Promise<
-  ApiResponse<LocationSettingsInput & { lastUpdated?: string }>
-> {
-  try {
-    const res = await getMany<LocationSettingsInput & { lastUpdated?: string }>(
-      "/business/location",
-    );
-    if (res.data) {
-      return { data: res.data };
+export const getLocationSettings = cache(
+  async (): Promise<
+    ApiResponse<LocationSettingsInput & { lastUpdated?: string }>
+  > => {
+    if (process.env.NEXT_PUBLIC_USE_REAL_API === "true") {
+      try {
+        const res = await getMany<
+          LocationSettingsInput & { lastUpdated?: string }
+        >("/business/location");
+        if (res.data) {
+          return { data: res.data };
+        }
+      } catch (error: unknown) {
+        if (process.env.NODE_ENV === "production") {
+          const errMsg =
+            error instanceof Error
+              ? error.message
+              : "فشل تحميل إعدادات الموقع الجغرافي من الخادم";
+          return {
+            error: errMsg,
+          };
+        }
+      }
     }
-  } catch (error: unknown) {
-    if (process.env.NODE_ENV === "production") {
-      const errMsg =
-        error instanceof Error
-          ? error.message
-          : "فشل تحميل إعدادات الموقع الجغرافي من الخادم";
-      return {
-        error: errMsg,
-      };
-    }
-  }
 
-  await delay(LATENCY_MS);
-  return { data: getStoredLocation() };
-}
+    return { data: getStoredLocation() };
+  },
+);
 
-/**
- * Update location settings
- */
 export async function updateLocationSettings(
   data: LocationSettingsInput,
 ): Promise<ApiResponse<{ success: true; lastUpdated: string }>> {
-  // Validate coordinates boundaries for Egypt
   if (
     data.latitude < 22 ||
     data.latitude > 32 ||

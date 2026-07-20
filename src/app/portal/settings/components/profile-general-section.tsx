@@ -27,7 +27,7 @@ export function ProfileGeneralSection({
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
         <div className="lg:col-span-1 flex flex-col gap-2">
-          <Heading level="md" className="text-[#003820] font-bold">
+          <Heading level="md" className="text-primary font-bold">
             المعلومات الأساسية
           </Heading>
           <Text
@@ -42,7 +42,7 @@ export function ProfileGeneralSection({
           <Card.Root className="border border-outline-variant/40 bg-surface-container-lowest rounded-xl shadow-sm">
             <Card.Body className="p-6 flex flex-col gap-4">
               <Field.Root invalid={!!errors.businessName}>
-                <Field.Label className="font-semibold text-[#003820]">
+                <Field.Label className="font-semibold text-primary">
                   اسم المتجر
                 </Field.Label>
                 <Field.Control
@@ -61,7 +61,7 @@ export function ProfileGeneralSection({
               </Field.Root>
 
               <Field.Root invalid={!!errors.businessType}>
-                <Field.Label className="font-semibold text-[#003820]">
+                <Field.Label className="font-semibold text-primary">
                   نوع النشاط التجاري
                 </Field.Label>
                 <Field.Select
@@ -87,7 +87,7 @@ export function ProfileGeneralSection({
               </Field.Root>
 
               <Field.Root invalid={!!errors.description}>
-                <Field.Label className="font-semibold text-[#003820]">
+                <Field.Label className="font-semibold text-primary">
                   وصف قصير عن المتجر
                 </Field.Label>
                 <textarea
@@ -117,7 +117,7 @@ export function ProfileGeneralSection({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
         <div className="lg:col-span-1 flex flex-col gap-2">
-          <Heading level="md" className="text-[#003820] font-bold">
+          <Heading level="md" className="text-primary font-bold">
             معلومات الاتصال والدعم
           </Heading>
           <Text
@@ -132,7 +132,7 @@ export function ProfileGeneralSection({
           <Card.Root className="border border-outline-variant/40 bg-surface-container-lowest rounded-xl shadow-sm">
             <Card.Body className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field.Root invalid={!!errors.phone}>
-                <Field.Label className="font-semibold text-[#003820]">
+                <Field.Label className="font-semibold text-primary">
                   رقم الهاتف
                 </Field.Label>
                 <Field.Control
@@ -148,7 +148,7 @@ export function ProfileGeneralSection({
               </Field.Root>
 
               <Field.Root invalid={!!errors.email}>
-                <Field.Label className="font-semibold text-[#003820]">
+                <Field.Label className="font-semibold text-primary">
                   البريد الإلكتروني للنشاط
                 </Field.Label>
                 <Field.Control

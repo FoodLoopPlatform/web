@@ -31,7 +31,7 @@ export function ProfileHoursSection({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
       {/* Right Column: Title & Description */}
       <div className="lg:col-span-1 flex flex-col gap-2">
-        <Heading level="md" className="text-[#003820] font-bold">
+        <Heading level="md" className="text-primary font-bold">
           ساعات العمل الرسمية
         </Heading>
         <Text
@@ -77,7 +77,7 @@ export function ProfileHoursSection({
                             onChange={(e) =>
                               onHourChange(day, "openTime", e.target.value)
                             }
-                            className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-[#003820] focus:ring-1 focus:ring-[#003820]/30 transition-all"
+                            className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
                           <span className="text-label-md text-outline font-medium">
                             إلى
@@ -88,7 +88,7 @@ export function ProfileHoursSection({
                             onChange={(e) =>
                               onHourChange(day, "closeTime", e.target.value)
                             }
-                            className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-[#003820] focus:ring-1 focus:ring-[#003820]/30 transition-all"
+                            className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
                         </div>
                       ) : (
@@ -104,9 +104,9 @@ export function ProfileHoursSection({
                           onChange={() => onClosedToggle(day)}
                           className="sr-only peer"
                         />
-                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#003820]" />
+                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                         <span
-                          className={`text-label-md font-semibold ${!hours.closed ? "text-[#003820]" : "text-outline"}`}
+                          className={`text-label-md font-semibold ${!hours.closed ? "text-primary" : "text-outline"}`}
                         >
                           {!hours.closed ? "مفتوح" : "مغلق"}
                         </span>

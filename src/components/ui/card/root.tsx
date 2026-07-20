@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const cardRootVariants = cva(
-  "overflow-hidden rounded-lg border border-card-border shadow-elevation-2",
+  "rounded-lg border border-card-border shadow-elevation-2",
   {
     variants: {
       variant: {

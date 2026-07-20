@@ -23,14 +23,14 @@ type SidebarProps = {
 
 export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
   return (
-    <div className="flex flex-col h-full bg-[#f2f4f0] border-l border-outline-variant/30 w-64 p-6 select-none justify-between">
+    <div className="flex flex-col h-full bg-surface-container-low border-l border-outline-variant/30 w-64 p-6 select-none justify-between">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-1 px-2">
           <Link href="/portal/dashboard" className="flex flex-col">
-            <span className="font-plus-jakarta-sans text-2xl font-extrabold text-[#003820] tracking-tight">
+            <span className="font-plus-jakarta-sans text-2xl font-extrabold text-primary tracking-tight">
               FoodLoop
             </span>
-            <span className="text-[11px] text-[#003820]/75 font-semibold font-sans">
+            <span className="text-[11px] text-primary/75 font-semibold font-sans">
               تقليل الهدر الغذائي بمصر
             </span>
           </Link>
@@ -48,18 +48,18 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
                 onClick={onLinkClick}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all relative group ${
                   isActive
-                    ? "bg-[#e5e9e2] text-[#003820] font-bold"
-                    : "text-on-surface-variant hover:bg-[#e9ece6] hover:text-on-surface"
+                    ? "bg-secondary-container text-primary font-bold"
+                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                 }`}
               >
                 <div className="flex items-center gap-3.5">
                   <Icon
-                    className={`h-5 w-5 ${isActive ? "text-[#003820]" : "text-outline group-hover:text-on-surface-variant"}`}
+                    className={`h-5 w-5 ${isActive ? "text-primary" : "text-outline group-hover:text-on-surface-variant"}`}
                   />
                   <span className="text-body-md font-sans">{item.label}</span>
                 </div>
                 {isActive && (
-                  <span className="absolute start-0 inset-y-3 w-[4px] rounded-r-md bg-[#003820]" />
+                  <span className="absolute start-0 inset-y-3 w-[4px] rounded-r-md bg-primary" />
                 )}
               </Link>
             );
@@ -71,7 +71,7 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
         <div className="flex flex-col gap-1">
           <Link
             href="#"
-            className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-[#e9ece6] transition-colors"
+            className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors"
           >
             <HelpCircleIcon className="h-5 w-5 text-outline" />
             <span className="text-body-md font-sans font-semibold">
@@ -89,8 +89,8 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
           </Link>
         </div>
 
-        <div className="flex items-center gap-3.5 p-3 rounded-xl bg-[#e5e9e2]/60 border border-outline-variant/10">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-[#003820]/15 overflow-hidden flex items-center justify-center border border-outline-variant/40">
+        <div className="flex items-center gap-3.5 p-3 rounded-xl bg-secondary-container/60 border border-outline-variant/10">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-primary/15 overflow-hidden flex items-center justify-center border border-outline-variant/40">
             <img
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
               alt="Merchant Avatar"
@@ -106,7 +106,7 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
             </span>
             <Link
               href="#"
-              className="text-[11px] text-[#003820] font-bold hover:underline"
+              className="text-[11px] text-primary font-bold hover:underline"
             >
               عرض المتجر
             </Link>

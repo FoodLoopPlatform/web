@@ -26,7 +26,7 @@ export function ProfileIdentitySection({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
       <div className="lg:col-span-1 flex flex-col gap-2">
-        <Heading level="md" className="text-[#003820] font-bold">
+        <Heading level="md" className="text-primary font-bold">
           الهوية البصرية للمتجر
         </Heading>
         <Text
@@ -38,7 +38,7 @@ export function ProfileIdentitySection({
       </div>
 
       <div className="lg:col-span-2">
-        <Card.Root className="border border-outline-variant/40 bg-[#fbfaf7] rounded-xl shadow-sm overflow-hidden">
+        <Card.Root className="border border-outline-variant/40 bg-surface rounded-xl shadow-sm overflow-hidden">
           <Card.Body className="p-6 flex flex-col gap-6">
             <div
               onClick={() => coverInputRef.current?.click()}
@@ -49,7 +49,7 @@ export function ProfileIdentitySection({
                 <img
                   src={coverUrl}
                   alt="Cover preview"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain bg-surface-container-lowest"
                 />
               ) : (
                 <>
@@ -78,7 +78,7 @@ export function ProfileIdentitySection({
                   <img
                     src={logoUrl}
                     alt="Logo preview"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain bg-surface-container-lowest p-1"
                   />
                 ) : (
                   <span className="text-[11px] font-bold text-outline text-center p-2">
@@ -98,7 +98,7 @@ export function ProfileIdentitySection({
                 <button
                   type="button"
                   onClick={() => logoInputRef.current?.click()}
-                  className="px-4 py-1.5 rounded-lg border border-outline-variant text-label-md font-bold text-[#003820] hover:bg-surface-container-low transition-colors"
+                  className="px-4 py-1.5 rounded-lg border border-outline-variant text-label-md font-bold text-primary hover:bg-surface-container-low transition-colors"
                 >
                   تغيير الشعار
                 </button>

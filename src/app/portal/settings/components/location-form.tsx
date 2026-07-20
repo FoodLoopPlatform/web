@@ -10,39 +10,10 @@ import {
   locationSettingsSchema,
   type LocationSettingsInput,
 } from "../lib/schemas";
+import { type LocationFormProps } from "../lib/types";
+import { EGYPTIAN_GOVERNORATES } from "../lib/constants";
 import { updateLocationSettings } from "../services/settings-service";
 import { LocationMapPreview } from "./location-map-preview";
-
-type LocationFormProps = {
-  initialData: LocationSettingsInput & { lastUpdated?: string };
-  onSaveSuccess: (lastUpdated: string) => void;
-  showToast: (msg: string, type: "success" | "error") => void;
-};
-
-const egyptianGovernorates = [
-  "القاهرة",
-  "الجيزة",
-  "الإسكندرية",
-  "العريش",
-  "القليوبية",
-  "الدقهلية",
-  "الغربية",
-  "المنوفية",
-  "الشرقية",
-  "البحيرة",
-  "دمياط",
-  "بورسعيد",
-  "الإسماعيلية",
-  "السويس",
-  "الفيوم",
-  "بني سويف",
-  "المنيا",
-  "أسيوط",
-  "سوهاج",
-  "قنا",
-  "الأقصر",
-  "أسوان",
-];
 
 export function LocationForm({
   initialData,
@@ -145,7 +116,6 @@ export function LocationForm({
       noValidate
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Right Side (RTL) / Left Side (LTR): Map Column (lg:col-span-7 xl:col-span-8) */}
         <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-4 w-full">
           <Card.Root className="border border-outline-variant/40 bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden relative">
             <LocationMapPreview
@@ -165,20 +135,17 @@ export function LocationForm({
           )}
         </div>
 
-        {/* Left Side (RTL) / Right Side (LTR): Form Cards Column (lg:col-span-5 xl:col-span-4) */}
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 w-full">
-          {/* Card 1: Address Details */}
           <Card.Root className="border border-outline-variant/40 bg-surface-container-lowest rounded-2xl shadow-sm">
             <Card.Body className="p-6 flex flex-col gap-5">
               <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-3">
-                <MapPinIcon className="h-5.5 w-5.5 text-[#003820]" />
-                <Heading level="md" className="text-[#003820] font-bold">
+                <MapPinIcon className="h-5.5 w-5.5 text-primary" />
+                <Heading level="md" className="text-primary font-bold">
                   تفاصيل العنوان
                 </Heading>
               </div>
 
               <div className="flex flex-col gap-4">
-                {/* Street */}
                 <Field.Root invalid={!!errors.streetAddress}>
                   <Field.Label className="font-semibold text-on-surface">
                     الشارع
@@ -197,7 +164,6 @@ export function LocationForm({
                   )}
                 </Field.Root>
 
-                {/* Building Details */}
                 <Field.Root invalid={!!errors.buildingDetails}>
                   <Field.Label className="font-semibold text-on-surface">
                     رقم المبنى / المحل / العلامات المميزة
@@ -216,7 +182,6 @@ export function LocationForm({
                   )}
                 </Field.Root>
 
-                {/* Area and Governorate */}
                 <div className="grid grid-cols-2 gap-4">
                   <Field.Root invalid={!!errors.cityArea}>
                     <Field.Label className="font-semibold text-on-surface">
@@ -251,7 +216,7 @@ export function LocationForm({
                       <option value="" disabled>
                         اختر…
                       </option>
-                      {egyptianGovernorates.map((gov) => (
+                      {EGYPTIAN_GOVERNORATES.map((gov) => (
                         <option key={gov} value={gov}>
                           {gov}
                         </option>
@@ -263,7 +228,6 @@ export function LocationForm({
                   </Field.Root>
                 </div>
 
-                {/* Postal Code */}
                 <Field.Root invalid={!!errors.postalCode}>
                   <Field.Label className="font-semibold text-on-surface">
                     الرمز البريدي (اختياري)
@@ -286,12 +250,11 @@ export function LocationForm({
             </Card.Body>
           </Card.Root>
 
-          {/* Card 2: Delivery Range */}
           <Card.Root className="border border-outline-variant/40 bg-surface-container-lowest rounded-2xl shadow-sm">
             <Card.Body className="p-6 flex flex-col gap-5">
               <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="p-1 rounded-lg bg-[#003820]/10 text-[#003820]">
+                  <span className="p-1 rounded-lg bg-primary/10 text-primary">
                     <svg
                       className="h-5.5 w-5.5"
                       fill="none"
@@ -306,26 +269,26 @@ export function LocationForm({
                       />
                     </svg>
                   </span>
-                  <Heading level="md" className="text-[#003820] font-bold">
+                  <Heading level="md" className="text-primary font-bold">
                     نطاق التوصيل
                   </Heading>
                 </div>
-                {/* Active Range Green Tag */}
-                <span className="px-2.5 py-1 bg-[#8fcf9a]/25 text-[#003820] text-label-md font-bold rounded-lg border border-[#003820]/10">
+                <span className="px-2.5 py-1 bg-primary-fixed-dim/25 text-primary text-label-md font-bold rounded-lg border border-primary/10">
                   {form.deliveryRadius.toFixed(1)} كم
                 </span>
               </div>
 
-              {/* Slider Wrapper */}
               <div className="flex flex-col gap-2 mt-2">
                 <span className="text-body-md font-semibold text-on-surface">
                   حدد مسافة التغطية للنشاط
                 </span>
                 <div className="relative w-full pt-6 pb-2">
-                  {/* Slider Tooltip */}
                   <div
-                    className="absolute top-0 -translate-x-1/2 bg-[#003820] text-white text-[11px] font-bold px-2 py-0.75 rounded-md shadow-sm after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-[#003820] transition-all duration-150"
-                    style={{ left: `${(form.deliveryRadius / 30) * 100}%` }}
+                    className="absolute top-0 bg-primary text-on-primary text-[11px] font-bold px-2 py-0.75 rounded-md shadow-sm after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-primary transition-all duration-150 pointer-events-none"
+                    style={{
+                      right: `${((form.deliveryRadius - 1) / 29) * 100}%`,
+                      transform: "translateX(50%)",
+                    }}
                   >
                     {form.deliveryRadius} كم
                   </div>
@@ -341,7 +304,7 @@ export function LocationForm({
                         Number(e.target.value),
                       )
                     }
-                    className="w-full h-1.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-[#003820]"
+                    className="w-full h-1.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                   <div className="flex justify-between text-[11px] text-outline mt-1.5 font-bold">
                     <span>1 كم</span>
@@ -351,7 +314,6 @@ export function LocationForm({
                 </div>
               </div>
 
-              {/* Info notification box */}
               <div className="flex gap-2.5 p-3.5 bg-surface-container-low border border-outline-variant/40 rounded-xl text-on-surface-variant text-label-md leading-relaxed mt-2">
                 <InfoCircleIcon className="h-5 w-5 text-outline shrink-0 mt-0.5" />
                 <span>
@@ -365,7 +327,6 @@ export function LocationForm({
         </div>
       </div>
 
-      {/* Hidden button to hook standard form submit associations */}
       <button type="submit" className="hidden" />
     </form>
   );

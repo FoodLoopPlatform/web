@@ -27,7 +27,7 @@ export function ProfileAutomationSection({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
       {/* Right Column: Title & Description */}
       <div className="lg:col-span-1 flex flex-col gap-2">
-        <Heading level="md" className="text-[#003820] font-bold">
+        <Heading level="md" className="text-primary font-bold">
           التسعير التلقائي (الذكاء الاصطناعي)
         </Heading>
         <Text
@@ -52,7 +52,7 @@ export function ProfileAutomationSection({
                 onChange={(e) =>
                   onInputChange("disableAutomation", e.target.checked)
                 }
-                className="h-5 w-5 accent-[#003820] mt-1 cursor-pointer"
+                className="h-5 w-5 accent-primary mt-1 cursor-pointer"
               />
               <div className="flex flex-col">
                 <label
@@ -106,7 +106,7 @@ export function ProfileAutomationSection({
                           onChange={() =>
                             onInputChange("automationMode", item.mode)
                           }
-                          className="h-4 w-4 accent-[#003820] mt-1"
+                          className="h-4 w-4 accent-primary mt-1"
                         />
                         <div className="flex flex-col ms-2">
                           <span className="text-body-md font-semibold text-on-surface">
@@ -133,7 +133,7 @@ export function ProfileAutomationSection({
                           type="number"
                           min={1}
                           max={15}
-                          className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-[#003820]"
+                          className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-primary"
                           value={form.maxDiscount}
                           onChange={(e) =>
                             onInputChange("maxDiscount", Number(e.target.value))
@@ -167,7 +167,7 @@ export function ProfileAutomationSection({
                             onChange={() =>
                               onInputChange("priceFloorRule", "cost")
                             }
-                            className="h-4 w-4 accent-[#003820]"
+                            className="h-4 w-4 accent-primary"
                           />
                           <span>
                             عدم البيع بأقل من تكلفة المنتج (حسب الفاتورة)
@@ -182,7 +182,7 @@ export function ProfileAutomationSection({
                             onChange={() =>
                               onInputChange("priceFloorRule", "custom")
                             }
-                            className="h-4 w-4 accent-[#003820]"
+                            className="h-4 w-4 accent-primary"
                           />
                           <span>تحديد حد أدنى مخصص كنسبة من السعر الأصلي</span>
                         </label>
@@ -194,7 +194,7 @@ export function ProfileAutomationSection({
                               type="number"
                               min={10}
                               max={90}
-                              className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-[#003820]"
+                              className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-primary"
                               value={form.customFloorPercent}
                               onChange={(e) =>
                                 onInputChange(
@@ -229,7 +229,7 @@ export function ProfileAutomationSection({
                 onChange={(e) =>
                   onInputChange("suggestDonation", e.target.checked)
                 }
-                className="h-5 w-5 accent-[#003820] mt-1 cursor-pointer"
+                className="h-5 w-5 accent-primary mt-1 cursor-pointer"
               />
               <div className="flex flex-col">
                 <label

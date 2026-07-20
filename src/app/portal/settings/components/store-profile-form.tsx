@@ -71,22 +71,29 @@ export function StoreProfileForm({
     };
   }, []);
 
-  const cropToSquare = (file: File): Promise<File> => {
+  const letterboxToSquare = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
+          const size = 500;
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           if (!ctx) return resolve(file);
-          const size = Math.min(img.width, img.height, 500);
           canvas.width = size;
           canvas.height = size;
-          const sourceSize = Math.min(img.width, img.height);
-          const sx = (img.width - sourceSize) / 2;
-          const sy = (img.height - sourceSize) / 2;
-          ctx.drawImage(img, sx, sy, sourceSize, sourceSize, 0, 0, size, size);
+
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, size, size);
+
+          const scale = Math.min(size / img.width, size / img.height);
+          const scaledW = img.width * scale;
+          const scaledH = img.height * scale;
+          const offsetX = (size - scaledW) / 2;
+          const offsetY = (size - scaledH) / 2;
+
+          ctx.drawImage(img, offsetX, offsetY, scaledW, scaledH);
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -119,7 +126,7 @@ export function StoreProfileForm({
       return;
     }
     try {
-      const squareFile = await cropToSquare(file);
+      const squareFile = await letterboxToSquare(file);
       if (logoUrlRef.current) {
         URL.revokeObjectURL(logoUrlRef.current);
       }
@@ -276,7 +283,7 @@ export function StoreProfileForm({
       {/* 6. Delivery Settings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-1 flex flex-col gap-2">
-          <Heading level="md" className="text-[#003820] font-bold">
+          <Heading level="md" className="text-primary font-bold">
             خيارات التوصيل والاستلام
           </Heading>
           <Text
@@ -299,7 +306,7 @@ export function StoreProfileForm({
                   onChange={(e) =>
                     handleInputChange("arrangeDelivery", e.target.checked)
                   }
-                  className="h-5 w-5 accent-[#003820] mt-1 cursor-pointer"
+                  className="h-5 w-5 accent-primary mt-1 cursor-pointer"
                 />
                 <div className="flex flex-col">
                   <label
@@ -317,7 +324,7 @@ export function StoreProfileForm({
 
               {form.arrangeDelivery && (
                 <Field.Root invalid={!!errors.deliveryNotes}>
-                  <Field.Label className="font-semibold text-[#003820]">
+                  <Field.Label className="font-semibold text-primary">
                     شروط أو ملاحظات التوصيل
                   </Field.Label>
                   <textarea
