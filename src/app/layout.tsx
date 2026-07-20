@@ -30,6 +30,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       className={`${cairo.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-surface text-on-surface font-sans">
         {children}
