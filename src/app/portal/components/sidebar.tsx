@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { HelpCircleIcon } from "@/components/icons/help-circle-icon";
 import { StoreIcon } from "@/components/icons/store-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
@@ -91,13 +92,13 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
 
         <div className="flex items-center gap-3.5 p-3 rounded-xl bg-secondary-container/60 border border-outline-variant/10">
           <div className="h-10 w-10 shrink-0 rounded-full bg-primary/15 overflow-hidden flex items-center justify-center border border-outline-variant/40">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
               alt="Merchant Avatar"
               className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
+              width={40}
+              height={40}
+              unoptimized
             />
           </div>
           <div className="flex flex-col min-w-0">
