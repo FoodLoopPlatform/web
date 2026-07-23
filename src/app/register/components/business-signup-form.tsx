@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -19,15 +20,19 @@ import {
   type BusinessSignupFormState,
 } from "../lib/register-flow-context";
 import { businessTypes } from "../lib/business-types";
-import { submitBusinessSignup } from "../services/register-service";
+import { registerAccount } from "../api/auth-api";
+import { businessCategoryMap, type RegisterPayload } from "../api/types";
+import { useAppStore } from "@/store/use-app-store";
 
 export function BusinessSignupForm() {
   const router = useRouter();
+  const setSession = useAppStore((state) => state.setSession);
   const { businessSignup: form, setBusinessSignup: setForm } =
     useRegisterFlow();
   const [errors, setErrors] = useState<
     Partial<Record<BusinessSignupField, string>>
   >({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function validateField(
@@ -81,11 +86,27 @@ export function BusinessSignupForm() {
     }
 
     setErrors({});
+    setSubmitError(null);
     setSubmitting(true);
-    const { password, confirmPassword, ...signupData } = result.data;
-    void password;
-    void confirmPassword;
-    await submitBusinessSignup(signupData);
+
+    const body: RegisterPayload = {
+      name: result.data.ownerName,
+      email: result.data.email,
+      password: result.data.password,
+      phoneNumber: result.data.phone,
+      accountType: "StoreOwner",
+      businessName: result.data.storeName,
+      businessCategory: businessCategoryMap[result.data.businessType],
+    };
+    const res = await registerAccount(body);
+    setSubmitting(false);
+
+    if (!res.data) {
+      setSubmitError(res.error ?? "حدث خطأ غير متوقع");
+      return;
+    }
+
+    setSession(res.data);
     router.push("/register/documents");
   }
 
@@ -100,6 +121,12 @@ export function BusinessSignupForm() {
             أخبرنا عن شركتك لتبدأ في توريد الفائض الغذائي.
           </Text>
         </div>
+
+        {submitError && (
+          <div className="whitespace-pre-line rounded-md bg-error-container px-4 py-3 text-body-md text-on-error-container">
+            {submitError}
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -216,9 +243,9 @@ export function BusinessSignupForm() {
           className="w-full text-center text-on-surface-variant"
         >
           لديك حساب FoodLoop بالفعل؟{" "}
-          <a href="#" className="text-link">
+          <Link href="/login" className="text-link">
             تسجيل الدخول
-          </a>
+          </Link>
         </Text>
       </Card.Body>
     </Card.Root>

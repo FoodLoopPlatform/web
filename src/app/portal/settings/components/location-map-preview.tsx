@@ -231,10 +231,10 @@ export function LocationMapPreview({
   };
 
   return (
-    <div className="relative w-full h-[320px] sm:h-[440px] lg:h-[540px] rounded-xl overflow-hidden border border-outline-variant/40 shadow-sm select-none">
+    <div className="relative isolate w-full h-[320px] sm:h-[440px] lg:h-[540px] rounded-xl overflow-hidden border border-outline-variant/40 shadow-sm select-none">
       <div ref={mapContainerRef} className="h-full w-full z-0" />
 
-      <div className="absolute top-3 end-3 z-[400] flex flex-col sm:flex-row items-end sm:items-center gap-2">
+      <div className="absolute top-3 end-3 z-[100] flex flex-col sm:flex-row items-end sm:items-center gap-2">
         <button
           type="button"
           onClick={handleGetCurrentLocation}

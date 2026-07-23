@@ -12,7 +12,9 @@ import {
 } from "../lib/schemas";
 import { type LocationFormProps } from "../lib/types";
 import { EGYPTIAN_GOVERNORATES } from "../lib/constants";
-import { updateLocationSettings } from "../services/settings-service";
+import { useAppStore } from "@/store/use-app-store";
+import { updateMyStoreLocation } from "../api/stores-api";
+import { invalidateStoreResource } from "../api/store-resource";
 import { LocationMapPreview } from "./location-map-preview";
 
 export function LocationForm({
@@ -20,8 +22,10 @@ export function LocationForm({
   onSaveSuccess,
   showToast,
 }: LocationFormProps) {
+  const accessToken = useAppStore((state) => state.accessToken);
   const [form, setForm] = useState<LocationSettingsInput>({
     governorate: initialData.governorate,
+    city: initialData.city,
     cityArea: initialData.cityArea,
     streetAddress: initialData.streetAddress,
     buildingDetails: initialData.buildingDetails,
@@ -99,12 +103,26 @@ export function LocationForm({
       return;
     }
 
-    const result = await updateLocationSettings(form);
+    if (!accessToken) {
+      showToast("يجب تسجيل الدخول لحفظ موقع المتجر", "error");
+      return;
+    }
+
+    const result = await updateMyStoreLocation({
+      governorate: form.governorate,
+      city: form.city,
+      neighborhood: form.cityArea,
+      street: form.streetAddress,
+      latitude: form.latitude,
+      longitude: form.longitude,
+    });
+
     if (result.error) {
       showToast(result.error, "error");
     } else if (result.data) {
-      showToast("تم حفظ موقع المتجر ونطاق التوصيل بنجاح", "success");
-      onSaveSuccess(result.data.lastUpdated);
+      invalidateStoreResource();
+      showToast("تم حفظ موقع المتجر بنجاح", "success");
+      onSaveSuccess(new Date().toISOString());
     }
   };
 
@@ -183,6 +201,22 @@ export function LocationForm({
                 </Field.Root>
 
                 <div className="grid grid-cols-2 gap-4">
+                  <Field.Root invalid={!!errors.city}>
+                    <Field.Label className="font-semibold text-on-surface">
+                      المدينة
+                    </Field.Label>
+                    <Field.Control
+                      name="city"
+                      placeholder="مثال: القاهرة"
+                      value={form.city}
+                      onChange={(e) =>
+                        handleInputChange("city", e.target.value)
+                      }
+                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
+                    />
+                    {errors.city && <Field.Error>{errors.city}</Field.Error>}
+                  </Field.Root>
+
                   <Field.Root invalid={!!errors.cityArea}>
                     <Field.Label className="font-semibold text-on-surface">
                       الحي / المنطقة
@@ -200,7 +234,9 @@ export function LocationForm({
                       <Field.Error>{errors.cityArea}</Field.Error>
                     )}
                   </Field.Root>
+                </div>
 
+                <div className="grid grid-cols-2 gap-4">
                   <Field.Root invalid={!!errors.governorate}>
                     <Field.Label className="font-semibold text-on-surface">
                       المحافظة
@@ -226,26 +262,26 @@ export function LocationForm({
                       <Field.Error>{errors.governorate}</Field.Error>
                     )}
                   </Field.Root>
-                </div>
 
-                <Field.Root invalid={!!errors.postalCode}>
-                  <Field.Label className="font-semibold text-on-surface">
-                    الرمز البريدي (اختياري)
-                  </Field.Label>
-                  <Field.Control
-                    name="postalCode"
-                    placeholder="مثال: 11728"
-                    value={form.postalCode || ""}
-                    maxLength={5}
-                    onChange={(e) =>
-                      handleInputChange("postalCode", e.target.value)
-                    }
-                    className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
-                  />
-                  {errors.postalCode && (
-                    <Field.Error>{errors.postalCode}</Field.Error>
-                  )}
-                </Field.Root>
+                  <Field.Root invalid={!!errors.postalCode}>
+                    <Field.Label className="font-semibold text-on-surface">
+                      الرمز البريدي (اختياري)
+                    </Field.Label>
+                    <Field.Control
+                      name="postalCode"
+                      placeholder="مثال: 11728"
+                      value={form.postalCode || ""}
+                      maxLength={5}
+                      onChange={(e) =>
+                        handleInputChange("postalCode", e.target.value)
+                      }
+                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
+                    />
+                    {errors.postalCode && (
+                      <Field.Error>{errors.postalCode}</Field.Error>
+                    )}
+                  </Field.Root>
+                </div>
               </div>
             </Card.Body>
           </Card.Root>
