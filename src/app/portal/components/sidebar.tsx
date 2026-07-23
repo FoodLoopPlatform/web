@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HelpCircleIcon } from "@/components/icons/help-circle-icon";
 import { StoreIcon } from "@/components/icons/store-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
 import { BagIcon } from "@/components/icons/bag-icon";
 import { LeafIcon } from "@/components/icons/leaf-icon";
 import { LogoutIcon } from "@/components/icons/logout-icon";
+import { useAppStore } from "@/store/use-app-store";
+
+function getInitials(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+  return initials.toUpperCase() || "؟";
+}
 
 const menuItems = [
   { label: "لوحة القيادة", href: "/portal/dashboard", icon: HomeIcon },
@@ -22,6 +33,16 @@ type SidebarProps = {
 };
 
 export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
+  const router = useRouter();
+  const user = useAppStore((state) => state.user);
+  const clearSession = useAppStore((state) => state.clearSession);
+
+  function handleLogout() {
+    clearSession();
+    onLinkClick();
+    router.push("/login");
+  }
+
   return (
     <div className="flex flex-col h-full bg-surface-container-low border-l border-outline-variant/30 w-64 p-6 select-none justify-between">
       <div className="flex flex-col gap-8">
@@ -78,34 +99,42 @@ export function Sidebar({ pathname, onLinkClick }: SidebarProps) {
               المساعدة والدعم
             </span>
           </Link>
-          <Link
-            href="#"
-            className="flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-error-container/20 hover:text-error transition-colors"
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full cursor-pointer items-center gap-3.5 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-error-container/20 hover:text-error transition-colors"
           >
             <LogoutIcon className="h-5 w-5 text-outline group-hover:text-error" />
             <span className="text-body-md font-sans font-semibold">
               تسجيل الخروج
             </span>
-          </Link>
+          </button>
         </div>
 
         <div className="flex items-center gap-3.5 p-3 rounded-xl bg-secondary-container/60 border border-outline-variant/10">
           <div className="h-10 w-10 shrink-0 rounded-full bg-primary/15 overflow-hidden flex items-center justify-center border border-outline-variant/40">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
-              alt="Merchant Avatar"
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
+            {user?.profileImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.profileImage}
+                alt={user.fullName}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <span className="text-label-md font-bold text-primary">
+                {getInitials(user?.fullName ?? "")}
+              </span>
+            )}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-label-md font-bold text-on-surface truncate">
-              سوبرماركت النيل
+              {user?.fullName ?? "مستخدم غير معروف"}
             </span>
             <Link
-              href="#"
+              href="/portal/settings"
               className="text-[11px] text-primary font-bold hover:underline"
             >
               عرض المتجر

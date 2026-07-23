@@ -1,3 +1,17 @@
+import type { LocationSettingsInput } from "./schemas";
+
+export const emptyLocationSettings: LocationSettingsInput = {
+  governorate: "",
+  city: "",
+  cityArea: "",
+  streetAddress: "",
+  buildingDetails: "",
+  postalCode: "",
+  latitude: 0,
+  longitude: 0,
+  deliveryRadius: 8,
+};
+
 export const EGYPTIAN_GOVERNORATES = [
   "القاهرة",
   "الجيزة",
