@@ -1,5 +1,5 @@
 export const Endpoints = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop-api.fly.dev",
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net",
 
   auth: {
     register: "/auth/register",
