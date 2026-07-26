@@ -53,7 +53,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/portal/settings");
+    router.push("/settings");
   }
 
   return (
