@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -19,15 +20,22 @@ import {
   type BusinessSignupFormState,
 } from "../lib/register-flow-context";
 import { businessTypes } from "../lib/business-types";
-import { submitBusinessSignup } from "../services/register-service";
+import { registerAccount } from "../api/auth-api";
+import { businessCategoryMap, type RegisterPayload } from "../api/types";
+import { useAppStore } from "@/store/use-app-store";
 
 export function BusinessSignupForm() {
   const router = useRouter();
+  const setSession = useAppStore((state) => state.setSession);
   const { businessSignup: form, setBusinessSignup: setForm } =
     useRegisterFlow();
+  const [accountType, setAccountType] = useState<"StoreOwner" | "Charity">(
+    "StoreOwner",
+  );
   const [errors, setErrors] = useState<
     Partial<Record<BusinessSignupField, string>>
   >({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function validateField(
@@ -35,6 +43,11 @@ export function BusinessSignupForm() {
     value: string,
     nextForm: BusinessSignupFormState,
   ) {
+    if (accountType === "Charity" && key === "businessType") {
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      return;
+    }
+
     const result = businessSignupFieldSchema.shape[key].safeParse(value);
     const message = result.success
       ? undefined
@@ -68,7 +81,18 @@ export function BusinessSignupForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = businessSignupSchema.safeParse(form);
+
+    let schemaToValidate = businessSignupSchema;
+    if (accountType === "Charity") {
+      schemaToValidate = businessSignupFieldSchema
+        .omit({ businessType: true })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: "كلمتا المرور غير متطابقتين",
+          path: ["confirmPassword"],
+        }) as unknown as typeof businessSignupSchema;
+    }
+
+    const result = schemaToValidate.safeParse(form);
 
     if (!result.success) {
       const fieldErrors: Partial<Record<BusinessSignupField, string>> = {};
@@ -81,11 +105,29 @@ export function BusinessSignupForm() {
     }
 
     setErrors({});
+    setSubmitError(null);
     setSubmitting(true);
-    const { password, confirmPassword, ...signupData } = result.data;
-    void password;
-    void confirmPassword;
-    await submitBusinessSignup(signupData);
+
+    const body: RegisterPayload = {
+      name: result.data.ownerName,
+      email: result.data.email,
+      password: result.data.password,
+      phoneNumber: result.data.phone,
+      accountType: accountType,
+      businessName: result.data.storeName,
+      ...(accountType === "StoreOwner" && {
+        businessCategory: businessCategoryMap[result.data.businessType],
+      }),
+    };
+    const res = await registerAccount(body);
+    setSubmitting(false);
+
+    if (!res.data) {
+      setSubmitError(res.error ?? "حدث خطأ غير متوقع");
+      return;
+    }
+
+    setSession(res.data);
     router.push("/register/documents");
   }
 
@@ -101,6 +143,38 @@ export function BusinessSignupForm() {
           </Text>
         </div>
 
+        {/* Role Switcher */}
+        <div className="flex bg-white/50 p-1 rounded-xl border border-outline-variant/30 gap-2 w-full mt-2">
+          <button
+            type="button"
+            onClick={() => setAccountType("StoreOwner")}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              accountType === "StoreOwner"
+                ? "bg-primary text-white shadow-sm"
+                : "text-on-surface-variant hover:text-primary"
+            }`}
+          >
+            صاحب متجر / تاجر
+          </button>
+          <button
+            type="button"
+            onClick={() => setAccountType("Charity")}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              accountType === "Charity"
+                ? "bg-primary text-white shadow-sm"
+                : "text-on-surface-variant hover:text-primary"
+            }`}
+          >
+            جمعية خيرية
+          </button>
+        </div>
+
+        {submitError && (
+          <div className="whitespace-pre-line rounded-md bg-error-container px-4 py-3 text-body-md text-on-error-container">
+            {submitError}
+          </div>
+        )}
+
         <form
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-stack-lg"
@@ -108,9 +182,17 @@ export function BusinessSignupForm() {
         >
           <div className="grid grid-cols-1 gap-stack-md sm:grid-cols-2">
             <Field.Root invalid={!!errors.storeName} className="sm:col-span-2">
-              <Field.Label>اسم المتجر</Field.Label>
+              <Field.Label>
+                {accountType === "StoreOwner"
+                  ? "اسم المتجر"
+                  : "اسم الجمعية الخيرية"}
+              </Field.Label>
               <Field.Control
-                placeholder="مثال: بقالة الوادي الأخضر"
+                placeholder={
+                  accountType === "StoreOwner"
+                    ? "مثال: بقالة الوادي الأخضر"
+                    : "مثال: جمعية رسالة الخيرية"
+                }
                 value={form.storeName}
                 onChange={(e) => updateField("storeName", e.target.value)}
               />
@@ -119,36 +201,42 @@ export function BusinessSignupForm() {
               )}
             </Field.Root>
 
-            <Field.Root
-              invalid={!!errors.businessType}
-              className="sm:col-span-2"
-            >
-              <Field.Label>نوع النشاط التجاري</Field.Label>
-              <Field.Select
-                value={form.businessType}
-                onChange={(e) => updateField("businessType", e.target.value)}
-                className="cursor-pointer"
+            {accountType === "StoreOwner" && (
+              <Field.Root
+                invalid={!!errors.businessType}
+                className="sm:col-span-2"
               >
-                <option value="" disabled>
-                  اختر نوع النشاط...
-                </option>
-                {businessTypes.map((type) => (
-                  <option
-                    key={type.value}
-                    value={type.value}
-                    className="cursor-pointer"
-                  >
-                    {type.label}
+                <Field.Label>نوع النشاط التجاري</Field.Label>
+                <Field.Select
+                  value={form.businessType}
+                  onChange={(e) => updateField("businessType", e.target.value)}
+                  className="cursor-pointer"
+                >
+                  <option value="" disabled>
+                    اختر نوع النشاط...
                   </option>
-                ))}
-              </Field.Select>
-              {errors.businessType && (
-                <Field.Error>{errors.businessType}</Field.Error>
-              )}
-            </Field.Root>
+                  {businessTypes.map((type) => (
+                    <option
+                      key={type.value}
+                      value={type.value}
+                      className="cursor-pointer"
+                    >
+                      {type.label}
+                    </option>
+                  ))}
+                </Field.Select>
+                {errors.businessType && (
+                  <Field.Error>{errors.businessType}</Field.Error>
+                )}
+              </Field.Root>
+            )}
 
             <Field.Root invalid={!!errors.ownerName}>
-              <Field.Label>اسم المالك</Field.Label>
+              <Field.Label>
+                {accountType === "StoreOwner"
+                  ? "اسم المالك"
+                  : "اسم ممثل الجمعية"}
+              </Field.Label>
               <Field.Control
                 placeholder="الاسم الكامل"
                 value={form.ownerName}
@@ -172,7 +260,11 @@ export function BusinessSignupForm() {
             </Field.Root>
 
             <Field.Root invalid={!!errors.email} className="sm:col-span-2">
-              <Field.Label>البريد الإلكتروني للنشاط</Field.Label>
+              <Field.Label>
+                {accountType === "StoreOwner"
+                  ? "البريد الإلكتروني للنشاط"
+                  : "البريد الإلكتروني للجمعية"}
+              </Field.Label>
               <Field.Control
                 type="email"
                 placeholder="contact@business.com"
@@ -216,9 +308,9 @@ export function BusinessSignupForm() {
           className="w-full text-center text-on-surface-variant"
         >
           لديك حساب FoodLoop بالفعل؟{" "}
-          <a href="#" className="text-link">
+          <Link href="/login" className="text-link">
             تسجيل الدخول
-          </a>
+          </Link>
         </Text>
       </Card.Body>
     </Card.Root>

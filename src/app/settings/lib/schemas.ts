@@ -161,7 +161,8 @@ export type StoreProfileInput = z.infer<typeof storeProfileSchema>;
 
 export const locationSettingsSchema = z.object({
   governorate: z.string().min(1, "يرجى اختيار المحافظة"),
-  cityArea: z.string().trim().min(2, "يرجى إدخال المدينة أو المنطقة"),
+  city: z.string().trim().min(2, "يرجى إدخال المدينة"),
+  cityArea: z.string().trim().min(2, "يرجى إدخال الحي أو المنطقة"),
   streetAddress: z.string().trim().min(5, "يرجى إدخال اسم الشارع بالتفصيل"),
   buildingDetails: z
     .string()

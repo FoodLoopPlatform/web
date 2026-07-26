@@ -8,7 +8,14 @@ export const businessSignupFieldSchema = z.object({
   ownerName: z.string().trim().min(2, "اسم المالك يجب ان يكون على الأقل حرفين"),
   phone: z.string().trim().regex(egyptianPhoneRegex, "رقم الهاتف غير صحيح"),
   email: z.string().trim().email("يرجى إدخال بريد إلكتروني صالح"),
-  password: z.string().min(8, "يجب ألا تقل كلمة المرور عن 8 أحرف"),
+  password: z
+    .string()
+    .min(8, "يجب ألا تقل كلمة المرور عن 8 أحرف")
+    .regex(
+      /[a-z]/,
+      "يجب أن تحتوي كلمة المرور على حرف إنجليزي صغير واحد على الأقل",
+    )
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"),
   confirmPassword: z.string().min(1, "يرجى تأكيد كلمة المرور"),
 });
 

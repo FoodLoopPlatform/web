@@ -15,6 +15,7 @@ import { ProfileHoursSection } from "./profile-hours-section";
 import { ProfileAutomationSection } from "./profile-automation-section";
 import { ProfileIdentitySection } from "./profile-identity-section";
 import { ProfileGeneralSection } from "./profile-general-section";
+import { useAppStore } from "@/store/use-app-store";
 
 type StoreProfileFormProps = {
   initialData: Omit<StoreProfileInput, "logoFile" | "coverFile"> & {
@@ -29,6 +30,7 @@ export function StoreProfileForm({
   onSaveSuccess,
   showToast,
 }: StoreProfileFormProps) {
+  const user = useAppStore((state) => state.user);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const logoUrlRef = useRef<string>("");
@@ -36,14 +38,14 @@ export function StoreProfileForm({
 
   const [form, setForm] = useState<
     Omit<StoreProfileInput, "logoFile" | "coverFile">
-  >({
+  >(() => ({
     businessName: initialData.businessName,
     logoUrl: initialData.logoUrl || "",
     coverUrl: initialData.coverUrl || "",
     businessType: initialData.businessType,
     description: initialData.description || "",
-    phone: initialData.phone,
-    email: initialData.email,
+    phone: user?.phoneNumber ?? initialData.phone,
+    email: user?.email ?? initialData.email,
     preferredLanguage: "ar",
     operatingHours: initialData.operatingHours,
     disableAutomation: initialData.disableAutomation,
@@ -54,7 +56,7 @@ export function StoreProfileForm({
     suggestDonation: initialData.suggestDonation,
     arrangeDelivery: initialData.arrangeDelivery,
     deliveryNotes: initialData.deliveryNotes || "",
-  });
+  }));
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof StoreProfileInput | string, string>>
