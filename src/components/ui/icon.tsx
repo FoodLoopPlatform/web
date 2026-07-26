@@ -17,6 +17,7 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
     strokeWidth: 2,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
+    "aria-hidden": true,
   };
 
   switch (name) {

@@ -49,7 +49,7 @@ export default function AddProductPage() {
 
   return (
     <div
-      className="bg-[#fdf9f2] text-[#1c1c18] min-h-screen flex font-sans"
+      className="bg-surface-container-lowest text-on-surface min-h-screen flex font-sans"
       dir="rtl"
     >
       {/* Permanent SideNavBar on Desktop */}
@@ -73,7 +73,7 @@ export default function AddProductPage() {
             <div className="absolute top-4 left-4 z-50">
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-full bg-[#f2f5ee] border border-[#bfc9be] text-[#00381a] hover:bg-[#e0e3dd] transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 rounded-full bg-light-green border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center"
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>
@@ -88,32 +88,32 @@ export default function AddProductPage() {
         className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
       >
         {/* Header */}
-        <header className="w-full h-16 sticky top-0 bg-[#fdf9f2] border-b border-[#bfc9be] flex justify-between items-center px-margin-mobile md:px-margin-desktop z-40">
+        <header className="w-full h-16 sticky top-0 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-margin-mobile md:px-margin-desktop z-40">
           <div className="flex items-center gap-4">
             {/* Hamburger menu button for opening drawer on mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-full hover:bg-[#e0e3dd] transition-colors flex items-center justify-center cursor-pointer"
+              className="lg:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer"
             >
-              <Icon name="menu" className="h-5 w-5 text-[#00381a]" />
+              <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
             {/* Back button */}
             <Link
               href="/inventory"
-              className="flex items-center justify-center hover:bg-[#e0e3dd] p-2 rounded-full transition-colors cursor-pointer"
+              className="flex items-center justify-center hover:bg-surface-container-highest p-2 rounded-full transition-colors cursor-pointer"
             >
-              <Icon name="arrow_forward" className="h-5 w-5 text-[#00381a]" />
+              <Icon name="arrow_forward" className="h-5 w-5 text-primary" />
             </Link>
-            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#00381a]">
+            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary">
               إضافة منتج جديد
             </h2>
           </div>
 
           <div className="flex items-center gap-gutter">
             {/* Search orders */}
-            <div className="hidden md:flex items-center bg-[#f2f5ee] px-4 py-2 rounded-full border border-[#bfc9be] w-64">
-              <Icon name="search" className="h-5 w-5 text-[#404940]" />
+            <div className="hidden md:flex items-center bg-light-green px-4 py-2 rounded-full border border-outline-variant w-64">
+              <Icon name="search" className="h-5 w-5 text-on-surface-variant" />
               <input
                 className="bg-transparent border-none focus:ring-0 text-body-md w-full mr-2 outline-none font-sans"
                 placeholder="البحث عن طلبات التوصيل..."
@@ -122,19 +122,25 @@ export default function AddProductPage() {
             </div>
 
             {/* Actions & Profile */}
-            <div className="flex items-center gap-4 text-[#00381a]">
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="notifications" className="h-5 w-5 text-[#404940]" />
+            <div className="flex items-center gap-4 text-primary">
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="notifications"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="help" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon name="help" className="h-5 w-5 text-on-surface-variant" />
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="language" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="language"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
               </button>
 
               <div className="flex items-center gap-2 cursor-pointer mr-2">
-                <div className="w-8 h-8 rounded-full bg-[#e6e9e3] flex items-center justify-center overflow-hidden border border-[#bfc9be]">
+                <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant">
                   <Image
                     className="w-full h-full object-cover"
                     alt="الملف الشخصي"
@@ -144,7 +150,7 @@ export default function AddProductPage() {
                     unoptimized
                   />
                 </div>
-                <span className="font-label-caps text-label-caps font-bold hidden lg:block text-[#404940] mr-1">
+                <span className="font-label-caps text-label-caps font-bold hidden lg:block text-on-surface-variant mr-1">
                   التاجر
                 </span>
               </div>
@@ -153,7 +159,7 @@ export default function AddProductPage() {
         </header>
 
         {/* Form Container */}
-        <section className="flex-1 p-margin-mobile md:p-margin-desktop bg-[#fdf9f2] overflow-y-auto">
+        <section className="flex-1 p-margin-mobile md:p-margin-desktop bg-surface-container-lowest overflow-y-auto">
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-lg">
             {/* Left Column: Image & Category */}
             <div className="md:col-span-5 flex flex-col gap-md">
@@ -191,46 +197,43 @@ export default function AddProductPage() {
               />
 
               {/* Form Action Buttons */}
-              <div className="flex items-center gap-md pt-4 flex-col sm:flex-row">
-                <Link href="/inventory" className="w-full sm:flex-1">
-                  <button
-                    type="button"
-                    className="w-full py-4 px-6 border-2 border-[#bfc9be] rounded-xl font-bold text-[#404940] hover:bg-[#e6e9e3] transition-all active:scale-95 text-label-md font-sans cursor-pointer"
-                  >
-                    حفظ كمسودة
-                  </button>
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    alert("تم حفظ المنتج ونشره بنجاح في سوق المنتجات!");
-                    window.location.href = "/inventory";
-                  }}
-                  className="w-full sm:flex-[2] py-4 px-6 bg-[#00381a] text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-[#00381a]/20 transition-all active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer"
+              <Link
+                href="/inventory"
+                className="w-full sm:flex-1 py-4 px-6 border-2 border-outline-variant rounded-xl font-bold text-on-surface-variant hover:bg-surface-container-high transition-[background-color,transform] active:scale-95 text-label-md font-sans cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              >
+                حفظ كمسودة
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  alert("تم حفظ المنتج ونشره بنجاح في سوق المنتجات!");
+                  window.location.href = "/inventory";
+                }}
+                className="w-full sm:flex-[2] py-4 px-6 bg-primary text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-primary/20 transition-[opacity,transform] active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
                 >
-                  <svg
-                    className="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                    />
-                  </svg>
-                  <span>نشر واعتماد المنتج فوراً</span>
-                </button>
-              </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+                <span>نشر واعتماد المنتج فوراً</span>
+              </button>
             </div>
           </div>
         </section>
 
         {/* Decorative Watermark logo */}
         <div className="fixed bottom-0 left-0 p-margin-desktop opacity-5 pointer-events-none select-none">
-          <span className="font-display-lg text-display-lg text-[#00381a] -rotate-12 block">
+          <span className="font-display-lg text-display-lg text-primary -rotate-12 block">
             FoodLoop
           </span>
         </div>

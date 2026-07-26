@@ -14,11 +14,11 @@ export function InventoryFilters({
   setCategoryFilter,
 }: InventoryFiltersProps) {
   return (
-    <div className="flex flex-col gap-md border-t border-[#bfc9be]/40 pt-6">
+    <div className="flex flex-col gap-md border-t border-outline-variant/40 pt-6">
       {/* Status Filter Buttons */}
       <div className="w-full overflow-x-auto scrollbar-hide">
         <div className="flex items-center gap-xs flex-nowrap pb-2 min-w-max">
-          <span className="font-bold text-xs text-[#404940] ml-2 shrink-0">
+          <span className="font-bold text-xs text-on-surface-variant ml-2 shrink-0">
             الحالة:
           </span>
           {[
@@ -33,8 +33,8 @@ export function InventoryFilters({
               onClick={() => setStatusFilter(filter.key)}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors border cursor-pointer shrink-0 ${
                 statusFilter === filter.key
-                  ? "bg-[#98f3b0] text-[#00381a] border-[#00381a]"
-                  : "bg-white border-[#bfc9be] text-[#404940] hover:border-[#00381a]"
+                  ? "bg-primary-fixed text-primary border-primary"
+                  : "bg-white border-outline-variant text-on-surface-variant hover:border-primary"
               }`}
             >
               {filter.label}
@@ -46,7 +46,7 @@ export function InventoryFilters({
       {/* Category Filter Buttons */}
       <div className="w-full overflow-x-auto scrollbar-hide">
         <div className="flex items-center gap-xs flex-nowrap pb-2 min-w-max">
-          <span className="font-bold text-xs text-[#404940] ml-2 shrink-0">
+          <span className="font-bold text-xs text-on-surface-variant ml-2 shrink-0">
             الفئة:
           </span>
           {[
@@ -61,8 +61,8 @@ export function InventoryFilters({
               onClick={() => setCategoryFilter(cat.key)}
               className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors border cursor-pointer shrink-0 ${
                 categoryFilter === cat.key
-                  ? "bg-[#98f3b0] text-[#00381a] border-[#00381a]"
-                  : "bg-white border-[#bfc9be] text-[#404940] hover:border-[#00381a]"
+                  ? "bg-primary-fixed text-primary border-primary"
+                  : "bg-white border-outline-variant text-on-surface-variant hover:border-primary"
               }`}
             >
               {cat.label}

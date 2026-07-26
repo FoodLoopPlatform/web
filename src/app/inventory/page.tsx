@@ -14,6 +14,7 @@ export default function InventoryPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const products: Product[] = [
     {
@@ -84,18 +85,26 @@ export default function InventoryPage() {
     },
   ];
 
-  // Filter products based on selected options
+  // Filter products based on selected status/category filters and the search query (synchronized across header and body inputs)
   const filteredProducts = products.filter((product) => {
     const statusMatch =
       statusFilter === "All" || product.status === statusFilter;
     const categoryMatch =
       categoryFilter === "All" || product.category === categoryFilter;
-    return statusMatch && categoryMatch;
+
+    const query = searchQuery.trim().toLowerCase();
+    const searchMatch =
+      !query ||
+      product.name.toLowerCase().includes(query) ||
+      product.sku.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query);
+
+    return statusMatch && categoryMatch && searchMatch;
   });
 
   return (
     <div
-      className="bg-[#fdf9f2] text-[#1c1c18] min-h-screen flex font-sans"
+      className="bg-surface-container-lowest text-on-surface min-h-screen flex font-sans"
       dir="rtl"
     >
       {/* Sidebar for Desktop */}
@@ -119,7 +128,7 @@ export default function InventoryPage() {
             <div className="absolute top-4 left-4 z-50">
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-full bg-[#f2f5ee] border border-[#bfc9be] text-[#00381a] hover:bg-[#e0e3dd] transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 rounded-full bg-light-green border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center"
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>
@@ -134,56 +143,64 @@ export default function InventoryPage() {
         className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
       >
         {/* Top Header */}
-        <header className="h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-[#f2f5ee] border-b border-[#bfc9be] sticky top-0 z-40">
+        <header className="h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-light-green border-b border-outline-variant sticky top-0 z-40">
           <div className="flex items-center gap-md flex-1">
             {/* Hamburger menu to toggle sidebar drawer on mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-full hover:bg-[#e0e3dd] transition-colors flex items-center justify-center cursor-pointer"
+              className="lg:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer"
             >
-              <Icon name="menu" className="h-5 w-5 text-[#00381a]" />
+              <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
             {/* Search Input (Responsive layout) */}
             <div className="relative max-w-md w-full hidden md:block">
               <Icon
                 name="search"
-                className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-[#404940]"
+                className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
               />
               <input
-                className="w-full bg-[#e6e9e3] border-none rounded-full py-2 pr-11 pl-4 font-body-md text-body-md focus:ring-2 focus:ring-[#00381a] transition-all outline-none"
+                className="w-full bg-surface-container-high border-none rounded-full py-2 pr-11 pl-4 font-body-md text-body-md focus:ring-2 focus:ring-primary transition-all outline-none"
                 placeholder="البحث في المخزون، أو الفئات..."
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
 
           <div className="flex items-center gap-md">
             <div className="flex items-center gap-sm">
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors relative flex items-center justify-center cursor-pointer">
-                <Icon name="notifications" className="h-5 w-5 text-[#404940]" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ba1a1a] rounded-full"></span>
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="notifications"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="help" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon name="help" className="h-5 w-5 text-on-surface-variant" />
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="language" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="language"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
               </button>
             </div>
-            <div className="h-8 w-px bg-[#bfc9be]"></div>
+            <div className="h-8 w-px bg-outline-variant"></div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-sm cursor-pointer hover:bg-[#e0e3dd] p-1 pl-3 pr-1 rounded-full transition-all">
+            <div className="flex items-center gap-sm cursor-pointer hover:bg-surface-container-highest p-1 pl-3 pr-1 rounded-full transition-all">
               <Image
-                className="w-8 h-8 rounded-full border border-[#bfc9be] object-cover"
+                className="w-8 h-8 rounded-full border border-outline-variant object-cover"
                 alt="صورة التاجر"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7EfrRn1_xXKbgGL1H277hYXnto2yQu2WUDblQdGokRMfxKC3QuIg8BZRSTkCVRtFkktTzioSzyIv9V1fmiUZsycopkgtblQWbk7BxfAadXoJGs4fT8u7z06cOJ3czQH29Sj0lI3k7GS7ARi4YhC6ykzWcS7DkBJDCcW-efZPz_RcSg9qFdhw7aL2cyC4Pwkhv7g6hjxcRfTGRenfXQYwcMRLaI5ws9Cn-mYRJ3rWzetGk3PoCnTyfCDoRSLg_lTxngOjG63LE7h4"
                 width={32}
                 height={32}
                 unoptimized
               />
-              <span className="font-label-caps text-label-caps text-[#00381a] font-bold hidden md:block">
+              <span className="font-label-caps text-label-caps text-primary font-bold hidden md:block">
                 سوبرماركت النيل
               </span>
             </div>
@@ -192,7 +209,10 @@ export default function InventoryPage() {
 
         {/* Live Inventory Content */}
         <section className="px-margin-mobile md:px-margin-desktop py-lg">
-          <InventoryHeader />
+          <InventoryHeader
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
 
           <InventoryFilters
             statusFilter={statusFilter}
@@ -212,14 +232,14 @@ export default function InventoryPage() {
             {/* Empty Add New Product Card */}
             <Link
               href="/products/add"
-              className="bg-[#e6e9e3]/30 rounded-xl border-2 border-dashed border-[#bfc9be] flex flex-col items-center justify-center p-lg text-[#404940] hover:border-[#00381a] hover:bg-[#f2f5ee] transition-all cursor-pointer group min-h-[300px] text-center"
+              className="bg-surface-container-high/30 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-lg text-on-surface-variant hover:border-primary hover:bg-light-green transition-all cursor-pointer group min-h-[300px] text-center"
             >
               <Icon
                 name="add_circle"
-                className="h-10 w-10 mb-4 group-hover:scale-110 transition-transform text-[#00381a]"
+                className="h-10 w-10 mb-4 group-hover:scale-110 transition-transform text-primary"
               />
               <p className="font-bold text-body-md">إضافة منتج جديد للكتالوج</p>
-              <p className="text-xs text-[#404940] opacity-75 mt-1">
+              <p className="text-xs text-on-surface-variant opacity-75 mt-1">
                 تعبئة البيانات والأسعار يدوياً
               </p>
             </Link>

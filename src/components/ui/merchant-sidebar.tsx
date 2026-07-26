@@ -45,7 +45,7 @@ export function MerchantSidebar({
     },
     {
       label: "الإعدادات",
-      href: "#",
+      href: "/settings",
       icon: "settings",
     },
   ];
@@ -65,7 +65,7 @@ export function MerchantSidebar({
 
   return (
     <div
-      className={`flex flex-col h-full bg-[#f2f5ee] border-l border-[#bfc9be] select-none justify-between transition-all duration-300 ${
+      className={`flex flex-col h-full bg-light-green border-l border-outline-variant select-none justify-between transition-[width,padding] duration-300 ${
         isCollapsed ? "w-20 p-4" : "w-64 p-6"
       }`}
     >
@@ -75,15 +75,15 @@ export function MerchantSidebar({
           className={`flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"} px-2`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#00381a] flex items-center justify-center text-white font-bold text-xl font-headline-md shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-xl font-headline-md shrink-0">
               F
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="font-plus-jakarta-sans text-2xl font-extrabold text-[#00381a] tracking-tight leading-none">
+                <span className="font-plus-jakarta-sans text-2xl font-extrabold text-primary tracking-tight leading-none">
                   FoodLoop
                 </span>
-                <span className="text-[11px] text-[#404940] opacity-70 font-bold font-sans mt-1">
+                <span className="text-[11px] text-on-surface-variant opacity-70 font-bold font-sans mt-1">
                   لوحة تحكم التاجر
                 </span>
               </div>
@@ -92,7 +92,7 @@ export function MerchantSidebar({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="hidden lg:flex p-1.5 rounded-lg hover:bg-[#e6e9e3] text-[#404940] transition-colors shrink-0 cursor-pointer"
+              className="hidden lg:flex p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors shrink-0 cursor-pointer"
               title={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
             >
               <Icon
@@ -114,12 +114,12 @@ export function MerchantSidebar({
                 key={item.label}
                 href={item.href}
                 onClick={onClose}
-                className={`flex items-center gap-3 py-3 rounded-xl transition-all duration-200 cursor-pointer active:scale-95 ${
+                className={`flex items-center gap-3 py-3 rounded-xl transition-[background-color,color,transform] duration-200 cursor-pointer active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none ${
                   isCollapsed ? "justify-center px-1" : "px-4"
                 } ${
                   isActive
-                    ? "bg-[#98f3b0] text-[#00381a] font-bold"
-                    : "text-[#404940] font-medium hover:bg-[#e6e9e3] hover:text-[#191d19]"
+                    ? "bg-primary-fixed text-primary font-bold"
+                    : "text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface"
                 }`}
               >
                 <Icon
@@ -140,25 +140,25 @@ export function MerchantSidebar({
 
       <div className="flex flex-col gap-4">
         {/* Quick Action Button for adding product */}
-        <Link href="/products/add" onClick={onClose} className="w-full">
-          <button
-            className={`flex items-center justify-center gap-2 bg-[#00381a] text-white py-3 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-label-md font-sans cursor-pointer ${
-              isCollapsed ? "h-11 w-11 p-0 rounded-full mx-auto" : "w-full"
-            }`}
-          >
-            <Icon name="add" className="h-4 w-4 shrink-0" />
-            {!isCollapsed && <span>إضافة منتج</span>}
-          </button>
+        <Link
+          href="/products/add"
+          onClick={onClose}
+          className={`flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-[opacity,transform] text-label-md font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none ${
+            isCollapsed ? "h-11 w-11 p-0 rounded-full mx-auto" : "w-full"
+          }`}
+        >
+          <Icon name="add" className="h-4 w-4 shrink-0" />
+          {!isCollapsed && <span>إضافة منتج</span>}
         </Link>
 
         {/* Footer Support/Logout */}
-        <div className="border-t border-[#bfc9be] pt-4 flex flex-col gap-1">
+        <div className="border-t border-outline-variant pt-4 flex flex-col gap-1">
           {footerItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
               onClick={onClose}
-              className={`flex items-center gap-3 py-2.5 rounded-xl text-[#404940] font-medium hover:bg-[#e6e9e3] transition-colors ${
+              className={`flex items-center gap-3 py-2.5 rounded-xl text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors ${
                 isCollapsed ? "justify-center px-1" : "px-4"
               }`}
             >

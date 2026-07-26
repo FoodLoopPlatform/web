@@ -18,19 +18,25 @@ export function ProductInfoForm({
   setQuantity,
 }: ProductInfoFormProps) {
   return (
-    <div className="bg-[#f2f5ee] rounded-xl p-md border border-[#bfc9be]/40 shadow-sm">
-      <h3 className="text-label-caps text-[#00381a] font-bold uppercase mb-4">
+    <div className="bg-light-green rounded-xl p-md border border-outline-variant/40 shadow-sm">
+      <h3 className="text-label-caps text-primary font-bold uppercase mb-4">
         معلومات المنتج الأساسية
       </h3>
       <div className="space-y-sm">
         <div>
-          <label className="block text-xs font-bold text-[#404940] mb-1.5 uppercase">
+          <label
+            htmlFor="product-name"
+            className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+          >
             اسم المنتج
           </label>
           <input
+            id="product-name"
+            name="productName"
+            autoComplete="off"
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
-            className="w-full border border-[#bfc9be] rounded-xl px-4 py-3 bg-[#fdf9f2] focus:border-[#00381a] focus:ring-1 focus:ring-[#00381a] text-body-md transition-all outline-none font-sans"
+            className="w-full border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary text-body-md transition-[border-color,box-shadow] outline-none font-sans"
             placeholder="مثال: جبن شيدر معتق حرفي"
             type="text"
           />
@@ -38,14 +44,20 @@ export function ProductInfoForm({
 
         <div className="grid grid-cols-2 gap-sm">
           <div>
-            <label className="block text-xs font-bold text-[#404940] mb-1.5 uppercase">
+            <label
+              htmlFor="product-price"
+              className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+            >
               السعر الأصلي (ج.م)
             </label>
-            <div className="flex items-center border border-[#bfc9be] rounded-xl px-4 py-3 bg-[#fdf9f2] focus-within:border-[#00381a] transition-all">
-              <span className="font-data-mono text-xs text-[#404940] ml-2 font-bold">
+            <div className="flex items-center border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus-within:border-primary transition-[border-color,box-shadow]">
+              <span className="font-data-mono text-xs text-on-surface-variant ml-2 font-bold">
                 ج.م
               </span>
               <input
+                id="product-price"
+                name="price"
+                autoComplete="off"
                 value={price}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -61,11 +73,17 @@ export function ProductInfoForm({
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#404940] mb-1.5 uppercase">
+            <label
+              htmlFor="product-quantity"
+              className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+            >
               الكمية المتوفرة
             </label>
-            <div className="flex items-center border border-[#bfc9be] rounded-xl px-4 py-3 bg-[#fdf9f2] focus-within:border-[#00381a] transition-all">
+            <div className="flex items-center border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus-within:border-primary transition-[border-color,box-shadow]">
               <input
+                id="product-quantity"
+                name="quantity"
+                autoComplete="off"
                 value={quantity}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -80,7 +98,8 @@ export function ProductInfoForm({
               />
               {/* inline custom scroll spinner */}
               <svg
-                className="h-5 w-5 text-[#404940] shrink-0 cursor-pointer"
+                aria-hidden="true"
+                className="h-5 w-5 text-on-surface-variant shrink-0 cursor-pointer"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

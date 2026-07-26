@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   return (
     <div
-      className="bg-[#fdf9f2] text-[#1c1c18] font-sans min-h-screen flex"
+      className="bg-surface-container-lowest text-on-surface font-sans min-h-screen flex"
       dir="rtl"
     >
       {/* Sidebar for Desktop */}
@@ -42,7 +42,7 @@ export default function DashboardPage() {
             <div className="absolute top-4 left-4 z-50">
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-full bg-[#f2f5ee] border border-[#bfc9be] text-[#00381a] hover:bg-[#e0e3dd] transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 rounded-full bg-light-green border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center"
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>
@@ -57,48 +57,54 @@ export default function DashboardPage() {
         className={`flex-grow min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
       >
         {/* Top Header */}
-        <header className="h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-[#f2f5ee] border-b border-[#bfc9be] sticky top-0 z-40">
+        <header className="h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-light-green border-b border-outline-variant sticky top-0 z-40">
           <div className="flex items-center gap-md flex-1">
             {/* Hamburger menu button for opening drawer on mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-full hover:bg-[#e0e3dd] transition-colors flex items-center justify-center cursor-pointer"
+              className="lg:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer"
             >
-              <Icon name="menu" className="h-5 w-5 text-[#00381a]" />
+              <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
             {/* Page Title / Context */}
-            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#00381a] font-bold">
+            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary font-bold">
               لوحة تحكم التاجر والتحليلات
             </h1>
           </div>
 
           <div className="flex items-center gap-md">
             <div className="flex items-center gap-sm">
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors relative flex items-center justify-center cursor-pointer">
-                <Icon name="notifications" className="h-5 w-5 text-[#404940]" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ba1a1a] rounded-full"></span>
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="notifications"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="help" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon name="help" className="h-5 w-5 text-on-surface-variant" />
               </button>
-              <button className="p-2 hover:bg-[#e0e3dd] rounded-full transition-colors flex items-center justify-center cursor-pointer">
-                <Icon name="language" className="h-5 w-5 text-[#404940]" />
+              <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
+                <Icon
+                  name="language"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
               </button>
             </div>
-            <div className="h-8 w-px bg-[#bfc9be]"></div>
+            <div className="h-8 w-px bg-outline-variant"></div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-sm cursor-pointer hover:bg-[#e0e3dd] p-1 pl-3 pr-1 rounded-full transition-all">
+            <div className="flex items-center gap-sm cursor-pointer hover:bg-surface-container-highest p-1 pl-3 pr-1 rounded-full transition-all">
               <Image
-                className="w-8 h-8 rounded-full border border-[#bfc9be] object-cover"
+                className="w-8 h-8 rounded-full border border-outline-variant object-cover"
                 alt="صورة التاجر"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7EfrRn1_xXKbgGL1H277hYXnto2yQu2WUDblQdGokRMfxKC3QuIg8BZRSTkCVRtFkktTzioSzyIv9V1fmiUZsycopkgtblQWbk7BxfAadXoJGs4fT8u7z06cOJ3czQH29Sj0lI3k7GS7ARi4YhC6ykzWcS7DkBJDCcW-efZPz_RcSg9qFdhw7aL2cyC4Pwkhv7g6hjxcRfTGRenfXQYwcMRLaI5ws9Cn-mYRJ3rWzetGk3PoCnTyfCDoRSLg_lTxngOjG63LE7h4"
                 width={32}
                 height={32}
                 unoptimized
               />
-              <span className="font-label-caps text-label-caps text-[#00381a] font-bold hidden md:block">
+              <span className="font-label-caps text-label-caps text-primary font-bold hidden md:block">
                 سوبرماركت النيل
               </span>
             </div>

@@ -20,24 +20,24 @@ interface ProductCardProps {
 
 const statusMap: Record<string, { bg: string; text: string; label: string }> = {
   Published: {
-    bg: "bg-[#98f3b0] text-[#00381a]",
+    bg: "bg-primary-fixed text-primary",
     label: "نشط (تم النشر)",
-    text: "text-[#00381a]",
+    text: "text-primary",
   },
   Pending: {
-    bg: "bg-[#ffddb7] text-[#633d00]",
+    bg: "bg-tertiary-fixed text-on-tertiary-fixed-variant",
     label: "قيد المراجعة",
-    text: "text-[#633d00]",
+    text: "text-on-tertiary-fixed-variant",
   },
   Draft: {
-    bg: "bg-[#e0e3dd] text-[#404940]",
+    bg: "bg-surface-container-highest text-on-surface-variant",
     label: "مسودة",
-    text: "text-[#404940]",
+    text: "text-on-surface-variant",
   },
   "Out of Stock": {
-    bg: "bg-[#ffdad6] text-[#ba1a1a]",
+    bg: "bg-error-container text-error",
     label: "نفد من المخزون",
-    text: "text-[#ba1a1a]",
+    text: "text-error",
   },
 };
 
@@ -47,12 +47,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div
-      className={`bg-[#f2f5ee] rounded-xl border border-[#bfc9be]/50 hover:border-[#bfc9be] hover:shadow-md transition-all group overflow-hidden cursor-pointer flex flex-col justify-between ${
+      className={`bg-light-green rounded-xl border border-outline-variant/50 hover:border-outline-variant hover:shadow-md transition-[border-color,box-shadow,filter] duration-300 group overflow-hidden cursor-pointer flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-primary outline-none ${
         isOutOfStock ? "grayscale-[0.4]" : ""
       }`}
     >
       {/* Card Image */}
-      <div className="aspect-square relative overflow-hidden bg-[#e6e9e3]">
+      <div className="aspect-square relative overflow-hidden bg-surface-container-high">
         <Image
           src={product.image}
           alt={product.name}
@@ -74,24 +74,27 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="p-sm flex flex-col gap-base flex-grow justify-between">
         <div>
           <div className="flex justify-between items-start">
-            <h3 className="font-bold text-body-md text-[#1c1c18] leading-tight group-hover:text-[#00381a]">
+            <h3 className="font-bold text-body-md text-on-surface leading-tight group-hover:text-primary">
               {product.name}
             </h3>
-            <button className="p-1 text-[#404940] hover:text-[#00381a] transition-colors flex items-center justify-center cursor-pointer">
+            <button
+              aria-label="المزيد من خيارات المنتج"
+              className="p-1 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-primary rounded-lg outline-none"
+            >
               <Icon name="more_vert" className="h-5 w-5" />
             </button>
           </div>
-          <p className="font-data-mono text-[11px] text-[#404940] opacity-70 mt-1">
+          <p className="font-data-mono text-[11px] text-on-surface-variant opacity-70 mt-1">
             {product.sku}
           </p>
         </div>
 
-        <div className="mt-sm flex justify-between items-end border-t border-[#bfc9be]/20 pt-3">
+        <div className="mt-sm flex justify-between items-end border-t border-outline-variant/20 pt-3">
           <div>
-            <p className="text-xs text-[#404940]">الكمية المتوفرة</p>
+            <p className="text-xs text-on-surface-variant">الكمية المتوفرة</p>
             <p
               className={`font-data-mono text-sm font-bold ${
-                isOutOfStock ? "text-[#ba1a1a]" : "text-[#00381a]"
+                isOutOfStock ? "text-error" : "text-primary"
               }`}
             >
               {product.quantity !== null
@@ -100,9 +103,14 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           </div>
           <div className="text-left">
-            <p className="text-xs text-[#404940] text-left">السعر المقترح</p>
-            <p className="font-data-mono text-sm text-[#006d38] font-bold font-sans">
-              {product.price.toFixed(2)} ج.م
+            <p className="text-xs text-on-surface-variant text-left">
+              السعر المقترح
+            </p>
+            <p className="font-data-mono text-sm text-link font-bold font-sans">
+              {new Intl.NumberFormat("ar-EG", {
+                style: "currency",
+                currency: "EGP",
+              }).format(product.price)}
             </p>
           </div>
         </div>
