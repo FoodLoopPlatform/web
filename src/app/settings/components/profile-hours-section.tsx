@@ -1,32 +1,71 @@
 "use client";
 
+import { useState } from "react";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
-import {
-  dayKeys,
-  dayLabelsArabic,
-  type DayKey,
-  type StoreProfileInput,
-} from "../lib/schemas";
 
-type ProfileHoursSectionProps = {
-  operatingHours: StoreProfileInput["operatingHours"];
-  errors: Partial<Record<string, string>>;
-  onHourChange: (
+const dayKeys = [
+  "saturday",
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+] as const;
+
+type DayKey = (typeof dayKeys)[number];
+
+const dayLabelsArabic: Record<DayKey, string> = {
+  saturday: "السبت",
+  sunday: "الأحد",
+  monday: "الإثنين",
+  tuesday: "الثلاثاء",
+  wednesday: "الأربعاء",
+  thursday: "الخميس",
+  friday: "الجمعة",
+};
+
+type DayHours = { openTime: string; closeTime: string; closed: boolean };
+
+const defaultHours: Record<DayKey, DayHours> = {
+  saturday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  sunday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  monday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  tuesday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  wednesday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  thursday: { openTime: "09:00", closeTime: "22:00", closed: false },
+  friday: { openTime: "09:00", closeTime: "22:00", closed: true },
+};
+
+/**
+ * Display-only — not part of `storeProfileSchema` and never sent on save.
+ * The backend has no endpoint for operating hours yet; this stays purely
+ * visual until it does, so edits here have no effect on saved form data.
+ */
+export function ProfileHoursSection() {
+  const [operatingHours, setOperatingHours] =
+    useState<Record<DayKey, DayHours>>(defaultHours);
+
+  const handleHourChange = (
     day: DayKey,
     field: "openTime" | "closeTime",
     value: string,
-  ) => void;
-  onClosedToggle: (day: DayKey) => void;
-};
+  ) => {
+    setOperatingHours((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], [field]: value },
+    }));
+  };
 
-export function ProfileHoursSection({
-  operatingHours,
-  errors,
-  onHourChange,
-  onClosedToggle,
-}: ProfileHoursSectionProps) {
+  const handleClosedToggle = (day: DayKey) => {
+    setOperatingHours((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], closed: !prev[day].closed },
+    }));
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
       {/* Right Column: Title & Description */}
@@ -50,10 +89,7 @@ export function ProfileHoursSection({
             <div className="flex flex-col gap-3">
               {dayKeys.map((day) => {
                 const hours = operatingHours[day];
-                if (!hours) return null;
-
                 const dayLabel = dayLabelsArabic[day];
-                const dayError = errors[`hours_${day}`];
 
                 return (
                   <div
@@ -75,7 +111,7 @@ export function ProfileHoursSection({
                             type="time"
                             value={hours.openTime}
                             onChange={(e) =>
-                              onHourChange(day, "openTime", e.target.value)
+                              handleHourChange(day, "openTime", e.target.value)
                             }
                             className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
@@ -86,7 +122,7 @@ export function ProfileHoursSection({
                             type="time"
                             value={hours.closeTime}
                             onChange={(e) =>
-                              onHourChange(day, "closeTime", e.target.value)
+                              handleHourChange(day, "closeTime", e.target.value)
                             }
                             className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
@@ -101,7 +137,7 @@ export function ProfileHoursSection({
                         <input
                           type="checkbox"
                           checked={!hours.closed}
-                          onChange={() => onClosedToggle(day)}
+                          onChange={() => handleClosedToggle(day)}
                           className="sr-only peer"
                         />
                         <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
@@ -112,11 +148,6 @@ export function ProfileHoursSection({
                         </span>
                       </label>
                     </div>
-                    {dayError && (
-                      <div className="text-label-md text-error font-semibold mt-1">
-                        {dayError}
-                      </div>
-                    )}
                   </div>
                 );
               })}

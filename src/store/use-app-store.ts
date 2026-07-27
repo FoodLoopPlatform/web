@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createAuthSlice, type AuthSlice } from "./slices/auth-slice";
@@ -15,29 +16,16 @@ export const useAppStore = create<AppState>()(
   ),
 );
 
-const resolvedHydration = Promise.resolve();
-let hydrationPromise: Promise<void> | null = null;
-
 /**
- * A stable promise resolving once zustand's persist middleware has
- * rehydrated from localStorage. Meant for `use()` inside a Suspense
- * boundary so components never render against a not-yet-hydrated store.
+ * True once zustand's persist middleware has rehydrated from localStorage.
+ * Always false during SSR and the initial client render (so hydration
+ * matches), flips to true right after — read persisted fields (accessToken,
+ * user, ...) only once this is true.
  */
-export function getHydrationResource(): Promise<void> {
-  if (typeof window === "undefined") {
-    // No localStorage on the server, so "hydrated" is meaningless there —
-    // stay pending forever so SSR/prerendering renders the Suspense
-    // fallback; the client re-suspends fresh once it actually hydrates.
-    return new Promise<void>(() => {});
-  }
-
-  if (useAppStore.persist.hasHydrated()) {
-    return resolvedHydration;
-  }
-  if (!hydrationPromise) {
-    hydrationPromise = new Promise((resolve) => {
-      useAppStore.persist.onFinishHydration(() => resolve());
-    });
-  }
-  return hydrationPromise;
+export function useHasHydrated(): boolean {
+  return useSyncExternalStore(
+    (callback) => useAppStore.persist.onFinishHydration(callback),
+    () => useAppStore.persist.hasHydrated(),
+    () => false,
+  );
 }

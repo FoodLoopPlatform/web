@@ -102,7 +102,6 @@ export function LocationForm({
       showToast("يرجى التحقق من البيانات المدخلة", "error");
       return;
     }
-
     if (!accessToken) {
       showToast("يجب تسجيل الدخول لحفظ موقع المتجر", "error");
       return;
@@ -260,25 +259,6 @@ export function LocationForm({
                     </Field.Select>
                     {errors.governorate && (
                       <Field.Error>{errors.governorate}</Field.Error>
-                    )}
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.postalCode}>
-                    <Field.Label className="font-semibold text-on-surface">
-                      الرمز البريدي (اختياري)
-                    </Field.Label>
-                    <Field.Control
-                      name="postalCode"
-                      placeholder="مثال: 11728"
-                      value={form.postalCode || ""}
-                      maxLength={5}
-                      onChange={(e) =>
-                        handleInputChange("postalCode", e.target.value)
-                      }
-                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
-                    />
-                    {errors.postalCode && (
-                      <Field.Error>{errors.postalCode}</Field.Error>
                     )}
                   </Field.Root>
                 </div>

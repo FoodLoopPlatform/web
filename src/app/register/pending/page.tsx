@@ -9,7 +9,7 @@ import { RegisterProgress } from "../components/register-progress";
 
 export default function VerificationPendingPage() {
   return (
-    <div className="relative flex w-full max-w-xl flex-col gap-stack-lg pb-2">
+    <div className="relative flex w-full max-w-3xl flex-col gap-stack-lg pb-2">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <span className="absolute -top-16 -inset-s-16 h-64 w-64 rounded-full bg-primary-container/10 blur-3xl" />
         <span className="absolute top-1/2 -inset-e-24 h-52 w-52 rounded-full bg-tertiary-fixed/20 blur-3xl" />
@@ -21,7 +21,7 @@ export default function VerificationPendingPage() {
         label="رحلة التسجيل"
         labelClassName="text-primary"
         variant="linear"
-        className="mx-auto max-w-xs"
+        className="mx-auto "
       />
 
       <Card.Root className="relative overflow-hidden border-outline-variant bg-surface-container-low">
@@ -42,7 +42,7 @@ export default function VerificationPendingPage() {
 
           <Text
             variant="body-lg"
-            className="max-w-md text-center text-on-surface-variant"
+            className="max-w-4xl text-center text-on-surface-variant"
           >
             طلبك قيد المعالجة الآن. يقوم فريق اللوجستيات وضمان الجودة لدينا
             بمراجعة بياناتك للتأكد من التزامها بمعايير FoodLoop العالية.

@@ -10,21 +10,91 @@ import { ArrowForwardIcon } from "@/components/icons/arrow-forward-icon";
 import { FileIcon } from "@/components/icons/file-icon";
 import { ShieldCheckIcon } from "@/components/icons/shield-check-icon";
 import { StoreIcon } from "@/components/icons/store-icon";
+import { UserIcon } from "@/components/icons/user-icon";
 import { FileUploadZone } from "./file-upload-zone";
-import { documentUploadSchema } from "../../lib/schemas";
+import {
+  charityDocumentTypeMap,
+  charityDocumentUploadSchema,
+  storeDocumentTypeMap,
+  storeDocumentUploadSchema,
+} from "../../lib/schemas";
 import {
   useRegisterFlow,
   type DocumentsState,
 } from "../../lib/register-flow-context";
 import { submitDocumentUpload } from "../../services/register-service";
 
+type DocumentField = {
+  key: keyof DocumentsState;
+  icon: React.ReactNode;
+  title: string;
+  caption: string;
+  accept: string;
+};
+
+const storeFields: DocumentField[] = [
+  {
+    key: "commercialRegistration",
+    icon: <FileIcon className="h-6 w-6" />,
+    title: "السجل التجاري",
+    caption: "يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)",
+    accept: ".pdf,.jpg,.jpeg,.png",
+  },
+  {
+    key: "taxId",
+    icon: <ShieldCheckIcon className="h-6 w-6" />,
+    title: "شهادة الرقم الضريبي",
+    caption: "يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)",
+    accept: ".pdf,.jpg,.jpeg,.png",
+  },
+  {
+    key: "storePhoto",
+    icon: <StoreIcon className="h-6 w-6" />,
+    title: "صورة المتجر أو المنشأة",
+    caption: "يقبل: JPG, PNG (صورة خارجية)",
+    accept: ".jpg,.jpeg,.png",
+  },
+];
+
+const charityFields: DocumentField[] = [
+  {
+    key: "declarationDecree",
+    icon: <ShieldCheckIcon className="h-6 w-6" />,
+    title: "قرار الاشهار",
+    caption: "يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)",
+    accept: ".pdf,.jpg,.jpeg,.png",
+  },
+  {
+    key: "boardMembersList",
+    icon: <UserIcon className="h-6 w-6" />,
+    title: "كشف اسماء مجلس الادارة",
+    caption: "يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)",
+    accept: ".pdf,.jpg,.jpeg,.png",
+  },
+  {
+    key: "bylaws",
+    icon: <FileIcon className="h-6 w-6" />,
+    title: "النظام الاساسي للجمعية",
+    caption: "يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)",
+    accept: ".pdf,.jpg,.jpeg,.png",
+  },
+];
+
 export function DocumentUploadForm() {
   const router = useRouter();
-  const { documents, setDocuments } = useRegisterFlow();
+  const { accountType, documents, setDocuments } = useRegisterFlow();
   const [errors, setErrors] = useState<
     Partial<Record<keyof DocumentsState, string>>
   >({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const isCharity = accountType === "Charity";
+  const fields = isCharity ? charityFields : storeFields;
+  const schema = isCharity
+    ? charityDocumentUploadSchema
+    : storeDocumentUploadSchema;
+  const typeMap = isCharity ? charityDocumentTypeMap : storeDocumentTypeMap;
 
   function updateDocument(key: keyof DocumentsState, file: File | null) {
     setDocuments({ ...documents, [key]: file });
@@ -32,7 +102,7 @@ export function DocumentUploadForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = documentUploadSchema.safeParse(documents);
+    const result = schema.safeParse(documents);
 
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof DocumentsState, string>> = {};
@@ -45,8 +115,17 @@ export function DocumentUploadForm() {
     }
 
     setErrors({});
+    setSubmitError(null);
     setSubmitting(true);
-    await submitDocumentUpload(result.data);
+    const res = await submitDocumentUpload(result.data, typeMap);
+
+    setSubmitting(false);
+
+    if (!res.success) {
+      setSubmitError("حدث خطأ غير متوقع");
+      return;
+    }
+
     router.push("/register/pending");
   }
 
@@ -59,7 +138,7 @@ export function DocumentUploadForm() {
           </Heading>
           <Text
             variant="body-md"
-            className="max-w-lg text-center text-on-surface-variant"
+            className=" text-center text-on-surface-variant"
           >
             يرجى تقديم المستندات القانونية التالية للتحقق من صحة النشاط التجاري.
           </Text>
@@ -70,40 +149,19 @@ export function DocumentUploadForm() {
           className="flex w-full flex-col gap-stack-md"
           noValidate
         >
-          <FileUploadZone
-            icon={<FileIcon className="h-6 w-6" />}
-            title="السجل التجاري"
-            caption="يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)"
-            accept=".pdf,.jpg,.jpeg,.png"
-            name="commercialRegistration"
-            file={documents.commercialRegistration}
-            error={errors.commercialRegistration}
-            onFileChange={(file) =>
-              updateDocument("commercialRegistration", file)
-            }
-          />
-
-          <FileUploadZone
-            icon={<ShieldCheckIcon className="h-6 w-6" />}
-            title="شهادة الرقم الضريبي"
-            caption="يقبل: PDF, JPG, PNG (حتى 5 ميجابايت)"
-            accept=".pdf,.jpg,.jpeg,.png"
-            name="taxId"
-            file={documents.taxId}
-            error={errors.taxId}
-            onFileChange={(file) => updateDocument("taxId", file)}
-          />
-
-          <FileUploadZone
-            icon={<StoreIcon className="h-6 w-6" />}
-            title="صورة المتجر أو المنشأة"
-            caption="يقبل: JPG, PNG (صورة خارجية)"
-            accept=".jpg,.jpeg,.png"
-            name="storePhoto"
-            file={documents.storePhoto}
-            error={errors.storePhoto}
-            onFileChange={(file) => updateDocument("storePhoto", file)}
-          />
+          {fields.map((field) => (
+            <FileUploadZone
+              key={field.key}
+              icon={field.icon}
+              title={field.title}
+              caption={field.caption}
+              accept={field.accept}
+              name={field.key}
+              file={documents[field.key]}
+              error={errors[field.key]}
+              onFileChange={(file) => updateDocument(field.key, file)}
+            />
+          ))}
 
           <Button
             type="submit"
@@ -117,6 +175,11 @@ export function DocumentUploadForm() {
           </Button>
         </form>
 
+        {submitError && (
+          <div className="w-full whitespace-pre-line rounded-md bg-error-container px-4 py-2 text-body-md text-on-error-container">
+            {submitError}
+          </div>
+        )}
         <Text variant="body-md" className="text-on-surface-variant">
           هل تحتاج مساعدة؟{" "}
           <a href="#" className="text-link">

@@ -5,11 +5,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
-import {
-  storeProfileSchema,
-  type DayKey,
-  type StoreProfileInput,
-} from "../lib/schemas";
+import { storeProfileSchema, type StoreProfileInput } from "../lib/schemas";
 import { updateStoreProfile } from "../services/settings-service";
 import { ProfileHoursSection } from "./profile-hours-section";
 import { ProfileAutomationSection } from "./profile-automation-section";
@@ -47,12 +43,9 @@ export function StoreProfileForm({
     phone: user?.phoneNumber ?? initialData.phone,
     email: user?.email ?? initialData.email,
     preferredLanguage: "ar",
-    operatingHours: initialData.operatingHours,
     disableAutomation: initialData.disableAutomation,
     automationMode: initialData.automationMode,
-    maxDiscount: initialData.maxDiscount,
     priceFloorRule: initialData.priceFloorRule,
-    customFloorPercent: initialData.customFloorPercent,
     suggestDonation: initialData.suggestDonation,
     arrangeDelivery: initialData.arrangeDelivery,
     deliveryNotes: initialData.deliveryNotes || "",
@@ -162,10 +155,7 @@ export function StoreProfileForm({
   };
 
   const handleInputChange = (
-    key: keyof Omit<
-      StoreProfileInput,
-      "logoFile" | "coverFile" | "operatingHours"
-    >,
+    key: keyof Omit<StoreProfileInput, "logoFile" | "coverFile">,
     value: unknown,
   ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -176,47 +166,6 @@ export function StoreProfileForm({
         return next;
       });
     }
-  };
-
-  const handleHourChange = (
-    day: DayKey,
-    field: "openTime" | "closeTime",
-    value: string,
-  ) => {
-    setForm((prev) => {
-      const dayHours = { ...prev.operatingHours[day], [field]: value };
-      return {
-        ...prev,
-        operatingHours: {
-          ...prev.operatingHours,
-          [day]: dayHours || {
-            openTime: "08:00",
-            closeTime: "17:00",
-            closed: false,
-          },
-        },
-      };
-    });
-  };
-
-  const handleClosedToggle = (day: DayKey) => {
-    setForm((prev) => {
-      const dayHours = {
-        ...prev.operatingHours[day],
-        closed: !prev.operatingHours[day]?.closed,
-      };
-      return {
-        ...prev,
-        operatingHours: {
-          ...prev.operatingHours,
-          [day]: dayHours || {
-            openTime: "08:00",
-            closeTime: "17:00",
-            closed: true,
-          },
-        },
-      };
-    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -267,20 +216,11 @@ export function StoreProfileForm({
         onInputChange={handleInputChange}
       />
 
-      {/* 4. Operating Hours Section */}
-      <ProfileHoursSection
-        operatingHours={form.operatingHours}
-        errors={errors}
-        onHourChange={handleHourChange}
-        onClosedToggle={handleClosedToggle}
-      />
+      {/* 4. Operating Hours (display-only, not part of saved profile data) */}
+      <ProfileHoursSection />
 
       {/* 5. AI Pricing Section */}
-      <ProfileAutomationSection
-        form={form}
-        errors={errors}
-        onInputChange={handleInputChange}
-      />
+      <ProfileAutomationSection form={form} onInputChange={handleInputChange} />
 
       {/* 6. Delivery Settings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">

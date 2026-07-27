@@ -27,11 +27,12 @@ import { useAppStore } from "@/store/use-app-store";
 export function BusinessSignupForm() {
   const router = useRouter();
   const setSession = useAppStore((state) => state.setSession);
-  const { businessSignup: form, setBusinessSignup: setForm } =
-    useRegisterFlow();
-  const [accountType, setAccountType] = useState<"StoreOwner" | "Charity">(
-    "StoreOwner",
-  );
+  const {
+    businessSignup: form,
+    setBusinessSignup: setForm,
+    accountType,
+    setAccountType,
+  } = useRegisterFlow();
   const [errors, setErrors] = useState<
     Partial<Record<BusinessSignupField, string>>
   >({});
@@ -120,6 +121,7 @@ export function BusinessSignupForm() {
       }),
     };
     const res = await registerAccount(body);
+
     setSubmitting(false);
 
     if (!res.data) {

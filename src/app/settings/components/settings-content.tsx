@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { InfoCircleIcon } from "@/components/icons/info-circle-icon";
@@ -9,7 +9,11 @@ import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 import { StoreProfileForm } from "./store-profile-form";
 import { LocationForm } from "./location-form";
+import { SettingsSkeleton } from "./settings-skeleton";
 import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
+import { useAppStore, useHasHydrated } from "@/store/use-app-store";
+import { getStoreResource } from "../api/store-resource";
+import { businessCategoryToFormValue } from "../api/types";
 
 type ToastState = {
   message: string;
@@ -42,6 +46,9 @@ export function SettingsContent({
   initialProfile,
   initialLocation,
 }: SettingsContentProps) {
+  const accessToken = useAppStore((state) => state.accessToken);
+  const hasHydrated = useHasHydrated();
+
   const [activeTab, setActiveTab] = useState<"profile" | "location">("profile");
   const [toast, setToast] = useState<ToastState>(null);
   const [profileLastUpdated, setProfileLastUpdated] = useState<string>(
@@ -60,6 +67,55 @@ export function SettingsContent({
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  if (!hasHydrated) {
+    return (
+      <div className="flex flex-1 flex-col min-h-full bg-surface px-margin-mobile py-8 md:px-margin-desktop">
+        <SettingsSkeleton />
+      </div>
+    );
+  }
+
+  if (!accessToken) {
+    return (
+      <div className="flex flex-1 flex-col min-h-full bg-surface items-center justify-center px-margin-mobile py-8 md:px-margin-desktop">
+        <div className="max-w-md w-full text-center flex flex-col items-center gap-3 p-6 rounded-xl border border-error-container/40 bg-error-container/20">
+          <InfoCircleIcon className="h-6 w-6 text-error" aria-hidden="true" />
+          <Text variant="body-md" className="text-error font-bold">
+            يجب تسجيل الدخول لعرض بيانات المتجر
+          </Text>
+        </div>
+      </div>
+    );
+  }
+
+  // Real store record (GET /stores/me) layered over the mock/local profile
+  // data — the backend has no endpoint for the rest of the profile fields
+  // (hours, logo, automation, etc.), so only the fields it actually owns
+  // (name, category, location) are overridden here.
+  const store = use(getStoreResource(accessToken));
+
+  const mergedProfile = initialProfile
+    ? {
+        ...initialProfile,
+        businessName: store.name || initialProfile.businessName,
+        businessType:
+          businessCategoryToFormValue[store.businessCategory] ??
+          initialProfile.businessType,
+      }
+    : initialProfile;
+
+  const mergedLocation = initialLocation
+    ? {
+        ...initialLocation,
+        governorate: store.governorate || initialLocation.governorate,
+        city: store.city || initialLocation.city,
+        cityArea: store.neighborhood || initialLocation.cityArea,
+        streetAddress: store.street || initialLocation.streetAddress,
+        latitude: store.latitude ?? initialLocation.latitude,
+        longitude: store.longitude ?? initialLocation.longitude,
+      }
+    : initialLocation;
 
   return (
     <div
@@ -241,10 +297,10 @@ export function SettingsContent({
             </div>
 
             <div className="flex flex-col gap-8">
-              {activeTab === "profile" && initialProfile && (
+              {activeTab === "profile" && mergedProfile && (
                 <div className="flex flex-col gap-6">
                   <StoreProfileForm
-                    initialData={initialProfile}
+                    initialData={mergedProfile}
                     onSaveSuccess={setProfileLastUpdated}
                     showToast={showToast}
                   />
@@ -259,10 +315,10 @@ export function SettingsContent({
                 </div>
               )}
 
-              {activeTab === "location" && initialLocation && (
+              {activeTab === "location" && mergedLocation && (
                 <div className="flex flex-col gap-6">
                   <LocationForm
-                    initialData={initialLocation}
+                    initialData={mergedLocation}
                     onSaveSuccess={setLocationLastUpdated}
                     showToast={showToast}
                   />

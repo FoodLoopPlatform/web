@@ -32,7 +32,7 @@ export type BusinessSignupField = keyof z.infer<
   typeof businessSignupFieldSchema
 >;
 
-export const documentUploadSchema = z.object({
+export const storeDocumentUploadSchema = z.object({
   commercialRegistration: z.instanceof(File, {
     message: "يرجى إرفاق السجل التجاري",
   }),
@@ -40,4 +40,42 @@ export const documentUploadSchema = z.object({
   storePhoto: z.instanceof(File, { message: "يرجى إرفاق صورة المتجر" }),
 });
 
-export type DocumentUploadInput = z.infer<typeof documentUploadSchema>;
+export type StoreDocumentUploadInput = z.infer<
+  typeof storeDocumentUploadSchema
+>;
+
+/** Backend `Type` value (POST /stores/me/documents) for each store document field. */
+export const storeDocumentTypeMap: Record<
+  keyof StoreDocumentUploadInput,
+  string
+> = {
+  commercialRegistration: "CommercialRegistration",
+  taxId: "TaxId",
+  storePhoto: "StorePhoto",
+};
+
+export const charityDocumentUploadSchema = z.object({
+  declarationDecree: z.instanceof(File, {
+    message: "يرجى إرفاق قرار الاشهار",
+  }),
+  boardMembersList: z.instanceof(File, {
+    message: "يرجى إرفاق كشف اسماء مجلس الادارة",
+  }),
+  bylaws: z.instanceof(File, {
+    message: "يرجى إرفاق النظام الاساسي للجمعية",
+  }),
+});
+
+export type CharityDocumentUploadInput = z.infer<
+  typeof charityDocumentUploadSchema
+>;
+
+/** Backend `Type` value (POST /stores/me/documents) for each charity document field. */
+export const charityDocumentTypeMap: Record<
+  keyof CharityDocumentUploadInput,
+  string
+> = {
+  declarationDecree: "DeclarationDecree",
+  boardMembersList: "BoardMembersList",
+  bylaws: "Bylaws",
+};
