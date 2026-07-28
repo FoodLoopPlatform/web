@@ -8,8 +8,9 @@ import { Icon } from "@/components/ui/icon";
 import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventoryFilters } from "@/components/inventory/InventoryFilters";
 import { ProductCard, Product } from "@/components/inventory/ProductCard";
+import { withAuth } from "@/lib/auth/with-auth";
 
-export default function InventoryPage() {
+function InventoryPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -154,7 +155,7 @@ export default function InventoryPage() {
             </button>
 
             {/* Search Input (Responsive layout) */}
-            <div className="relative max-w-md w-full hidden md:block">
+            <div className="relative max-w-3xl w-full hidden md:block">
               <Icon
                 name="search"
                 className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
@@ -249,3 +250,5 @@ export default function InventoryPage() {
     </div>
   );
 }
+
+export default withAuth(InventoryPage);

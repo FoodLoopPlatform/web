@@ -11,8 +11,9 @@ import { ExpiringSoonWidget } from "@/components/dashboard/ExpiringSoonWidget";
 import { QuickActionsWidget } from "@/components/dashboard/QuickActionsWidget";
 import { RecentActivityWidget } from "@/components/dashboard/RecentActivityWidget";
 import { LogisticsAlertWidget } from "@/components/dashboard/LogisticsAlertWidget";
+import { withAuth } from "@/lib/auth/with-auth";
 
-export default function DashboardPage() {
+function DashboardPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -142,3 +143,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default withAuth(DashboardPage);

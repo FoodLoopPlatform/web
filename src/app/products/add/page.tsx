@@ -9,8 +9,9 @@ import { ImageUpload } from "@/components/products/ImageUpload";
 import { ClassificationSelect } from "@/components/products/ClassificationSelect";
 import { ProductInfoForm } from "@/components/products/ProductInfoForm";
 import { ExpiryDateSelector } from "@/components/products/ExpiryDateSelector";
+import { withAuth } from "@/lib/auth/with-auth";
 
-export default function AddProductPage() {
+function AddProductPage() {
   const [expiryTab, setExpiryTab] = useState<"manual" | "scan">("manual");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -241,3 +242,5 @@ export default function AddProductPage() {
     </div>
   );
 }
+
+export default withAuth(AddProductPage);

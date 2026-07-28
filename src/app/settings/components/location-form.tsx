@@ -12,7 +12,6 @@ import {
 } from "../lib/schemas";
 import { type LocationFormProps } from "../lib/types";
 import { EGYPTIAN_GOVERNORATES } from "../lib/constants";
-import { useAppStore } from "@/store/use-app-store";
 import { updateMyStoreLocation } from "../api/stores-api";
 import { invalidateStoreResource } from "../api/store-resource";
 import { LocationMapPreview } from "./location-map-preview";
@@ -22,7 +21,6 @@ export function LocationForm({
   onSaveSuccess,
   showToast,
 }: LocationFormProps) {
-  const accessToken = useAppStore((state) => state.accessToken);
   const [form, setForm] = useState<LocationSettingsInput>({
     governorate: initialData.governorate,
     city: initialData.city,
@@ -100,10 +98,6 @@ export function LocationForm({
       });
       setErrors(fieldErrors);
       showToast("يرجى التحقق من البيانات المدخلة", "error");
-      return;
-    }
-    if (!accessToken) {
-      showToast("يجب تسجيل الدخول لحفظ موقع المتجر", "error");
       return;
     }
 

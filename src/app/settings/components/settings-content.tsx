@@ -11,9 +11,10 @@ import { StoreProfileForm } from "./store-profile-form";
 import { LocationForm } from "./location-form";
 import { SettingsSkeleton } from "./settings-skeleton";
 import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
-import { useAppStore, useHasHydrated } from "@/store/use-app-store";
+import { useAppStore } from "@/store/use-app-store";
 import { getStoreResource } from "../api/store-resource";
 import { businessCategoryToFormValue } from "../api/types";
+import { withAuth } from "@/lib/auth/with-auth";
 
 type ToastState = {
   message: string;
@@ -42,12 +43,11 @@ function formatTimestamp(isoString: string): string {
   });
 }
 
-export function SettingsContent({
+function SettingsContent({
   initialProfile,
   initialLocation,
 }: SettingsContentProps) {
   const accessToken = useAppStore((state) => state.accessToken);
-  const hasHydrated = useHasHydrated();
 
   const [activeTab, setActiveTab] = useState<"profile" | "location">("profile");
   const [toast, setToast] = useState<ToastState>(null);
@@ -68,26 +68,9 @@ export function SettingsContent({
     setTimeout(() => setToast(null), 4000);
   };
 
-  if (!hasHydrated) {
-    return (
-      <div className="flex flex-1 flex-col min-h-full bg-surface px-margin-mobile py-8 md:px-margin-desktop">
-        <SettingsSkeleton />
-      </div>
-    );
-  }
-
-  if (!accessToken) {
-    return (
-      <div className="flex flex-1 flex-col min-h-full bg-surface items-center justify-center px-margin-mobile py-8 md:px-margin-desktop">
-        <div className="max-w-md w-full text-center flex flex-col items-center gap-3 p-6 rounded-xl border border-error-container/40 bg-error-container/20">
-          <InfoCircleIcon className="h-6 w-6 text-error" aria-hidden="true" />
-          <Text variant="body-md" className="text-error font-bold">
-            يجب تسجيل الدخول لعرض بيانات المتجر
-          </Text>
-        </div>
-      </div>
-    );
-  }
+  // withAuth guarantees a session by the time this renders; narrows the
+  // store type for the use() call below.
+  if (!accessToken) return null;
 
   // Real store record (GET /stores/me) layered over the mock/local profile
   // data — the backend has no endpoint for the rest of the profile fields
@@ -373,3 +356,14 @@ export function SettingsContent({
     </div>
   );
 }
+
+const settingsLoadingFallback = (
+  <div className="flex flex-1 flex-col min-h-full bg-surface px-margin-mobile py-8 md:px-margin-desktop">
+    <SettingsSkeleton />
+  </div>
+);
+
+export default withAuth(SettingsContent, {
+  loadingFallback: settingsLoadingFallback,
+  message: "يجب تسجيل الدخول لعرض بيانات المتجر",
+});
