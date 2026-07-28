@@ -114,9 +114,9 @@ export function BusinessSignupForm() {
       email: result.data.email,
       password: result.data.password,
       phoneNumber: result.data.phone,
-      accountType: accountType,
+      role: accountType,
       businessName: result.data.storeName,
-      ...(accountType === "StoreOwner" && {
+      ...(accountType === "Merchant" && {
         businessCategory: businessCategoryMap[result.data.businessType],
       }),
     };
@@ -149,9 +149,9 @@ export function BusinessSignupForm() {
         <div className="flex bg-white/50 p-1 rounded-xl border border-outline-variant/30 gap-2 w-full mt-2">
           <button
             type="button"
-            onClick={() => setAccountType("StoreOwner")}
+            onClick={() => setAccountType("Merchant")}
             className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
-              accountType === "StoreOwner"
+              accountType === "Merchant"
                 ? "bg-primary text-white shadow-sm"
                 : "text-on-surface-variant hover:text-primary"
             }`}
@@ -185,13 +185,13 @@ export function BusinessSignupForm() {
           <div className="grid grid-cols-1 gap-stack-md sm:grid-cols-2">
             <Field.Root invalid={!!errors.storeName} className="sm:col-span-2">
               <Field.Label>
-                {accountType === "StoreOwner"
+                {accountType === "Merchant"
                   ? "اسم المتجر"
                   : "اسم الجمعية الخيرية"}
               </Field.Label>
               <Field.Control
                 placeholder={
-                  accountType === "StoreOwner"
+                  accountType === "Merchant"
                     ? "مثال: بقالة الوادي الأخضر"
                     : "مثال: جمعية رسالة الخيرية"
                 }
@@ -203,7 +203,7 @@ export function BusinessSignupForm() {
               )}
             </Field.Root>
 
-            {accountType === "StoreOwner" && (
+            {accountType === "Merchant" && (
               <Field.Root
                 invalid={!!errors.businessType}
                 className="sm:col-span-2"
@@ -235,9 +235,7 @@ export function BusinessSignupForm() {
 
             <Field.Root invalid={!!errors.ownerName}>
               <Field.Label>
-                {accountType === "StoreOwner"
-                  ? "اسم المالك"
-                  : "اسم ممثل الجمعية"}
+                {accountType === "Merchant" ? "اسم المالك" : "اسم ممثل الجمعية"}
               </Field.Label>
               <Field.Control
                 placeholder="الاسم الكامل"
@@ -263,7 +261,7 @@ export function BusinessSignupForm() {
 
             <Field.Root invalid={!!errors.email} className="sm:col-span-2">
               <Field.Label>
-                {accountType === "StoreOwner"
+                {accountType === "Merchant"
                   ? "البريد الإلكتروني للنشاط"
                   : "البريد الإلكتروني للجمعية"}
               </Field.Label>

@@ -55,7 +55,7 @@ export default function VerificationPendingPage() {
                 الوقت التقديري للمراجعة
               </Text>
               <Text variant="body-md" className="text-on-surface">
-                24-48 ساعة عمل
+                24-48 ساعة
               </Text>
             </div>
           </div>

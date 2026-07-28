@@ -5,7 +5,7 @@ import type { BusinessSignupField } from "./schemas";
 
 export type BusinessSignupFormState = Record<BusinessSignupField, string>;
 
-export type AccountType = "StoreOwner" | "Charity";
+export type AccountType = "Merchant" | "Charity";
 
 export type DocumentsState = {
   commercialRegistration: File | null;
@@ -54,7 +54,7 @@ const RegisterFlowContext = createContext<RegisterFlowContextValue | null>(
  * without losing what was already filled in / selected).
  */
 export function RegisterFlowProvider({ children }: { children: ReactNode }) {
-  const [accountType, setAccountType] = useState<AccountType>("StoreOwner");
+  const [accountType, setAccountType] = useState<AccountType>("Merchant");
   const [businessSignup, setBusinessSignup] = useState<BusinessSignupFormState>(
     initialBusinessSignup,
   );

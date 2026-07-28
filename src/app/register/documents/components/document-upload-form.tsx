@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useAppStore } from "@/store/use-app-store";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ const charityFields: DocumentField[] = [
 
 export function DocumentUploadForm() {
   const router = useRouter();
+  const email = useAppStore((state) => state.user?.email);
   const { accountType, documents, setDocuments } = useRegisterFlow();
   const [errors, setErrors] = useState<
     Partial<Record<keyof DocumentsState, string>>
@@ -114,10 +116,15 @@ export function DocumentUploadForm() {
       return;
     }
 
+    if (!email) {
+      setSubmitError("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى");
+      return;
+    }
+
     setErrors({});
     setSubmitError(null);
     setSubmitting(true);
-    const res = await submitDocumentUpload(result.data, typeMap);
+    const res = await submitDocumentUpload(result.data, typeMap, email);
 
     setSubmitting(false);
 
