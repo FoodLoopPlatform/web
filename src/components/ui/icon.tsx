@@ -313,6 +313,53 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "search":
+      return (
+        <svg {...svgProps}>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      );
+
+    case "schedule":
+      return (
+        <svg {...svgProps}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      );
+
+    case "download":
+      return (
+        <svg {...svgProps}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+
+    case "bolt":
+      return (
+        <svg {...svgProps}>
+          <polygon
+            points="13 2 3 14 11 14 11 22 21 10 13 10 13 2"
+            fill={fill ? "currentColor" : "none"}
+          />
+        </svg>
+      );
+
+    case "tune":
+      return (
+        <svg {...svgProps}>
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="18" x2="20" y2="18" />
+          <circle cx="9" cy="6" r="2" fill="currentColor" />
+          <circle cx="16" cy="12" r="2" fill="currentColor" />
+          <circle cx="10" cy="18" r="2" fill="currentColor" />
+        </svg>
+      );
+
     default:
       return null;
   }
