@@ -360,6 +360,49 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "check_circle":
+      return (
+        <svg {...svgProps}>
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            fill={fill ? "currentColor" : "none"}
+          />
+          <polyline
+            points="8 12.5 10.5 15 16 9"
+            stroke={fill ? "white" : "currentColor"}
+          />
+        </svg>
+      );
+
+    case "info":
+      return (
+        <svg {...svgProps}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="11" x2="12" y2="16" />
+          <line x1="12" y1="7.5" x2="12.01" y2="7.5" />
+        </svg>
+      );
+
+    case "edit":
+      return (
+        <svg {...svgProps}>
+          <path d="M17 3a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L17 3z" />
+        </svg>
+      );
+
+    case "auto_awesome":
+      return (
+        <svg {...svgProps}>
+          <path
+            d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"
+            fill={fill ? "currentColor" : "none"}
+          />
+          <path d="M19 14l.7 1.9L21.5 16.5l-1.8.7L19 19l-.7-1.8-1.8-.7 1.8-.7L19 14z" />
+        </svg>
+      );
+
     default:
       return null;
   }

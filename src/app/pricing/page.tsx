@@ -2,19 +2,33 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 import { PricingStatCards } from "@/components/pricing/PricingStatCards";
 import { PricingTable } from "@/components/pricing/PricingTable";
 import { PricingInsights } from "@/components/pricing/PricingInsights";
+import { PricingRecommendationModal } from "@/components/pricing/PricingRecommendationModal";
 import { withAuth } from "@/lib/auth/with-auth";
 
-// Unprotected for now so the UI can be reviewed without a session; wrap with
-// withAuth once this is wired to real pricing data.
 function PricingPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<"live" | "history">("live");
+  const [isRunningAutomation, setIsRunningAutomation] = useState(false);
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
+    useState(false);
+
+  const handleRunAutoAdjustment = () => {
+    if (isRunningAutomation) return;
+    setIsRunningAutomation(true);
+    // Mocked: simulate the AI pricing engine processing before surfacing a
+    // recommendation. Swap for a real API call once the endpoint exists.
+    setTimeout(() => {
+      setIsRunningAutomation(false);
+      setIsRecommendationModalOpen(true);
+    }, 900);
+  };
 
   return (
     <div
@@ -138,11 +152,26 @@ function PricingPage() {
               </button>
               <button
                 type="button"
-                className="flex items-center gap-2 bg-primary text-white px-6 py-4 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                onClick={handleRunAutoAdjustment}
+                disabled={isRunningAutomation}
+                className="flex items-center gap-2 bg-primary text-white px-6 py-4 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <Icon name="bolt" className="h-4 w-4" fill />
-                تشغيل الضبط التلقائي
+                {isRunningAutomation ? (
+                  <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                ) : (
+                  <Icon name="bolt" className="h-4 w-4" fill />
+                )}
+                {isRunningAutomation
+                  ? "جارٍ التشغيل..."
+                  : "تشغيل الضبط التلقائي"}
               </button>
+              <Link
+                href="/pricing/automation-settings"
+                className="flex items-center gap-2 border border-outline px-6 py-4 rounded-xl text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
+              >
+                <Icon name="settings" className="h-4 w-4" />
+                إعدادات الأتمتة
+              </Link>
             </div>
           </div>
 
@@ -188,6 +217,11 @@ function PricingPage() {
           )}
         </div>
       </main>
+
+      <PricingRecommendationModal
+        open={isRecommendationModalOpen}
+        onClose={() => setIsRecommendationModalOpen(false)}
+      />
     </div>
   );
 }

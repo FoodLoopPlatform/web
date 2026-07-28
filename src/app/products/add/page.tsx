@@ -210,7 +210,7 @@ function AddProductPage() {
                   alert("تم حفظ المنتج ونشره بنجاح في سوق المنتجات!");
                   window.location.href = "/inventory";
                 }}
-                className="w-full sm:flex-[2] py-4 px-6 bg-primary text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-primary/20 transition-[opacity,transform] active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                className="w-full sm:flex-2 py-4 px-6 bg-primary text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-primary/20 transition-[opacity,transform] active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none"
               >
                 <svg
                   aria-hidden="true"

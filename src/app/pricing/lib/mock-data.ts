@@ -78,3 +78,76 @@ export const revenueForecastBars = [60, 35, 50, 15];
 export const revenueForecastLiftPercent = 12;
 
 export const atRiskItemsCount = 4;
+
+export type AiPriceRecommendation = {
+  productName: string;
+  sku: string;
+  image: string;
+  riskLabel: string;
+  originalPrice: number;
+  recommendedPrice: number;
+  discountPercent: number;
+  insight: {
+    prefix: string;
+    highlightExpiry: string;
+    middle: string;
+    highlightDrop: string;
+    suffix: string;
+  };
+};
+
+export const aiPriceRecommendation: AiPriceRecommendation = {
+  productName: "رغيف خبز حرفي مخمر",
+  sku: "H-SRD-082",
+  image: "/pricing/sourdough.jpg",
+  riskLabel: "خطورة عالية: قرب انتهاء الصلاحية",
+  originalPrice: 85.0,
+  recommendedPrice: 68.0,
+  discountPercent: 20,
+  insight: {
+    prefix: "المنتج على بعد ",
+    highlightExpiry: "24 ساعة من انتهاء الصلاحية",
+    middle: " مع ",
+    highlightDrop: "انخفاض 30%",
+    suffix:
+      " في حركة الزوار الصباحية مؤخرًا. يُنصح بخصم 20% لتصفية المخزون بحلول المساء.",
+  },
+};
+
+export type AutomationModeOption = {
+  mode: AutomationMode;
+  icon: string;
+  title: string;
+  description: string;
+};
+
+export const automationModeOptions: AutomationModeOption[] = [
+  {
+    mode: "manual",
+    icon: "edit",
+    title: "يدوي",
+    description: "يقترح الذكاء الاصطناعي الخصومات، وأنت تطبقها يدويًا.",
+  },
+  {
+    mode: "assisted",
+    icon: "check_circle",
+    title: "بمساعدة",
+    description:
+      "يقترح الذكاء الاصطناعي التسعير اليومي، وتوافق أو ترفض بنقرة واحدة.",
+  },
+  {
+    mode: "autonomous",
+    icon: "bolt",
+    title: "تلقائي بالكامل",
+    description: "يحدّث الذكاء الاصطناعي الأسعار تلقائيًا ضمن حدود الأمان.",
+  },
+];
+
+export const automationSettings = {
+  selectedMode: "assisted" as AutomationMode,
+  priceFloorPercent: 65,
+  maxChangePerCycle: 15,
+  impactWasteReductionPercent: 22,
+  impactRevenueIncreasePercent: 8.5,
+  impactBars: [48, 96, 64, 128, 80],
+};
