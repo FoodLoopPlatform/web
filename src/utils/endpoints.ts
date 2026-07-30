@@ -13,4 +13,9 @@ export const Endpoints = {
     location: "/stores/me/location",
     documents: "/stores/me/documents",
   },
+
+  charities: {
+    me: "/charities/me",
+    documents: "/charities/me/documents",
+  },
 };

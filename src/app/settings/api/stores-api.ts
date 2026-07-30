@@ -2,7 +2,11 @@ import { getMany, updateOne } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
-import type { Store, UpdateStoreLocationPayload } from "./types";
+import type {
+  Store,
+  UpdateStoreLocationPayload,
+  UpdateStoreProfilePayload,
+} from "./types";
 
 export function getMyStore() {
   return withAuth((token) =>
@@ -17,6 +21,18 @@ export function updateMyStoreLocation(payload: UpdateStoreLocationPayload) {
     unwrapEnvelope<Store>(
       updateOne<FoodLoopEnvelope<Store>, UpdateStoreLocationPayload>(
         Endpoints.stores.location,
+        payload,
+        { token },
+      ),
+    ),
+  );
+}
+
+export function updateMyStoreProfile(payload: UpdateStoreProfilePayload) {
+  return withAuth((token) =>
+    unwrapEnvelope<Store>(
+      updateOne<FoodLoopEnvelope<Store>, UpdateStoreProfilePayload>(
+        Endpoints.stores.me,
         payload,
         { token },
       ),

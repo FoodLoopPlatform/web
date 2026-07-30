@@ -9,8 +9,10 @@ import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventoryFilters } from "@/components/inventory/InventoryFilters";
 import { ProductCard, Product } from "@/components/inventory/ProductCard";
 import { withAuth } from "@/lib/auth/with-auth";
+import { useStoreProfile } from "@/hooks/use-store-profile";
 
 function InventoryPage() {
+  const store = useStoreProfile();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -202,7 +204,7 @@ function InventoryPage() {
                 unoptimized
               />
               <span className="font-label-caps text-label-caps text-primary font-bold hidden md:block">
-                سوبرماركت النيل
+                {store?.name || "متجري"}
               </span>
             </div>
           </div>

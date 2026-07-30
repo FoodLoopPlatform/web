@@ -50,8 +50,8 @@ export const storeDocumentTypeMap: Record<
   string
 > = {
   commercialRegistration: "CommercialRegistration",
-  taxId: "TaxId",
-  storePhoto: "StorePhoto",
+  taxId: "TaxIdCertificate",
+  storePhoto: "StoreFacilityPhoto",
 };
 
 export const charityDocumentUploadSchema = z.object({
@@ -70,12 +70,12 @@ export type CharityDocumentUploadInput = z.infer<
   typeof charityDocumentUploadSchema
 >;
 
-/** Backend `Type` value (POST /stores/me/documents) for each charity document field. */
+/** Backend `Type` value (POST /charities/me/documents) for each charity document field. */
 export const charityDocumentTypeMap: Record<
   keyof CharityDocumentUploadInput,
   string
 > = {
-  declarationDecree: "DeclarationDecree",
-  boardMembersList: "BoardMembersList",
-  bylaws: "Bylaws",
+  declarationDecree: "AssociationCertificate",
+  boardMembersList: "BoardOfDirectorsList",
+  bylaws: "CharityBylaws",
 };

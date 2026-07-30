@@ -124,7 +124,12 @@ export function DocumentUploadForm() {
     setErrors({});
     setSubmitError(null);
     setSubmitting(true);
-    const res = await submitDocumentUpload(result.data, typeMap, email);
+    const res = await submitDocumentUpload(
+      result.data,
+      typeMap,
+      email,
+      accountType,
+    );
 
     setSubmitting(false);
 
