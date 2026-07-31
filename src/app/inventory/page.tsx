@@ -11,9 +11,9 @@ import { InventorySkeleton } from "@/components/inventory/InventorySkeleton";
 import { withAuth } from "@/lib/auth/with-auth";
 import { useStoreProfile } from "@/hooks/use-store-profile";
 import {
-  getMerchantListings,
+  getMerchantProducts,
   getCategories,
-} from "@/app/products/api/listings-api";
+} from "@/app/products/api/products-api";
 
 function InventoryPage() {
   const store = useStoreProfile();
@@ -26,11 +26,11 @@ function InventoryPage() {
   // Create memoized categories promise fetched directly from GET /categories
   const categoriesPromise = useMemo(() => getCategories(), []);
 
-  // Create a memoized listings promise based on current filter states.
+  // Create a memoized products promise based on current filter states.
   // Passed to <InventoryGrid> which resolves it using React 19's use(promise) within <Suspense>.
-  const listingsPromise = useMemo(
+  const productsPromise = useMemo(
     () =>
-      getMerchantListings({
+      getMerchantProducts({
         status: statusFilter !== "All" ? statusFilter : undefined,
         categoryId: categoryFilter !== "All" ? categoryFilter : undefined,
         searchTerm: searchQuery.trim() || undefined,
@@ -168,7 +168,7 @@ function InventoryPage() {
         {/* Product Grid Section with Suspense Boundary */}
         <section className="px-margin-mobile md:px-margin-desktop pb-xl flex-1">
           <Suspense fallback={<InventorySkeleton />}>
-            <InventoryGrid listingsPromise={listingsPromise} />
+            <InventoryGrid productsPromise={productsPromise} />
           </Suspense>
         </section>
 

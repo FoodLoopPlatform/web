@@ -14,8 +14,15 @@ export const Endpoints = {
     me: "/stores/me",
     location: "/stores/me/location",
     documents: "/stores/me/documents",
-    listings: "/stores/me/listings",
-    listingById: (id: string) => `/stores/me/listings/${id}`,
+    products: "/stores/me/products",
+    productById: (id: string) => `/stores/me/products/${id}`,
+    productImages: (id: string) => `/stores/me/products/${id}/images`,
+    productsBulk: "/stores/me/products/bulk",
+  },
+
+  admin: {
+    products: "/admin/products",
+    productById: (id: string) => `/admin/products/${id}`,
   },
 
   charities: {

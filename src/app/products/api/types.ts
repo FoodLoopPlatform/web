@@ -5,7 +5,7 @@ export interface Category {
   icon?: string | null;
 }
 
-export interface CreateProductListingRequest {
+export interface CreateProductRequest {
   categoryId: string;
   title: string;
   titleAr?: string | null;
@@ -17,19 +17,20 @@ export interface CreateProductListingRequest {
   expirationDate: string;
 }
 
-export interface UpdateProductListingRequest {
-  title?: string;
+export interface UpdateProductRequest {
+  categoryId?: string | null;
+  title?: string | null;
   titleAr?: string | null;
   description?: string | null;
   descriptionAr?: string | null;
-  originalPrice?: number;
-  discountedPrice?: number;
-  quantityAvailable?: number;
-  expirationDate?: string;
-  status?: string;
+  originalPrice?: number | null;
+  discountedPrice?: number | null;
+  quantityAvailable?: number | null;
+  expirationDate?: string | null;
+  status?: string | null;
 }
 
-export interface ProductListing {
+export interface MerchantProduct {
   id: string;
   storeId?: string;
   categoryId: string;
@@ -49,7 +50,7 @@ export interface ProductListing {
   updatedAt?: string;
 }
 
-export interface GetListingsQueryParams {
+export interface GetProductsQueryParams {
   pageNumber?: number;
   pageSize?: number;
   categoryId?: string;

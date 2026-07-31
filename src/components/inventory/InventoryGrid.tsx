@@ -4,18 +4,18 @@ import { use } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { ProductCard, Product } from "@/components/inventory/ProductCard";
-import type { ProductListing } from "@/app/products/api/types";
+import type { MerchantProduct } from "@/app/products/api/types";
 import type { ApiResponse } from "@/utils/server";
 
 interface InventoryGridProps {
-  listingsPromise: Promise<ApiResponse<ProductListing[]>>;
+  productsPromise: Promise<ApiResponse<MerchantProduct[]>>;
 }
 
-export function InventoryGrid({ listingsPromise }: InventoryGridProps) {
-  const res = use(listingsPromise);
-  const listings = res.data ?? [];
+export function InventoryGrid({ productsPromise }: InventoryGridProps) {
+  const res = use(productsPromise);
+  const products = res.data ?? [];
 
-  if (listings.length === 0) {
+  if (products.length === 0) {
     return (
       <div className="grid grid-cols-1 gap-md">
         <div className="py-16 text-center bg-surface-container-high/20 rounded-2xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-xl">
@@ -44,7 +44,7 @@ export function InventoryGrid({ listingsPromise }: InventoryGridProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md">
-      {listings.map((item, idx) => {
+      {products.map((item, idx) => {
         const product: Product = {
           id: item.id || String(idx + 1),
           sku: `PROD-${item.id ? item.id.slice(0, 5).toUpperCase() : idx + 100}`,
@@ -53,7 +53,10 @@ export function InventoryGrid({ listingsPromise }: InventoryGridProps) {
           quantity: item.quantityAvailable,
           price: item.discountedPrice ?? item.originalPrice,
           status: item.status || "Published",
-          image: item.images && item.images.length > 0 ? item.images[0] : "",
+          image:
+            item.images && item.images.length > 0 && item.images[0]
+              ? item.images[0]
+              : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
         };
 
         return <ProductCard key={product.id} product={product} />;

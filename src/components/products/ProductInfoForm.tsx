@@ -45,7 +45,7 @@ export function ProductInfoForm({
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
             className="w-full border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary text-body-md transition-[border-color,box-shadow] outline-none font-sans"
-            placeholder="مثال: جبن شيدر معتق حرفي"
+            placeholder="مثال: جبن شيدر "
             type="text"
           />
         </div>
