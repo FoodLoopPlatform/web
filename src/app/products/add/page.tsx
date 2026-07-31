@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
@@ -10,19 +10,55 @@ import { ClassificationSelect } from "@/components/products/ClassificationSelect
 import { ProductInfoForm } from "@/components/products/ProductInfoForm";
 import { ExpiryDateSelector } from "@/components/products/ExpiryDateSelector";
 import { withAuth } from "@/lib/auth/with-auth";
+import {
+  getCategories,
+  createProductListing,
+} from "@/app/products/api/listings-api";
+import type { Category } from "@/app/products/api/types";
 
 function AddProductPage() {
   const [expiryTab, setExpiryTab] = useState<"manual" | "scan">("manual");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+
+  // Form fields matching CreateProductListingRequest
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [productName, setProductName] = useState("");
+  const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [expiryDate, setExpiryDate] = useState("");
+
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Dairy");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Fetch categories from API on mount
+  useEffect(() => {
+    async function loadCategories() {
+      setIsLoadingCategories(true);
+      try {
+        const res = await getCategories();
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setCategories(res.data);
+          setSelectedCategory(res.data[0].id);
+        } else {
+          // Fallback if empty array or issue
+          setSelectedCategory("11111111-1111-1111-1111-111111111111");
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    }
+    loadCategories();
+  }, []);
 
   // Simulated image upload
   const handleSimulateUpload = () => {
@@ -46,6 +82,66 @@ function AddProductPage() {
       threeDaysAhead.setDate(threeDaysAhead.getDate() + 3);
       setExpiryDate(threeDaysAhead.toISOString().split("T")[0]);
     }, 2000);
+  };
+
+  // Handle form submission to POST /stores/me/listings
+  const handleSubmitProduct = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setSubmitError(null);
+
+    if (!productName.trim()) {
+      setSubmitError("يرجى إدخال اسم المنتج");
+      return;
+    }
+    if (!price || parseFloat(price) <= 0) {
+      setSubmitError("يرجى إدخال سعر أصلي صحيح للمنتج");
+      return;
+    }
+    if (!selectedCategory) {
+      setSubmitError("يرجى اختيار تصنيف للمنتج");
+      return;
+    }
+
+    const origPrice = parseFloat(price);
+    const discPrice = discountedPrice
+      ? parseFloat(discountedPrice)
+      : origPrice * 0.5;
+    const qty = quantity ? parseInt(quantity, 10) : 1;
+    const expDate =
+      expiryDate ||
+      new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
+
+    setIsSubmitting(true);
+
+    try {
+      const body = {
+        categoryId: selectedCategory,
+        title: productName.trim(),
+        titleAr: productName.trim(),
+        description: description.trim() || undefined,
+        descriptionAr: description.trim() || undefined,
+        originalPrice: origPrice,
+        discountedPrice: discPrice,
+        quantityAvailable: qty,
+        expirationDate: expDate,
+      };
+      console.log(body);
+      const res = await createProductListing(body);
+
+      if (res.data) {
+        alert("تم إنشاء ونشر المنتج بنجاح!");
+        window.location.href = "/inventory";
+      } else {
+        const errorMsg = res.error || "تعذر نشر المنتج ";
+        setSubmitError(errorMsg);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "حدث خطأ أثناء التواصل مع السيرفر";
+      setSubmitError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -161,73 +257,99 @@ function AddProductPage() {
 
         {/* Form Container */}
         <section className="flex-1 p-margin-mobile md:p-margin-desktop bg-surface-container-lowest overflow-y-auto">
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-lg">
-            {/* Left Column: Image & Category */}
-            <div className="md:col-span-5 flex flex-col gap-md">
-              <ImageUpload
-                thumbnailUrl={thumbnailUrl}
-                onUploadSimulated={handleSimulateUpload}
-              />
-              <ClassificationSelect
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-              />
-            </div>
+          <div className="max-w-4xl mx-auto flex flex-col gap-md">
+            {submitError && (
+              <div className="p-4 bg-error-container/20 border border-error/30 rounded-xl text-error text-body-md flex items-center gap-3">
+                <Icon name="error" className="h-5 w-5 shrink-0" />
+                <div>
+                  <p className="font-bold">تعذر إكمال طلب إضافة المنتج</p>
+                  <p className="text-xs opacity-90 mt-0.5">{submitError}</p>
+                </div>
+              </div>
+            )}
 
-            {/* Right Column: Details & Expiry */}
-            <div className="md:col-span-7 flex flex-col gap-md">
-              <ProductInfoForm
-                productName={productName}
-                setProductName={setProductName}
-                price={price}
-                setPrice={setPrice}
-                quantity={quantity}
-                setQuantity={setQuantity}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-lg">
+              {/* Left Column: Image & Category */}
+              <div className="md:col-span-5 flex flex-col gap-md">
+                <ImageUpload
+                  thumbnailUrl={thumbnailUrl}
+                  onUploadSimulated={handleSimulateUpload}
+                />
+                <ClassificationSelect
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  categories={categories}
+                  isLoadingCategories={isLoadingCategories}
+                />
+              </div>
 
-              <ExpiryDateSelector
-                expiryTab={expiryTab}
-                setExpiryTab={setExpiryTab}
-                expiryDate={expiryDate}
-                setExpiryDate={setExpiryDate}
-                isScanning={isScanning}
-                setIsScanning={setIsScanning}
-                scanSuccess={scanSuccess}
-                setScanSuccess={setScanSuccess}
-                onSimulateScan={handleSimulateScan}
-              />
+              {/* Right Column: Details & Expiry */}
+              <div className="md:col-span-7 flex flex-col gap-md">
+                <ProductInfoForm
+                  productName={productName}
+                  setProductName={setProductName}
+                  description={description}
+                  setDescription={setDescription}
+                  price={price}
+                  setPrice={setPrice}
+                  discountedPrice={discountedPrice}
+                  setDiscountedPrice={setDiscountedPrice}
+                  quantity={quantity}
+                  setQuantity={setQuantity}
+                />
 
-              {/* Form Action Buttons */}
-              <Link
-                href="/inventory"
-                className="w-full sm:flex-1 py-4 px-6 border-2 border-outline-variant rounded-xl font-bold text-on-surface-variant hover:bg-surface-container-high transition-[background-color,transform] active:scale-95 text-label-md font-sans cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-primary outline-none"
-              >
-                حفظ كمسودة
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  alert("تم حفظ المنتج ونشره بنجاح في سوق المنتجات!");
-                  window.location.href = "/inventory";
-                }}
-                className="w-full sm:flex-[2] py-4 px-6 bg-primary text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-primary/20 transition-[opacity,transform] active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="h-5 w-5 shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                  />
-                </svg>
-                <span>نشر واعتماد المنتج فوراً</span>
-              </button>
+                <ExpiryDateSelector
+                  expiryTab={expiryTab}
+                  setExpiryTab={setExpiryTab}
+                  expiryDate={expiryDate}
+                  setExpiryDate={setExpiryDate}
+                  isScanning={isScanning}
+                  setIsScanning={setIsScanning}
+                  scanSuccess={scanSuccess}
+                  setScanSuccess={setScanSuccess}
+                  onSimulateScan={handleSimulateScan}
+                />
+
+                {/* Form Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-md pt-2">
+                  <Link
+                    href="/inventory"
+                    className="w-full sm:flex-1 py-4 px-6 border-2 border-outline-variant rounded-xl font-bold text-on-surface-variant hover:bg-surface-container-high transition-[background-color,transform] active:scale-95 text-label-md font-sans cursor-pointer text-center focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                  >
+                    حفظ كمسودة
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleSubmitProduct}
+                    disabled={isSubmitting}
+                    className="w-full sm:flex-[2] py-4 px-6 bg-primary text-white rounded-xl font-bold hover:opacity-90 shadow-md shadow-primary/20 transition-[opacity,transform] active:scale-95 text-label-md flex items-center justify-center gap-2 font-sans cursor-pointer focus-visible:ring-2 focus-visible:ring-primary outline-none disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                    ) : (
+                      <svg
+                        aria-hidden="true"
+                        className="h-5 w-5 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                    )}
+                    <span>
+                      {isSubmitting
+                        ? "جاري الحفظ والنشر..."
+                        : "نشر واعتماد المنتج فوراً"}
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>

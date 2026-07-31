@@ -7,10 +7,10 @@ export interface Product {
   id: string;
   sku: string;
   name: string;
-  category: "Produce" | "Dairy" | "Bakery" | "Pantry";
+  category: string;
   quantity: number | null;
   price: number;
-  status: "Published" | "Pending" | "Draft" | "Out of Stock";
+  status: string;
   image: string;
 }
 

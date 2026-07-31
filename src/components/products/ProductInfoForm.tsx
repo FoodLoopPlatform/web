@@ -5,8 +5,12 @@ interface ProductInfoFormProps {
   setProductName: (name: string) => void;
   price: string;
   setPrice: (price: string) => void;
+  discountedPrice: string;
+  setDiscountedPrice: (price: string) => void;
   quantity: string;
   setQuantity: (qty: string) => void;
+  description: string;
+  setDescription: (desc: string) => void;
 }
 
 export function ProductInfoForm({
@@ -14,8 +18,12 @@ export function ProductInfoForm({
   setProductName,
   price,
   setPrice,
+  discountedPrice,
+  setDiscountedPrice,
   quantity,
   setQuantity,
+  description,
+  setDescription,
 }: ProductInfoFormProps) {
   return (
     <div className="bg-light-green rounded-xl p-md border border-outline-variant/40 shadow-sm">
@@ -42,7 +50,25 @@ export function ProductInfoForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-sm">
+        <div>
+          <label
+            htmlFor="product-description"
+            className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+          >
+            وصف المنتج
+          </label>
+          <textarea
+            id="product-description"
+            name="description"
+            rows={2}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary text-body-md transition-[border-color,box-shadow] outline-none font-sans resize-none"
+            placeholder="أدخل وصف المنتج هنا..."
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-sm">
           <div>
             <label
               htmlFor="product-price"
@@ -72,6 +98,37 @@ export function ProductInfoForm({
               />
             </div>
           </div>
+
+          <div>
+            <label
+              htmlFor="discounted-price"
+              className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+            >
+              سعر التخفيض (ج.م)
+            </label>
+            <div className="flex items-center border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus-within:border-primary transition-[border-color,box-shadow]">
+              <span className="font-data-mono text-xs text-on-surface-variant ml-2 font-bold">
+                ج.م
+              </span>
+              <input
+                id="discounted-price"
+                name="discountedPrice"
+                autoComplete="off"
+                value={discountedPrice}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || parseFloat(val) >= 0) {
+                    setDiscountedPrice(val);
+                  }
+                }}
+                min="0"
+                className="bg-transparent border-none focus:ring-0 w-full font-data-mono text-sm outline-none"
+                placeholder="0.00"
+                type="number"
+              />
+            </div>
+          </div>
+
           <div>
             <label
               htmlFor="product-quantity"
@@ -96,21 +153,6 @@ export function ProductInfoForm({
                 placeholder="1"
                 type="number"
               />
-              {/* inline custom scroll spinner */}
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5 text-on-surface-variant shrink-0 cursor-pointer"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 9l4-4 4 4m0 6l-4 4-4-4"
-                />
-              </svg>
             </div>
           </div>
         </div>

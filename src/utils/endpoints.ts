@@ -8,10 +8,14 @@ export const Endpoints = {
     logout: "/auth/logout",
   },
 
+  categories: "/categories",
+
   stores: {
     me: "/stores/me",
     location: "/stores/me/location",
     documents: "/stores/me/documents",
+    listings: "/stores/me/listings",
+    listingById: (id: string) => `/stores/me/listings/${id}`,
   },
 
   charities: {

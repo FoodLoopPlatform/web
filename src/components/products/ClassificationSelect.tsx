@@ -1,15 +1,20 @@
 "use client";
 
 import { Icon } from "@/components/ui/icon";
+import type { Category } from "@/app/products/api/types";
 
 interface ClassificationSelectProps {
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
+  categories?: Category[];
+  isLoadingCategories?: boolean;
 }
 
 export function ClassificationSelect({
   selectedCategory,
   setSelectedCategory,
+  categories = [],
+  isLoadingCategories = false,
 }: ClassificationSelectProps) {
   return (
     <div className="bg-light-green rounded-xl p-md border border-outline-variant/40 shadow-sm">
@@ -19,21 +24,51 @@ export function ClassificationSelect({
       <div className="relative">
         <label
           htmlFor="product-category"
-          className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase"
+          className="block text-xs font-bold text-on-surface-variant mb-1.5 uppercase flex justify-between items-center"
         >
-          الفئة الرئيسية
+          <span>الفئة الرئيسية</span>
+          {isLoadingCategories && (
+            <span className="text-[10px] text-primary animate-pulse font-normal">
+              جاري التحميل...
+            </span>
+          )}
         </label>
         <div className="flex items-center border border-outline-variant rounded-xl px-4 py-3 bg-surface-container-lowest focus-within:border-primary transition-[border-color,box-shadow] relative">
           <select
             id="product-category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-transparent border-none focus:ring-0 w-full text-body-md outline-none font-sans appearance-none pl-8 pr-2 cursor-pointer text-on-surface"
+            disabled={isLoadingCategories}
+            className="bg-transparent border-none focus:ring-0 w-full text-body-md outline-none font-sans appearance-none pl-8 pr-2 cursor-pointer text-on-surface disabled:opacity-50"
           >
-            <option value="Produce">منتجات زراعية (Produce)</option>
-            <option value="Dairy">منتجات الألبان (Dairy)</option>
-            <option value="Bakery">مخبوزات (Bakery)</option>
-            <option value="Pantry">المؤن والتموين (Pantry)</option>
+            {categories.length > 0 ? (
+              categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nameAr ? `${cat.nameAr} (${cat.name})` : cat.name}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="11111111-1111-1111-1111-111111111111">
+                  مخبوزات (Bakery)
+                </option>
+                <option value="316c0d21-81e6-40e8-8048-f361361be68e">
+                  ألبان وبيض (Dairy & Eggs)
+                </option>
+                <option value="0542923b-c86b-40b5-ae58-0cf203ce0806">
+                  حلويات (Desserts)
+                </option>
+                <option value="ead9f5a4-dd64-4769-8368-2e354dbfbb1f">
+                  خضروات وفواكه (Fruits & Vegetables)
+                </option>
+                <option value="bad57d62-1391-4fe9-b2e4-8c79b4caed0e">
+                  مواد غذائية (Groceries)
+                </option>
+                <option value="e95d3d76-46b6-4b9f-96b4-effff14c7674">
+                  وجبات جاهزة (Meals)
+                </option>
+              </>
+            )}
           </select>
           <Icon
             name="expand_more"
