@@ -5,6 +5,7 @@ import {
   getCategories,
   createMerchantProduct,
   updateMerchantProduct,
+  uploadProductImage,
 } from "@/app/products/api/products-api";
 import type {
   Category,
@@ -12,6 +13,14 @@ import type {
   UpdateProductRequest,
   MerchantProduct,
 } from "@/app/products/api/types";
+import { extractProductImages } from "@/utils/image-utils";
+
+export interface ImageItem {
+  id: string;
+  file?: File;
+  previewUrl: string;
+  isExisting?: boolean;
+}
 
 export interface UseProductFormProps {
   mode: "add" | "edit";
@@ -27,11 +36,18 @@ export function useProductForm({
   const [expiryTab, setExpiryTab] = useState<"manual" | "scan">("manual");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
-    initialProduct?.images && initialProduct.images.length > 0
-      ? initialProduct.images[0]
-      : null,
-  );
+
+  const [images, setImages] = useState<ImageItem[]>(() => {
+    const extracted = extractProductImages(initialProduct);
+    if (extracted.length > 0) {
+      return extracted.map((url, idx) => ({
+        id: `existing-${idx}-${Date.now()}`,
+        previewUrl: url,
+        isExisting: true,
+      }));
+    }
+    return [];
+  });
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -68,6 +84,9 @@ export function useProductForm({
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgressStatus, setUploadProgressStatus] = useState<
+    string | null
+  >(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [toast, setToast] = useState<{
     message: string;
@@ -96,14 +115,45 @@ export function useProductForm({
     loadCategories();
   }, [selectedCategory]);
 
-  const handleSimulateUpload = () => {
-    const mockImages = [
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDEAnGLAbGf12zT2EtNl6h8RQbU1yyyOP9MPKft_V1MkKF61lagMFAN-a1DpqLJJCXtIv9NnQAnEL-B6xWG0Jzj9WXPxvoZeEJztOCU0NeO61FjlTkX0hkXY8_ZmiEkmXzhCf3m_ILlrosvwBytYAxXMaq-50lBwunlMxtGTVqHqPDUsSz9vhXSzNKr8wn0rs3Dm04YdvSZGLFj72k3xBTHlQzM2mvn9OPqO6WqCjEeA5am9hHlJ0xbBte0Z6gb2XIwTW6QWf9pu0g",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBFOMDYMe_zlD-fqblViZDSaue7PBZweMDMOH6iKU1K4-jbukMgsupi9xSyU9lq0BwCNonaEQq-GUJcmbtMWFrhtKUn41nyPd-dgbuPPS7dI3yIOiLLCbX9_5g6MvFITbi85nV1WJM99FmqrfXXML5V_8S1iaWOkasOntpOyHQgQeGVSkkOnsYKiKYLaIJAPkM6jt3yHyh7E7lUNyRDWKlC3MbMQN6zA90EmzPvJzt_Lf1bT01JUGJWsPeogCNKS-uejjTWToWyTrw",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuB473NxorKS0PLtB2mH9eA8VE2ubrx6owKfTgEo9rWAefPnNTrB_5zQoDpH_vcnmwi6ywJ18l7PiTCngZM1OXWjc0n4w51OChPGfn3xxMA49RO5tZJMK4ZzcGeHN8pxmfw_5XzJ8zTwpjPOoH0Wrl1OMZQDje3SX-3t4m_RKjCJX4u64wm1KtFydvAqZYIcKEBPuDoaAydJO7It0VoEhJcUok5qwFBmIWBELY4m2Kdo2xn0YjkJU_bBK-d1XbMsrFVsxdldZS4X_vI",
-    ];
-    const randomImg = mockImages[Math.floor(Math.random() * mockImages.length)];
-    setThumbnailUrl(randomImg);
+  const handleFilesAdded = (newFiles: FileList | File[]) => {
+    const fileArray = Array.from(newFiles);
+    if (fileArray.length === 0) return;
+
+    const newItems: ImageItem[] = fileArray.map((file) => ({
+      id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      isExisting: false,
+    }));
+
+    setImages((prev) => [...prev, ...newItems]);
+  };
+
+  const handleMoveImage = (fromIndex: number, toIndex: number) => {
+    setImages((prev) => {
+      if (
+        fromIndex < 0 ||
+        fromIndex >= prev.length ||
+        toIndex < 0 ||
+        toIndex >= prev.length
+      ) {
+        return prev;
+      }
+      const updated = [...prev];
+      const [movedItem] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, movedItem);
+      return updated;
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => {
+      const itemToRemove = prev[index];
+      if (itemToRemove?.file && itemToRemove.previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(itemToRemove.previewUrl);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleSimulateScan = () => {
@@ -121,6 +171,7 @@ export function useProductForm({
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setSubmitError(null);
+    setUploadProgressStatus(null);
 
     if (!productName.trim()) {
       setSubmitError("يرجى إدخال اسم المنتج");
@@ -147,6 +198,8 @@ export function useProductForm({
     setIsSubmitting(true);
 
     try {
+      let targetProductId: string | null = null;
+
       if (mode === "edit" && productId) {
         const updateBody: UpdateProductRequest = {
           categoryId: selectedCategory,
@@ -162,17 +215,13 @@ export function useProductForm({
         const res = await updateMerchantProduct(productId, updateBody);
 
         if (res.data) {
-          setToast({
-            message: "تم تحديث بيانات المنتج بنجاح!",
-            type: "success",
-          });
-          setTimeout(() => {
-            window.location.href = `/product/${productId}`;
-          }, 1200);
+          targetProductId = productId;
         } else {
           const errorMsg = res.error || "تعذر تحديث بيانات المنتج";
           setSubmitError(errorMsg);
           setToast({ message: errorMsg, type: "error" });
+          setIsSubmitting(false);
+          return;
         }
       } else {
         const createBody: CreateProductRequest = {
@@ -188,26 +237,56 @@ export function useProductForm({
         };
         const res = await createMerchantProduct(createBody);
 
-        if (res.data) {
-          setToast({
-            message: "تم إنشاء ونشر المنتج بنجاح!",
-            type: "success",
-          });
-          setTimeout(() => {
-            window.location.href = "/inventory";
-          }, 1200);
+        if (res.data && res.data.id) {
+          targetProductId = res.data.id;
         } else {
           const errorMsg = res.error || "تعذر نشر المنتج";
           setSubmitError(errorMsg);
           setToast({ message: errorMsg, type: "error" });
+          setIsSubmitting(false);
+          return;
         }
       }
+
+      // Upload pending images in ordered sequence
+      if (targetProductId) {
+        const pendingItems = images.filter((img) => img.file);
+        if (pendingItems.length > 0) {
+          for (let i = 0; i < pendingItems.length; i++) {
+            setUploadProgressStatus(
+              `جاري رفع الصور (${i + 1} من ${pendingItems.length})...`,
+            );
+            try {
+              await uploadProductImage(targetProductId, pendingItems[i].file!);
+            } catch (imgErr) {
+              console.error(`فشل رفع الصورة رقم ${i + 1}:`, imgErr);
+            }
+          }
+        }
+      }
+
+      setToast({
+        message:
+          mode === "edit"
+            ? "تم تحديث بيانات المنتج ورصد الصور بنجاح!"
+            : "تم إنشاء ونشر المنتج وإرفاق الصور بنجاح!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        if (mode === "edit" && productId) {
+          window.location.href = `/product/${productId}`;
+        } else {
+          window.location.href = "/inventory";
+        }
+      }, 1200);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "حدث خطأ أثناء التواصل مع السيرفر";
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
+      setUploadProgressStatus(null);
     }
   };
 
@@ -218,7 +297,7 @@ export function useProductForm({
     setMobileSidebarOpen,
     sidebarCollapsed,
     setSidebarCollapsed,
-    thumbnailUrl,
+    images,
     categories,
     isLoadingCategories,
     selectedCategory,
@@ -240,9 +319,12 @@ export function useProductForm({
     scanSuccess,
     setScanSuccess,
     isSubmitting,
+    uploadProgressStatus,
     submitError,
     toast,
-    handleSimulateUpload,
+    handleFilesAdded,
+    handleMoveImage,
+    handleRemoveImage,
     handleSimulateScan,
     handleSubmit,
   };

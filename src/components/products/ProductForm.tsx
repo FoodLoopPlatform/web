@@ -166,8 +166,11 @@ export function ProductForm({
               {/* Left Column: Image & Category */}
               <div className="md:col-span-5 flex flex-col gap-md">
                 <ImageUpload
-                  thumbnailUrl={formState.thumbnailUrl}
-                  onUploadSimulated={formState.handleSimulateUpload}
+                  images={formState.images}
+                  onFilesAdded={formState.handleFilesAdded}
+                  onMoveImage={formState.handleMoveImage}
+                  onRemoveImage={formState.handleRemoveImage}
+                  disabled={formState.isSubmitting}
                 />
                 <ClassificationSelect
                   selectedCategory={formState.selectedCategory}
@@ -225,9 +228,10 @@ export function ProductForm({
                     )}
                     <span>
                       {formState.isSubmitting
-                        ? mode === "edit"
-                          ? "جاري حفظ التعديلات..."
-                          : "جاري الحفظ والنشر..."
+                        ? formState.uploadProgressStatus ||
+                          (mode === "edit"
+                            ? "جاري حفظ التعديلات..."
+                            : "جاري الحفظ والنشر...")
                         : mode === "edit"
                           ? "حفظ التعديلات"
                           : "نشر واعتماد المنتج فوراً"}

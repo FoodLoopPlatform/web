@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { ProductCard, Product } from "@/components/inventory/ProductCard";
 import type { MerchantProduct } from "@/app/products/api/types";
 import type { ApiResponse } from "@/utils/server";
+import { extractProductImages } from "@/utils/image-utils";
 
 interface InventoryGridProps {
   productsPromise: Promise<ApiResponse<MerchantProduct[]>>;
@@ -45,6 +46,7 @@ export function InventoryGrid({ productsPromise }: InventoryGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md">
       {products.map((item, idx) => {
+        const extractedImages = extractProductImages(item);
         const product: Product = {
           id: item.id || String(idx + 1),
           sku: `PROD-${item.id ? item.id.slice(0, 5).toUpperCase() : idx + 100}`,
@@ -53,10 +55,8 @@ export function InventoryGrid({ productsPromise }: InventoryGridProps) {
           quantity: item.quantityAvailable,
           price: item.discountedPrice ?? item.originalPrice,
           status: item.status || "Published",
-          image:
-            item.images && item.images.length > 0 && item.images[0]
-              ? item.images[0]
-              : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
+          images: extractedImages,
+          image: extractedImages.length > 0 ? extractedImages[0] : undefined,
         };
 
         return <ProductCard key={product.id} product={product} />;

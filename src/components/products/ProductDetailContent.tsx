@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import type { MerchantProduct } from "@/app/products/api/types";
 import type { ApiResponse } from "@/utils/server";
+import { extractProductImages } from "@/utils/image-utils";
 
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
@@ -84,10 +85,8 @@ export function ProductDetailContent({
     text: "text-primary",
   };
 
-  const imageSrc =
-    product.images && product.images.length > 0 && product.images[0]
-      ? product.images[0]
-      : PLACEHOLDER_IMAGE;
+  const validImages = extractProductImages(product);
+  const imageSrc = validImages.length > 0 ? validImages[0] : PLACEHOLDER_IMAGE;
 
   const discountPercent =
     product.originalPrice > 0 && product.discountedPrice < product.originalPrice
@@ -135,9 +134,9 @@ export function ProductDetailContent({
           </div>
 
           {/* Thumbnails if available */}
-          {product.images && product.images.length > 1 && (
+          {validImages.length > 1 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              {product.images.map((img, i) => (
+              {validImages.map((img, i) => (
                 <div
                   key={i}
                   className="w-16 h-16 relative rounded-lg overflow-hidden border border-outline-variant shrink-0"

@@ -112,20 +112,15 @@ export function uploadProductImage(id: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  return withAuth(async (token) => {
-    const res = await fetch(
-      `${Endpoints.baseUrl}${Endpoints.stores.productImages(id)}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      },
-    );
-    const data = await res.json();
-    return data;
-  });
+  return withAuth((token) =>
+    unwrapEnvelope<unknown>(
+      createOne<FoodLoopEnvelope<unknown>, FormData>(
+        Endpoints.stores.productImages(id),
+        formData,
+        { token },
+      ),
+    ),
+  );
 }
 
 /**

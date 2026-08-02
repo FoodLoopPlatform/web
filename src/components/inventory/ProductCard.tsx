@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { extractProductImages } from "@/utils/image-utils";
 
 export interface Product {
   id: string;
@@ -11,7 +12,8 @@ export interface Product {
   quantity: number | null;
   price: number;
   status: string;
-  image: string;
+  image?: string | null;
+  images?: string[] | null;
 }
 
 interface ProductCardProps {
@@ -64,10 +66,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock =
     rawStatus === "out of stock" || rawStatus === "outofstock";
 
+  const extractedImages = extractProductImages(product);
   const imageSrc =
-    product.image && product.image.trim() !== ""
-      ? product.image
-      : PLACEHOLDER_IMAGE;
+    extractedImages.length > 0 ? extractedImages[0] : PLACEHOLDER_IMAGE;
 
   return (
     <Link
