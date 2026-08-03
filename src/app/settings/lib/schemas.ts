@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { operatingHoursSchema } from "./operating-hours";
 
 const egyptianPhoneRegex = /^(01[0125]\d{8}|0[23456789]\d{7,8})$/;
 
@@ -13,149 +14,69 @@ export const businessTypesList = [
   { value: "Other", label: "آخر" },
 ] as const;
 
-export const dayKeys = [
-  "saturday",
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-] as const;
-
-export type DayKey = (typeof dayKeys)[number];
-
-export const dayLabelsArabic: Record<DayKey, string> = {
-  saturday: "السبت",
-  sunday: "الأحد",
-  monday: "الإثنين",
-  tuesday: "الثلاثاء",
-  wednesday: "الأربعاء",
-  thursday: "الخميس",
-  friday: "الجمعة",
-};
-
-export const operatingHourSchema = z
-  .object({
-    openTime: z
-      .string()
-      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "تنسيق الوقت غير صحيح"),
-    closeTime: z
-      .string()
-      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "تنسيق الوقت غير صحيح"),
-    closed: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      if (data.closed) return true;
-      return data.openTime !== data.closeTime;
-    },
-    {
-      message: "يجب أن يختلف وقت الإغلاق عن وقت الفتح",
-      path: ["closeTime"],
-    },
-  );
-
-export const storeProfileSchema = z
-  .object({
-    businessName: z
-      .string()
-      .trim()
-      .min(2, "يجب أن يكون اسم المتجر حرفين على الأقل")
-      .max(100, "يجب ألا يتجاوز اسم المتجر 100 حرف"),
-    logoUrl: z.string().optional(),
-    logoFile: z
-      .custom<File>()
-      .optional()
-      .nullable()
-      .refine(
-        (file) => {
-          if (!file) return true;
-          return file.size <= 5 * 1024 * 1024;
-        },
-        { message: "حجم الصورة يجب ألا يتجاوز 5 ميجابايت" },
-      )
-      .refine(
-        (file) => {
-          if (!file) return true;
-          return ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
-        },
-        { message: "يقبل فقط صيغ JPG أو PNG" },
-      ),
-    coverUrl: z.string().optional(),
-    coverFile: z
-      .custom<File>()
-      .optional()
-      .nullable()
-      .refine(
-        (file) => {
-          if (!file) return true;
-          return file.size <= 5 * 1024 * 1024;
-        },
-        { message: "حجم الصورة يجب ألا يتجاوز 5 ميجابايت" },
-      )
-      .refine(
-        (file) => {
-          if (!file) return true;
-          return ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
-        },
-        { message: "يقبل فقط صيغ JPG أو PNG" },
-      ),
-    businessType: z.string().min(1, "يرجى اختيار نوع النشاط التجاري"),
-    description: z.string().max(300, "يجب ألا يتجاوز الوصف 300 حرف").optional(),
-    phone: z
-      .string()
-      .trim()
-      .regex(
-        egyptianPhoneRegex,
-        "رقم الهاتف غير صحيح (مطلوب رقم مصري أرضي أو محمول)",
-      ),
-    email: z.string().trim().email("يرجى إدخال بريد إلكتروني صالح"),
-    preferredLanguage: z.enum(["ar"]),
-    operatingHours: z.record(z.string(), operatingHourSchema),
-    disableAutomation: z.boolean(),
-    automationMode: z.enum(["manual", "assisted", "autonomous"]),
-    maxDiscount: z
-      .number()
-      .min(1, "يجب أن تكون القيمة 1% على الأقل")
-      .max(15, "الحد الأقصى للخصم المسموح به هو 15%"),
-    priceFloorRule: z.enum(["cost", "custom"]),
-    customFloorPercent: z
-      .number()
-      .min(10, "الحد الأدنى هو 10%")
-      .max(90, "الحد الأقصى هو 90%"),
-    suggestDonation: z.boolean(),
-    arrangeDelivery: z.boolean(),
-    deliveryNotes: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (!data.disableAutomation && data.automationMode === "autonomous") {
-        return data.maxDiscount >= 1 && data.maxDiscount <= 15;
-      }
-      return true;
-    },
-    {
-      message: "الحد الأقصى للخصم التلقائي المسموح به هو 15%",
-      path: ["maxDiscount"],
-    },
-  )
-  .refine(
-    (data) => {
-      if (
-        !data.disableAutomation &&
-        data.automationMode === "autonomous" &&
-        data.priceFloorRule === "custom"
-      ) {
-        return data.customFloorPercent >= 10 && data.customFloorPercent <= 90;
-      }
-      return true;
-    },
-    {
-      message: "يجب أن تكون النسبة المخصصة بين 10% و 90%",
-      path: ["customFloorPercent"],
-    },
-  );
+export const storeProfileSchema = z.object({
+  businessName: z
+    .string()
+    .trim()
+    .min(2, "يجب أن يكون اسم المتجر حرفين على الأقل")
+    .max(100, "يجب ألا يتجاوز اسم المتجر 100 حرف"),
+  logoUrl: z.string().optional(),
+  logoFile: z
+    .custom<File>()
+    .optional()
+    .nullable()
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return file.size <= 5 * 1024 * 1024;
+      },
+      { message: "حجم الصورة يجب ألا يتجاوز 5 ميجابايت" },
+    )
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
+      },
+      { message: "يقبل فقط صيغ JPG أو PNG" },
+    ),
+  coverUrl: z.string().optional(),
+  coverFile: z
+    .custom<File>()
+    .optional()
+    .nullable()
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return file.size <= 5 * 1024 * 1024;
+      },
+      { message: "حجم الصورة يجب ألا يتجاوز 5 ميجابايت" },
+    )
+    .refine(
+      (file) => {
+        if (!file) return true;
+        return ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
+      },
+      { message: "يقبل فقط صيغ JPG أو PNG" },
+    ),
+  businessType: z.string().min(1, "يرجى اختيار نوع النشاط التجاري"),
+  description: z.string().max(300, "يجب ألا يتجاوز الوصف 300 حرف").optional(),
+  phone: z
+    .string()
+    .trim()
+    .regex(
+      egyptianPhoneRegex,
+      "رقم الهاتف غير صحيح (مطلوب رقم مصري أرضي أو محمول)",
+    ),
+  email: z.string().trim().email("يرجى إدخال بريد إلكتروني صالح"),
+  preferredLanguage: z.enum(["ar"]),
+  operatingHours: operatingHoursSchema,
+  disableAutomation: z.boolean(),
+  automationMode: z.enum(["manual", "assisted", "autonomous"]),
+  priceFloorRule: z.enum(["cost", "custom"]),
+  suggestDonation: z.boolean(),
+  arrangeDelivery: z.boolean(),
+  deliveryNotes: z.string().optional(),
+});
 
 export type StoreProfileInput = z.infer<typeof storeProfileSchema>;
 

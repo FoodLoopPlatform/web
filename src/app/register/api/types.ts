@@ -1,4 +1,4 @@
-export type AccountType = "User" | "StoreOwner" | "Charity";
+export type AccountType = "User" | "Merchant" | "Charity";
 
 export type BusinessCategory =
   | "Supermarket"
@@ -13,9 +13,9 @@ export type RegisterPayload = {
   name: string;
   email: string;
   password: string;
-  phoneNumber?: string;
-  accountType?: AccountType;
-  businessName?: string;
+  phoneNumber: string;
+  role: AccountType;
+  businessName: string;
   businessCategory?: BusinessCategory;
 };
 

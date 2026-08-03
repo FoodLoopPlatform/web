@@ -1,17 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
-import { Icon } from "@/components/ui/icon";
+import { extractProductImages } from "@/utils/image-utils";
 
 export interface Product {
   id: string;
   sku: string;
   name: string;
-  category: "Produce" | "Dairy" | "Bakery" | "Pantry";
+  category: string;
   quantity: number | null;
   price: number;
-  status: "Published" | "Pending" | "Draft" | "Out of Stock";
-  image: string;
+  status: string;
+  image?: string | null;
+  images?: string[] | null;
 }
 
 interface ProductCardProps {
@@ -19,34 +21,58 @@ interface ProductCardProps {
 }
 
 const statusMap: Record<string, { bg: string; text: string; label: string }> = {
-  Published: {
+  published: {
     bg: "bg-primary-fixed text-primary",
     label: "نشط (تم النشر)",
     text: "text-primary",
   },
-  Pending: {
+  active: {
+    bg: "bg-primary-fixed text-primary",
+    label: "نشط",
+    text: "text-primary",
+  },
+  pending: {
     bg: "bg-tertiary-fixed text-on-tertiary-fixed-variant",
     label: "قيد المراجعة",
     text: "text-on-tertiary-fixed-variant",
   },
-  Draft: {
+  draft: {
     bg: "bg-surface-container-highest text-on-surface-variant",
     label: "مسودة",
     text: "text-on-surface-variant",
   },
-  "Out of Stock": {
+  "out of stock": {
+    bg: "bg-error-container text-error",
+    label: "نفد من المخزون",
+    text: "text-error",
+  },
+  outofstock: {
     bg: "bg-error-container text-error",
     label: "نفد من المخزون",
     text: "text-error",
   },
 };
 
+const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
+
 export function ProductCard({ product }: ProductCardProps) {
-  const statusStyle = statusMap[product.status];
-  const isOutOfStock = product.status === "Out of Stock";
+  const rawStatus = (product.status || "").toLowerCase().trim();
+  const statusStyle = statusMap[rawStatus] || {
+    bg: "bg-primary-fixed text-primary",
+    label: product.status || "نشط",
+    text: "text-primary",
+  };
+  const isOutOfStock =
+    rawStatus === "out of stock" || rawStatus === "outofstock";
+
+  const extractedImages = extractProductImages(product);
+  const imageSrc =
+    extractedImages.length > 0 ? extractedImages[0] : PLACEHOLDER_IMAGE;
 
   return (
-    <div
+    <Link
+      href={`/product/${product.id}`}
       className={`bg-light-green rounded-xl border border-outline-variant/50 hover:border-outline-variant hover:shadow-md transition-[border-color,box-shadow,filter] duration-300 group overflow-hidden cursor-pointer flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-primary outline-none ${
         isOutOfStock ? "grayscale-[0.4]" : ""
       }`}
@@ -54,7 +80,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Card Image */}
       <div className="aspect-square relative overflow-hidden bg-surface-container-high">
         <Image
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
@@ -74,15 +100,9 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="p-sm flex flex-col gap-base flex-grow justify-between">
         <div>
           <div className="flex justify-between items-start">
-            <h3 className="font-bold text-body-md text-on-surface leading-tight group-hover:text-primary">
+            <h3 className="font-bold text-body-md text-on-surface leading-tight group-hover:text-primary transition-colors">
               {product.name}
             </h3>
-            <button
-              aria-label="المزيد من خيارات المنتج"
-              className="p-1 text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-primary rounded-lg outline-none"
-            >
-              <Icon name="more_vert" className="h-5 w-5" />
-            </button>
           </div>
           <p className="font-data-mono text-[11px] text-on-surface-variant opacity-70 mt-1">
             {product.sku}
@@ -115,6 +135,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
