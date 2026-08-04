@@ -6,7 +6,7 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { storeProfileSchema, type StoreProfileInput } from "../lib/schemas";
-import { updateStoreProfile } from "../services/settings-service";
+import { updateStoreProfile } from "../services/store-profile-service";
 import { ProfileHoursSection } from "./profile-hours-section";
 import { ProfileAutomationSection } from "./profile-automation-section";
 import { ProfileIdentitySection } from "./profile-identity-section";
@@ -40,9 +40,10 @@ export function StoreProfileForm({
     coverUrl: initialData.coverUrl || "",
     businessType: initialData.businessType,
     description: initialData.description || "",
-    phone: user?.phoneNumber ?? initialData.phone,
-    email: user?.email ?? initialData.email,
+    phone: initialData.phone || user?.phoneNumber || "",
+    email: initialData.email || user?.email || "",
     preferredLanguage: "ar",
+    operatingHours: initialData.operatingHours,
     disableAutomation: initialData.disableAutomation,
     automationMode: initialData.automationMode,
     priceFloorRule: initialData.priceFloorRule,
@@ -216,8 +217,13 @@ export function StoreProfileForm({
         onInputChange={handleInputChange}
       />
 
-      {/* 4. Operating Hours (display-only, not part of saved profile data) */}
-      <ProfileHoursSection />
+      {/* 4. Operating Hours */}
+      <ProfileHoursSection
+        hours={form.operatingHours}
+        onChange={(operatingHours) =>
+          handleInputChange("operatingHours", operatingHours)
+        }
+      />
 
       {/* 5. AI Pricing Section */}
       <ProfileAutomationSection form={form} onInputChange={handleInputChange} />

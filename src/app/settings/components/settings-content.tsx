@@ -14,6 +14,7 @@ import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
 import { useAppStore } from "@/store/use-app-store";
 import { getStoreResource } from "../api/store-resource";
 import { businessCategoryToFormValue } from "../api/types";
+import { parseOperatingHours } from "../lib/operating-hours";
 import { withAuth } from "@/lib/auth/with-auth";
 
 type ToastState = {
@@ -73,9 +74,8 @@ function SettingsContent({
   if (!accessToken) return null;
 
   // Real store record (GET /stores/me) layered over the mock/local profile
-  // data — the backend has no endpoint for the rest of the profile fields
-  // (hours, logo, automation, etc.), so only the fields it actually owns
-  // (name, category, location) are overridden here.
+  // data — automation and delivery settings aren't part of the store
+  // resource, so only those stay sourced from the mock/local profile here.
   const store = use(getStoreResource(accessToken));
 
   const mergedProfile = initialProfile
@@ -85,6 +85,12 @@ function SettingsContent({
         businessType:
           businessCategoryToFormValue[store.businessCategory] ??
           initialProfile.businessType,
+        description: store.description || initialProfile.description,
+        phone: store.phone || initialProfile.phone,
+        email: store.email || initialProfile.email,
+        operatingHours: store.openingHours
+          ? parseOperatingHours(store.openingHours)
+          : initialProfile.operatingHours,
       }
     : initialProfile;
 
@@ -95,6 +101,7 @@ function SettingsContent({
         city: store.city || initialLocation.city,
         cityArea: store.neighborhood || initialLocation.cityArea,
         streetAddress: store.street || initialLocation.streetAddress,
+        buildingDetails: store.buildingNo || initialLocation.buildingDetails,
         latitude: store.latitude ?? initialLocation.latitude,
         longitude: store.longitude ?? initialLocation.longitude,
       }

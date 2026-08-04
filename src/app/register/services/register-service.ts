@@ -1,19 +1,27 @@
-import { uploadStoreDocument } from "../documents/api/documents-api";
+import {
+  uploadCharityDocument,
+  uploadStoreDocument,
+} from "../documents/api/documents-api";
+import type { AccountType } from "../lib/register-flow-context";
 
 /**
- * Uploads each provided document to POST /stores/me/documents (one request
- * per file, keyed by the backend `Type` value from `typeMap`).
+ * Uploads each provided document to POST /stores/me/documents or
+ * POST /charities/me/documents (one request per file, keyed by the backend
+ * `Type` value from `typeMap`).
  */
 export async function submitDocumentUpload(
   documents: Record<string, File>,
   typeMap: Record<string, string>,
   email: string,
+  accountType: AccountType,
 ) {
+  const uploadDocument =
+    accountType === "Charity" ? uploadCharityDocument : uploadStoreDocument;
+
   const results = await Promise.all(
-    Object.entries(documents).map(([key, file]) => {
-      console.log("Uploading document", key, file, typeMap[key], email);
-      return uploadStoreDocument(typeMap[key], file, email);
-    }),
+    Object.entries(documents).map(([key, file]) =>
+      uploadDocument(typeMap[key], file, email),
+    ),
   );
 
   const failed = results.find(

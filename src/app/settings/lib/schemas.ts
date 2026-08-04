@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { operatingHoursSchema } from "./operating-hours";
 
 const egyptianPhoneRegex = /^(01[0125]\d{8}|0[23456789]\d{7,8})$/;
 
@@ -68,6 +69,7 @@ export const storeProfileSchema = z.object({
     ),
   email: z.string().trim().email("يرجى إدخال بريد إلكتروني صالح"),
   preferredLanguage: z.enum(["ar"]),
+  operatingHours: operatingHoursSchema,
   disableAutomation: z.boolean(),
   automationMode: z.enum(["manual", "assisted", "autonomous"]),
   priceFloorRule: z.enum(["cost", "custom"]),

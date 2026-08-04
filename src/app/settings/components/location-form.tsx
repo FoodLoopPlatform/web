@@ -106,6 +106,7 @@ export function LocationForm({
       city: form.city,
       neighborhood: form.cityArea,
       street: form.streetAddress,
+      buildingNo: form.buildingDetails || null,
       latitude: form.latitude,
       longitude: form.longitude,
     });

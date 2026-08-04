@@ -12,8 +12,10 @@ import { QuickActionsWidget } from "@/components/dashboard/QuickActionsWidget";
 import { RecentActivityWidget } from "@/components/dashboard/RecentActivityWidget";
 import { LogisticsAlertWidget } from "@/components/dashboard/LogisticsAlertWidget";
 import { withAuth } from "@/lib/auth/with-auth";
+import { useStoreProfile } from "@/hooks/use-store-profile";
 
 function DashboardPage() {
+  const store = useStoreProfile();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -106,7 +108,7 @@ function DashboardPage() {
                 unoptimized
               />
               <span className="font-label-caps text-label-caps text-primary font-bold hidden md:block">
-                سوبرماركت النيل
+                {store?.name || "متجري"}
               </span>
             </div>
           </div>
