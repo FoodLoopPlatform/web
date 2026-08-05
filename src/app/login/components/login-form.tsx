@@ -49,6 +49,15 @@ export function LoginForm() {
 
     setSession(res.data);
 
+    const isPlatformAdmin = res.data.user.roles?.some(
+      (role) => role.toLowerCase() === "admin" || role.toLowerCase() === "seniorcontroller"
+    );
+
+    if (isPlatformAdmin) {
+      router.push("/admin");
+      return;
+    }
+
     if (res.data.user.status === "PendingVerification") {
       router.push("/register/pending");
       return;
