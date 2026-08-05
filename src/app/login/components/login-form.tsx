@@ -39,6 +39,7 @@ export function LoginForm() {
     setError(null);
     setSubmitting(true);
     const res = await login(form);
+
     setSubmitting(false);
 
     if (!res.data) {

@@ -3,24 +3,18 @@
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
 import type { StoreProfileInput } from "../lib/schemas";
 
 type ProfileAutomationSectionProps = {
   form: Omit<StoreProfileInput, "logoFile" | "coverFile">;
-  errors: Partial<Record<string, string>>;
   onInputChange: (
-    key: keyof Omit<
-      StoreProfileInput,
-      "logoFile" | "coverFile" | "operatingHours"
-    >,
+    key: keyof Omit<StoreProfileInput, "logoFile" | "coverFile">,
     value: unknown,
   ) => void;
 };
 
 export function ProfileAutomationSection({
   form,
-  errors,
   onInputChange,
 }: ProfileAutomationSectionProps) {
   return (
@@ -122,98 +116,41 @@ export function ProfileAutomationSection({
                 </div>
 
                 {form.automationMode === "autonomous" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-lg bg-surface-container-low border border-outline-variant/60">
-                    <Field.Root invalid={!!errors.maxDiscount}>
-                      <Field.Label>
-                        الحد الأقصى للخصم التلقائي المسموح به
-                      </Field.Label>
-                      <div className="flex items-center gap-2 mt-1">
+                  <div className="p-4 rounded-lg bg-surface-container-low border border-outline-variant/60">
+                    <Text
+                      variant="label-md"
+                      className="font-semibold text-on-surface"
+                    >
+                      قاعدة الحد الأدنى للسعر
+                    </Text>
+                    <div className="flex flex-col gap-2 mt-1">
+                      <label className="flex items-center gap-2 cursor-pointer text-body-md text-on-surface">
                         <input
-                          name="maxDiscount"
-                          type="number"
-                          min={1}
-                          max={15}
-                          className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-primary"
-                          value={form.maxDiscount}
-                          onChange={(e) =>
-                            onInputChange("maxDiscount", Number(e.target.value))
+                          type="radio"
+                          name="priceFloorRule"
+                          checked={form.priceFloorRule === "cost"}
+                          onChange={() =>
+                            onInputChange("priceFloorRule", "cost")
                           }
+                          className="h-4 w-4 accent-primary"
                         />
-                        <span className="text-body-md font-bold text-on-surface">
-                          %
+                        <span>
+                          عدم البيع بأقل من تكلفة المنتج (حسب الفاتورة)
                         </span>
-                      </div>
-                      <Field.HelperText>
-                        الحد الأقصى المسموح به في النظام هو 15% لحماية أرباحك.
-                      </Field.HelperText>
-                      {errors.maxDiscount && (
-                        <Field.Error>{errors.maxDiscount}</Field.Error>
-                      )}
-                    </Field.Root>
+                      </label>
 
-                    <div className="flex flex-col gap-2">
-                      <Text
-                        variant="label-md"
-                        className="font-semibold text-on-surface"
-                      >
-                        قاعدة الحد الأدنى للسعر
-                      </Text>
-                      <div className="flex flex-col gap-2 mt-1">
-                        <label className="flex items-center gap-2 cursor-pointer text-body-md text-on-surface">
-                          <input
-                            type="radio"
-                            name="priceFloorRule"
-                            checked={form.priceFloorRule === "cost"}
-                            onChange={() =>
-                              onInputChange("priceFloorRule", "cost")
-                            }
-                            className="h-4 w-4 accent-primary"
-                          />
-                          <span>
-                            عدم البيع بأقل من تكلفة المنتج (حسب الفاتورة)
-                          </span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer text-body-md text-on-surface">
-                          <input
-                            type="radio"
-                            name="priceFloorRule"
-                            checked={form.priceFloorRule === "custom"}
-                            onChange={() =>
-                              onInputChange("priceFloorRule", "custom")
-                            }
-                            className="h-4 w-4 accent-primary"
-                          />
-                          <span>تحديد حد أدنى مخصص كنسبة من السعر الأصلي</span>
-                        </label>
-
-                        {form.priceFloorRule === "custom" && (
-                          <div className="flex items-center gap-2 mt-1 ps-6">
-                            <input
-                              name="customFloorPercent"
-                              type="number"
-                              min={10}
-                              max={90}
-                              className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest p-2 text-body-md text-on-surface outline-none focus:border-primary"
-                              value={form.customFloorPercent}
-                              onChange={(e) =>
-                                onInputChange(
-                                  "customFloorPercent",
-                                  Number(e.target.value),
-                                )
-                              }
-                            />
-                            <span className="text-body-md font-bold text-on-surface">
-                              %
-                            </span>
-                            {errors.customFloorPercent && (
-                              <span className="text-label-md text-error font-semibold">
-                                {errors.customFloorPercent}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      <label className="flex items-center gap-2 cursor-pointer text-body-md text-on-surface">
+                        <input
+                          type="radio"
+                          name="priceFloorRule"
+                          checked={form.priceFloorRule === "custom"}
+                          onChange={() =>
+                            onInputChange("priceFloorRule", "custom")
+                          }
+                          className="h-4 w-4 accent-primary"
+                        />
+                        <span>تحديد حد أدنى مخصص كنسبة من السعر الأصلي</span>
+                      </label>
                     </div>
                   </div>
                 )}

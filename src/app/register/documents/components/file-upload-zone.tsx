@@ -1,8 +1,9 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { UploadCloudIcon } from "@/components/icons/upload-cloud-icon";
+import { FileIcon } from "@/components/icons/file-icon";
 
 type FileUploadZoneProps = {
   icon: React.ReactNode;
@@ -26,6 +27,16 @@ export function FileUploadZone({
   onFileChange,
 }: FileUploadZoneProps) {
   const id = useId();
+  const previewUrl = useMemo(() => {
+    if (!file || !file.type.startsWith("image/")) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   return (
     <div className="w-full">
@@ -41,8 +52,19 @@ export function FileUploadZone({
           error ? "border-error" : "border-outline-variant",
         )}
       >
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-container text-primary">
-          {icon}
+        <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-surface-container text-primary">
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt={title}
+              className="h-full w-full object-cover"
+            />
+          ) : file ? (
+            <FileIcon className="h-6 w-6" />
+          ) : (
+            icon
+          )}
         </span>
         <span className="flex flex-col gap-1">
           <span className="text-body-lg font-semibold text-on-surface">

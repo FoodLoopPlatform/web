@@ -12,7 +12,6 @@ import {
 } from "../lib/schemas";
 import { type LocationFormProps } from "../lib/types";
 import { EGYPTIAN_GOVERNORATES } from "../lib/constants";
-import { useAppStore } from "@/store/use-app-store";
 import { updateMyStoreLocation } from "../api/stores-api";
 import { invalidateStoreResource } from "../api/store-resource";
 import { LocationMapPreview } from "./location-map-preview";
@@ -22,7 +21,6 @@ export function LocationForm({
   onSaveSuccess,
   showToast,
 }: LocationFormProps) {
-  const accessToken = useAppStore((state) => state.accessToken);
   const [form, setForm] = useState<LocationSettingsInput>({
     governorate: initialData.governorate,
     city: initialData.city,
@@ -103,16 +101,12 @@ export function LocationForm({
       return;
     }
 
-    if (!accessToken) {
-      showToast("يجب تسجيل الدخول لحفظ موقع المتجر", "error");
-      return;
-    }
-
     const result = await updateMyStoreLocation({
       governorate: form.governorate,
       city: form.city,
       neighborhood: form.cityArea,
       street: form.streetAddress,
+      buildingNo: form.buildingDetails || null,
       latitude: form.latitude,
       longitude: form.longitude,
     });
@@ -260,25 +254,6 @@ export function LocationForm({
                     </Field.Select>
                     {errors.governorate && (
                       <Field.Error>{errors.governorate}</Field.Error>
-                    )}
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.postalCode}>
-                    <Field.Label className="font-semibold text-on-surface">
-                      الرمز البريدي (اختياري)
-                    </Field.Label>
-                    <Field.Control
-                      name="postalCode"
-                      placeholder="مثال: 11728"
-                      value={form.postalCode || ""}
-                      maxLength={5}
-                      onChange={(e) =>
-                        handleInputChange("postalCode", e.target.value)
-                      }
-                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
-                    />
-                    {errors.postalCode && (
-                      <Field.Error>{errors.postalCode}</Field.Error>
                     )}
                   </Field.Root>
                 </div>

@@ -142,7 +142,8 @@ export function ProfileGeneralSection({
                   placeholder="مثال: 01012345678…"
                   value={form.phone}
                   onChange={(e) => onInputChange("phone", e.target.value)}
-                  className="rounded-lg border border-outline-variant p-3"
+                  disabled
+                  className="rounded-lg border border-outline-variant p-3 disabled:cursor-not-allowed disabled:bg-surface-container-low disabled:text-on-surface-variant"
                 />
                 {errors.phone && <Field.Error>{errors.phone}</Field.Error>}
               </Field.Root>
@@ -158,7 +159,8 @@ export function ProfileGeneralSection({
                   placeholder="example@store.com"
                   value={form.email}
                   onChange={(e) => onInputChange("email", e.target.value)}
-                  className="rounded-lg border border-outline-variant p-3"
+                  disabled
+                  className="rounded-lg border border-outline-variant p-3 disabled:cursor-not-allowed disabled:bg-surface-container-low disabled:text-on-surface-variant"
                 />
                 {errors.email && <Field.Error>{errors.email}</Field.Error>}
               </Field.Root>

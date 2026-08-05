@@ -7,26 +7,33 @@ import {
   dayKeys,
   dayLabelsArabic,
   type DayKey,
-  type StoreProfileInput,
-} from "../lib/schemas";
+  type OperatingHours,
+} from "../lib/operating-hours";
 
 type ProfileHoursSectionProps = {
-  operatingHours: StoreProfileInput["operatingHours"];
-  errors: Partial<Record<string, string>>;
-  onHourChange: (
-    day: DayKey,
-    field: "openTime" | "closeTime",
-    value: string,
-  ) => void;
-  onClosedToggle: (day: DayKey) => void;
+  hours: OperatingHours;
+  onChange: (hours: OperatingHours) => void;
 };
 
 export function ProfileHoursSection({
-  operatingHours,
-  errors,
-  onHourChange,
-  onClosedToggle,
+  hours,
+  onChange,
 }: ProfileHoursSectionProps) {
+  const handleHourChange = (
+    day: DayKey,
+    field: "openTime" | "closeTime",
+    value: string,
+  ) => {
+    onChange({ ...hours, [day]: { ...hours[day], [field]: value } });
+  };
+
+  const handleClosedToggle = (day: DayKey) => {
+    onChange({
+      ...hours,
+      [day]: { ...hours[day], closed: !hours[day].closed },
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start border-b border-outline-variant/30 pb-8">
       {/* Right Column: Title & Description */}
@@ -49,33 +56,30 @@ export function ProfileHoursSection({
           <Card.Body className="gap-stack-sm p-6">
             <div className="flex flex-col gap-3">
               {dayKeys.map((day) => {
-                const hours = operatingHours[day];
-                if (!hours) return null;
-
+                const dayHours = hours[day];
                 const dayLabel = dayLabelsArabic[day];
-                const dayError = errors[`hours_${day}`];
 
                 return (
                   <div
                     key={day}
                     className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border transition-all ${
-                      hours.closed
+                      dayHours.closed
                         ? "bg-surface-container-low/50 border-outline-variant/40"
                         : "bg-surface-container-lowest border-outline-variant/60"
                     }`}
                   >
-                    <span className="text-body-md font-semibold text-on-surface min-w-[100px]">
+                    <span className="text-body-md font-semibold text-on-surface min-w-25">
                       {dayLabel}
                     </span>
 
                     <div className="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center justify-between sm:justify-end gap-3 sm:gap-6">
-                      {!hours.closed ? (
+                      {!dayHours.closed ? (
                         <div className="flex items-center justify-between sm:justify-start gap-3 flex-1 sm:flex-none">
                           <input
                             type="time"
-                            value={hours.openTime}
+                            value={dayHours.openTime}
                             onChange={(e) =>
-                              onHourChange(day, "openTime", e.target.value)
+                              handleHourChange(day, "openTime", e.target.value)
                             }
                             className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
@@ -84,15 +88,15 @@ export function ProfileHoursSection({
                           </span>
                           <input
                             type="time"
-                            value={hours.closeTime}
+                            value={dayHours.closeTime}
                             onChange={(e) =>
-                              onHourChange(day, "closeTime", e.target.value)
+                              handleHourChange(day, "closeTime", e.target.value)
                             }
                             className="rounded-lg border border-outline-variant p-2 text-body-md text-on-surface bg-surface-container-lowest outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
                           />
                         </div>
                       ) : (
-                        <div className="text-center py-2 bg-surface-container-high text-outline text-label-md font-bold rounded-lg border border-outline-variant/30 w-full sm:w-[204px]">
+                        <div className="text-center py-2 bg-surface-container-high text-outline text-label-md font-bold rounded-lg border border-outline-variant/30 w-full sm:w-51">
                           مغلق
                         </div>
                       )}
@@ -100,23 +104,18 @@ export function ProfileHoursSection({
                       <label className="flex items-center justify-between sm:justify-end gap-2 cursor-pointer select-none mt-2 sm:mt-0">
                         <input
                           type="checkbox"
-                          checked={!hours.closed}
-                          onChange={() => onClosedToggle(day)}
+                          checked={!dayHours.closed}
+                          onChange={() => handleClosedToggle(day)}
                           className="sr-only peer"
                         />
-                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                         <span
-                          className={`text-label-md font-semibold ${!hours.closed ? "text-primary" : "text-outline"}`}
+                          className={`text-label-md font-semibold ${!dayHours.closed ? "text-primary" : "text-outline"}`}
                         >
-                          {!hours.closed ? "مفتوح" : "مغلق"}
+                          {!dayHours.closed ? "مفتوح" : "مغلق"}
                         </span>
                       </label>
                     </div>
-                    {dayError && (
-                      <div className="text-label-md text-error font-semibold mt-1">
-                        {dayError}
-                      </div>
-                    )}
                   </div>
                 );
               })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { InfoCircleIcon } from "@/components/icons/info-circle-icon";
@@ -9,7 +9,13 @@ import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 import { StoreProfileForm } from "./store-profile-form";
 import { LocationForm } from "./location-form";
+import { SettingsSkeleton } from "./settings-skeleton";
 import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
+import { useAppStore } from "@/store/use-app-store";
+import { getStoreResource } from "../api/store-resource";
+import { businessCategoryToFormValue } from "../api/types";
+import { parseOperatingHours } from "../lib/operating-hours";
+import { withAuth } from "@/lib/auth/with-auth";
 
 type ToastState = {
   message: string;
@@ -38,10 +44,12 @@ function formatTimestamp(isoString: string): string {
   });
 }
 
-export function SettingsContent({
+function SettingsContent({
   initialProfile,
   initialLocation,
 }: SettingsContentProps) {
+  const accessToken = useAppStore((state) => state.accessToken);
+
   const [activeTab, setActiveTab] = useState<"profile" | "location">("profile");
   const [toast, setToast] = useState<ToastState>(null);
   const [profileLastUpdated, setProfileLastUpdated] = useState<string>(
@@ -60,6 +68,44 @@ export function SettingsContent({
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  // withAuth guarantees a session by the time this renders; narrows the
+  // store type for the use() call below.
+  if (!accessToken) return null;
+
+  // Real store record (GET /stores/me) layered over the mock/local profile
+  // data — automation and delivery settings aren't part of the store
+  // resource, so only those stay sourced from the mock/local profile here.
+  const store = use(getStoreResource(accessToken));
+
+  const mergedProfile = initialProfile
+    ? {
+        ...initialProfile,
+        businessName: store.name || initialProfile.businessName,
+        businessType:
+          businessCategoryToFormValue[store.businessCategory] ??
+          initialProfile.businessType,
+        description: store.description || initialProfile.description,
+        phone: store.phone || initialProfile.phone,
+        email: store.email || initialProfile.email,
+        operatingHours: store.openingHours
+          ? parseOperatingHours(store.openingHours)
+          : initialProfile.operatingHours,
+      }
+    : initialProfile;
+
+  const mergedLocation = initialLocation
+    ? {
+        ...initialLocation,
+        governorate: store.governorate || initialLocation.governorate,
+        city: store.city || initialLocation.city,
+        cityArea: store.neighborhood || initialLocation.cityArea,
+        streetAddress: store.street || initialLocation.streetAddress,
+        buildingDetails: store.buildingNo || initialLocation.buildingDetails,
+        latitude: store.latitude ?? initialLocation.latitude,
+        longitude: store.longitude ?? initialLocation.longitude,
+      }
+    : initialLocation;
 
   return (
     <div
@@ -241,10 +287,10 @@ export function SettingsContent({
             </div>
 
             <div className="flex flex-col gap-8">
-              {activeTab === "profile" && initialProfile && (
+              {activeTab === "profile" && mergedProfile && (
                 <div className="flex flex-col gap-6">
                   <StoreProfileForm
-                    initialData={initialProfile}
+                    initialData={mergedProfile}
                     onSaveSuccess={setProfileLastUpdated}
                     showToast={showToast}
                   />
@@ -259,10 +305,10 @@ export function SettingsContent({
                 </div>
               )}
 
-              {activeTab === "location" && initialLocation && (
+              {activeTab === "location" && mergedLocation && (
                 <div className="flex flex-col gap-6">
                   <LocationForm
-                    initialData={initialLocation}
+                    initialData={mergedLocation}
                     onSaveSuccess={setLocationLastUpdated}
                     showToast={showToast}
                   />
@@ -317,3 +363,14 @@ export function SettingsContent({
     </div>
   );
 }
+
+const settingsLoadingFallback = (
+  <div className="flex flex-1 flex-col min-h-full bg-surface px-margin-mobile py-8 md:px-margin-desktop">
+    <SettingsSkeleton />
+  </div>
+);
+
+export default withAuth(SettingsContent, {
+  loadingFallback: settingsLoadingFallback,
+  message: "يجب تسجيل الدخول لعرض بيانات المتجر",
+});
