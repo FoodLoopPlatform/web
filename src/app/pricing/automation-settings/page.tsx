@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import {
   automationModeOptions,
   automationSettings,
+  pricingTiers,
   type AutomationMode,
 } from "@/app/pricing/lib/mock-data";
 import { withAuth } from "@/lib/auth/with-auth";
@@ -18,8 +19,8 @@ function PricingAutomationSettingsPage() {
   const [selectedMode, setSelectedMode] = useState<AutomationMode>(
     automationSettings.selectedMode,
   );
-  const [priceFloorPercent, setPriceFloorPercent] = useState(
-    automationSettings.priceFloorPercent,
+  const [expiryBufferDays, setExpiryBufferDays] = useState(
+    automationSettings.expiryBufferDays,
   );
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
     "idle",
@@ -73,7 +74,7 @@ function PricingAutomationSettingsPage() {
 
       {/* Main Content Area */}
       <main
-        className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
+        className={`flex-1 min-h-screen min-w-0 flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
       >
         {/* Top Header */}
         <header className="h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-light-green border-b border-outline-variant sticky top-0 z-40">
@@ -85,7 +86,7 @@ function PricingAutomationSettingsPage() {
               <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
-            <div className="relative max-w-md w-full hidden md:block">
+            <div className="relative max-w-112 w-full hidden md:block">
               <Icon
                 name="search"
                 className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
@@ -187,138 +188,168 @@ function PricingAutomationSettingsPage() {
                 return (
                   <label
                     key={option.mode}
-                    className={`flex flex-col items-start gap-4 rounded-2xl p-10 cursor-pointer transition-colors ${
+                    className={`flex flex-col gap-3 rounded-2xl p-6 cursor-pointer transition-colors ${
                       isSelected
                         ? "bg-[#f7faf4] border-2 border-primary-container"
                         : "bg-light-green border border-outline-variant hover:bg-surface-container-low"
                     }`}
                   >
-                    <div
-                      className={`h-12 w-12 flex items-center justify-center rounded-xl shrink-0 ${
-                        isSelected
-                          ? "bg-[#98f3b0]"
-                          : "bg-surface-container-high"
-                      }`}
-                    >
-                      <Icon
-                        name={option.icon}
-                        className={`h-5 w-5 ${isSelected ? "text-[#0b723c]" : "text-on-surface-variant"}`}
-                        fill={isSelected}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`h-10 w-10 flex items-center justify-center rounded-lg shrink-0 ${
+                            isSelected
+                              ? "bg-[#98f3b0]"
+                              : "bg-surface-container-high"
+                          }`}
+                        >
+                          <Icon
+                            name={option.icon}
+                            className={`h-4 w-4 ${isSelected ? "text-[#0b723c]" : "text-on-surface-variant"}`}
+                            fill={isSelected}
+                          />
+                        </div>
+                        <span className="text-lg font-bold text-on-surface">
+                          {option.title}
+                        </span>
+                      </div>
+                      <input
+                        type="radio"
+                        name="automationMode"
+                        checked={isSelected}
+                        onChange={() => setSelectedMode(option.mode)}
+                        className="h-5 w-5 accent-primary cursor-pointer shrink-0"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-lg font-bold text-on-surface">
-                        {option.title}
-                      </span>
-                      <span className="text-sm text-on-surface-variant">
-                        {option.description}
-                      </span>
-                    </div>
-                    <input
-                      type="radio"
-                      name="automationMode"
-                      checked={isSelected}
-                      onChange={() => setSelectedMode(option.mode)}
-                      className="h-5 w-5 accent-primary cursor-pointer mt-2"
-                    />
+                    <span className="text-sm text-on-surface-variant">
+                      {option.description}
+                    </span>
                   </label>
                 );
               })}
             </div>
           </section>
 
-          {/* Safety Controls & AI Impact */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-            {/* Safety Limits & Floor */}
-            <div className="lg:col-span-3 bg-white border border-outline-variant rounded-2xl p-10 flex flex-col gap-10">
-              <div className="flex items-center gap-2">
-                <h3 className="font-sans text-2xl font-semibold text-on-surface">
-                  حدود الأمان والحد الأدنى
-                </h3>
-                <Icon name="info" className="h-5 w-5 text-on-surface-variant" />
-              </div>
-
-              <div className="flex flex-col gap-10">
-                <div className="flex flex-col gap-2">
-                  <span className="text-xs font-bold tracking-wide text-on-surface-variant">
-                    الحد الأدنى للسعر (كنسبة % من السعر الأصلي){" "}
-                    <span className="text-error">*</span>
-                  </span>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={priceFloorPercent}
-                      onChange={(event) =>
-                        setPriceFloorPercent(Number(event.target.value))
-                      }
-                      className="w-full bg-light-green border border-outline-variant rounded-xl h-14 px-6 pe-11 font-data-mono text-lg text-on-surface outline-none focus:border-primary transition-colors"
-                    />
-                    <span className="absolute inset-y-0 end-6 flex items-center text-body-md font-bold text-outline-variant pointer-events-none">
-                      %
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 rounded-xl border border-dashed border-outline-variant bg-surface-container-low p-6">
-                  <div className="flex items-center gap-4">
-                    <Icon
-                      name="info"
-                      className="h-5 w-5 text-on-surface-variant shrink-0"
-                    />
-                    <span className="text-body-md font-medium text-on-surface-variant">
-                      الحد الأقصى للتغيير في السعر لكل دورة
-                    </span>
-                  </div>
-                  <span
-                    dir="ltr"
-                    className="font-data-mono text-body-md font-bold text-primary shrink-0"
+          {/* AI Intelligence Section */}
+          <section className="flex flex-col gap-10">
+            {/* Tier Visualization */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {pricingTiers.map((tier) => {
+                if (tier.isOptimal) {
+                  return (
+                    <div
+                      key={tier.key}
+                      className="relative bg-primary-container border-2 border-primary-fixed rounded-xl p-6"
+                    >
+                      <span className="absolute -top-3 inset-x-0 mx-auto w-fit bg-primary text-white text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full">
+                        الأمثل
+                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-bold tracking-wide text-primary-fixed">
+                          {tier.label}
+                        </span>
+                        <span className="font-sans text-2xl font-semibold text-primary-fixed">
+                          خصم <bdi>{tier.discountPercent}%</bdi>
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1 pt-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-primary-fixed">
+                            معدل البيع
+                          </span>
+                          <span
+                            dir="ltr"
+                            className="font-data-mono text-xs text-primary-fixed"
+                          >
+                            {tier.sellThroughPercent}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-on-primary-container overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-primary-fixed"
+                            style={{ width: `${tier.sellThroughPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div
+                    key={tier.key}
+                    className="bg-white border border-outline-variant rounded-xl p-6 flex flex-col gap-1.5"
                   >
-                    ±{automationSettings.maxChangePerCycle}%
-                  </span>
-                </div>
-              </div>
+                    <span className="text-xs font-bold tracking-wide text-on-surface-variant">
+                      {tier.label}
+                    </span>
+                    <span className="font-sans text-2xl font-semibold text-primary">
+                      خصم <bdi>{tier.discountPercent}%</bdi>
+                    </span>
+                    <div className="flex flex-col gap-1 pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-on-surface">
+                          معدل البيع
+                        </span>
+                        <span
+                          dir="ltr"
+                          className="font-data-mono text-xs text-on-surface"
+                        >
+                          {tier.sellThroughPercent}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${tier.sellThroughPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* AI Impact Estimate */}
-            <div className="lg:col-span-2 bg-primary rounded-2xl p-10 flex flex-col justify-between gap-10 relative overflow-hidden">
-              <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#9bf6b3]/10 blur-2xl" />
-              <div className="flex flex-col gap-4 relative">
-                <h3 className="font-sans text-2xl font-semibold text-white">
-                  تقدير أثر الذكاء الاصطناعي
-                </h3>
-                <p className="text-sm text-[#9ae9ae] leading-relaxed">
-                  استنادًا إلى مبيعاتك السابقة، قد يؤدي التحويل إلى وضع{" "}
-                  <span className="underline decoration-[#9bf6b3]">
-                    بمساعدة
-                  </span>{" "}
-                  إلى خفض هدر الطعام بنسبة تصل إلى{" "}
-                  <bdi>{automationSettings.impactWasteReductionPercent}%</bdi>{" "}
-                  وزيادة الإيرادات بنسبة{" "}
-                  <bdi>{automationSettings.impactRevenueIncreasePercent}%</bdi>{" "}
-                  من خلال الخصومات المسائية الديناميكية.
-                </p>
-              </div>
-              <div className="flex flex-col gap-6 relative">
-                <div className="flex gap-2 items-end justify-center">
-                  {automationSettings.impactBars.map((height, index) => {
-                    const isPeak =
-                      height === Math.max(...automationSettings.impactBars);
-                    return (
-                      <div
-                        key={index}
-                        className={`w-8 rounded-t-lg ${isPeak ? "bg-[#9bf6b3]" : "bg-white/20"}`}
-                        style={{ height: `${height}px` }}
-                      />
-                    );
-                  })}
-                </div>
-                <span className="text-xs font-bold tracking-wide text-white/60 text-center">
-                  تقدير الارتفاع في الإيرادات
+            {/* Expiry Buffer Slider */}
+            <div className="flex flex-col gap-4 pt-6 border-t border-outline-variant">
+              <div className="flex items-center justify-between">
+                <span className="text-body-md font-bold text-primary">
+                  هامش انتهاء الصلاحية (بالأيام)
+                </span>
+                <span
+                  dir="ltr"
+                  className="font-data-mono text-body-md font-medium text-link"
+                >
+                  {expiryBufferDays} أيام
                 </span>
               </div>
+              <input
+                type="range"
+                min={0}
+                max={14}
+                value={expiryBufferDays}
+                onChange={(event) =>
+                  setExpiryBufferDays(Number(event.target.value))
+                }
+                className="w-full h-2 rounded-lg appearance-none bg-surface-container-high accent-primary cursor-pointer"
+              />
             </div>
+          </section>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-4">
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 bg-link text-white py-6 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              <Icon name="bolt" className="h-4 w-4" fill />
+              تطبيق على كل العناصر عالية الخطورة
+            </button>
+            <button
+              type="button"
+              className="flex items-center justify-center border border-outline py-6 rounded-xl text-body-md font-bold text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
+            >
+              معاينة التغييرات لـ {automationSettings.highRiskItemsCount} عناصر
+            </button>
           </div>
         </div>
       </main>

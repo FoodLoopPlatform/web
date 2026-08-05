@@ -392,6 +392,35 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "favorite":
+      return (
+        <svg {...svgProps}>
+          <path
+            d="M12 21s-7.5-4.6-10-9.3C.5 8.3 2 4.5 5.6 4c2-.3 3.9.7 5 2.3C11.7 4.7 13.6 3.7 15.6 4c3.6.5 5.1 4.3 3.6 7.7C16.7 16.4 12 21 12 21z"
+            fill={fill ? "currentColor" : "none"}
+          />
+        </svg>
+      );
+
+    case "calendar_today":
+      return (
+        <svg {...svgProps}>
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <line x1="8" y1="3" x2="8" y2="7" />
+          <line x1="16" y1="3" x2="16" y2="7" />
+        </svg>
+      );
+
+    case "filter_list":
+      return (
+        <svg {...svgProps}>
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="7" y1="12" x2="17" y2="12" />
+          <line x1="10" y1="18" x2="14" y2="18" />
+        </svg>
+      );
+
     case "auto_awesome":
       return (
         <svg {...svgProps}>

@@ -145,9 +145,38 @@ export const automationModeOptions: AutomationModeOption[] = [
 
 export const automationSettings = {
   selectedMode: "assisted" as AutomationMode,
-  priceFloorPercent: 65,
-  maxChangePerCycle: 15,
-  impactWasteReductionPercent: 22,
-  impactRevenueIncreasePercent: 8.5,
-  impactBars: [48, 96, 64, 128, 80],
+  expiryBufferDays: 3,
+  highRiskItemsCount: 8,
 };
+
+export type PricingTier = {
+  key: "conservative" | "aggressive" | "liquidate";
+  label: string;
+  discountPercent: number;
+  sellThroughPercent: number;
+  isOptimal: boolean;
+};
+
+export const pricingTiers: PricingTier[] = [
+  {
+    key: "conservative",
+    label: "متحفظ",
+    discountPercent: 10,
+    sellThroughPercent: 45,
+    isOptimal: false,
+  },
+  {
+    key: "aggressive",
+    label: "جريء",
+    discountPercent: 20,
+    sellThroughPercent: 95,
+    isOptimal: true,
+  },
+  {
+    key: "liquidate",
+    label: "تصفية",
+    discountPercent: 35,
+    sellThroughPercent: 100,
+    isOptimal: false,
+  },
+];
