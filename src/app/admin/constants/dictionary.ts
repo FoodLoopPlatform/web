@@ -118,6 +118,9 @@ export interface AdminDictionary {
   opsRole: string;
 
   // Analytics Keys
+  analyticsTitle: string;
+  analyticsSub: string;
+  exportPdf: string;
   wasteReduced: string;
   co2Saved: string;
   valueSaved: string;
@@ -183,7 +186,8 @@ export interface AdminDictionary {
 export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
   ar: {
     title: "إدارة مستخدمي المنصة",
-    subtitle: "متابعة وإدارة حسابات المستهلكين، المتاجر الشريكة والجمعيات الخيرية.",
+    subtitle:
+      "متابعة وإدارة حسابات المستهلكين، المتاجر الشريكة والجمعيات الخيرية.",
     searchPlaceholder: "ابحث بالاسم، البريد الإلكتروني، أو المعرف...",
     filter: "تصفية حسب الحالة",
     all: "الكل",
@@ -263,13 +267,17 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
 
     // Settings
     settingsTitle: "إعدادات النظام",
-    settingsSubtitle: "تهيئة المعايير والقيود التشغيلية للمنصة، وإدارة صلاحيات المجموعات الإدارية.",
+    settingsSubtitle:
+      "تهيئة المعايير والقيود التشغيلية للمنصة، وإدارة صلاحيات المجموعات الإدارية.",
     systemFeatures: "ميزات النظام النشطة",
-    systemFeaturesSub: "تبديل الميزات التجريبية والخدمات الصغيرة للمنصة على المستوى العالمي",
+    systemFeaturesSub:
+      "تبديل الميزات التجريبية والخدمات الصغيرة للمنصة على المستوى العالمي",
     autoVerifyLabel: "توثيق تلقائي للمتاجر الشريكة",
-    autoVerifySub: "عند التفعيل، تتخطى المتاجر الجديدة قائمة مراجعة الإدارة وتوثق تلقائياً",
+    autoVerifySub:
+      "عند التفعيل، تتخطى المتاجر الجديدة قائمة مراجعة الإدارة وتوثق تلقائياً",
     instapayLabel: "دمج تسوية المدفوعات عبر InstaPay",
-    instapaySub: "إجراء تسوية مالية فورية مباشرة من محفظة العميل إلى الحساب المصرفي للمتجر",
+    instapaySub:
+      "إجراء تسوية مالية فورية مباشرة من محفظة العميل إلى الحساب المصرفي للمتجر",
     bulkLabel: "رفع المنتجات بالجملة (Excel)",
     bulkSub: "السماح للمتاجر الشريكة برفع وتحديث كشوف مخزونها وملفاتها مباشرة",
     operationalParams: "المعايير التشغيلية للنظام",
@@ -278,18 +286,22 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     rateLimitLabel: "حد معدل طلبات الـ API (طلب/دقيقة)",
     saveBtn: "حفظ التغييرات الإعدادية",
     authorizedAdmins: "الحسابات الإدارية المصرحة",
-    authorizedAdminsSub: "التحكم في وصول فريق العمل الداخلي لإدارة منصة FoodLoop",
+    authorizedAdminsSub:
+      "التحكم في وصول فريق العمل الداخلي لإدارة منصة FoodLoop",
     adminNameCol: "الاسم",
     adminEmailCol: "البريد الإلكتروني",
     adminRoleCol: "الدور / الصلاحية",
     adminStatusCol: "الحالة",
     dbTool: "أداة قاعدة البيانات",
     dbToolTitle: "البدء بصفحة نظيفة",
-    dbToolDesc: "استخدم هذه الأداة لمسح كافة تعديلات وسجلات اختبارات المحاكاة وإعادة ضبط المنصة إلى الحالة الافتراضية.",
+    dbToolDesc:
+      "استخدم هذه الأداة لمسح كافة تعديلات وسجلات اختبارات المحاكاة وإعادة ضبط المنصة إلى الحالة الافتراضية.",
     dbResetBtn: "إعادة ضبط قاعدة البيانات",
     settingsLog: "سجل التغييرات الإعدادية",
-    confirmReset: "سيؤدي هذا إلى إعادة ضبط كافة تعديلات المستخدم، الردود، المتاجر الموثقة، وسجل الأنشطة إلى الحالة الافتراضية. هل تريد المتابعة؟",
-    resetSuccess: "اكتملت إعادة تعيين قاعدة البيانات المحلية! جاري إعادة تحميل الصفحة...",
+    confirmReset:
+      "سيؤدي هذا إلى إعادة ضبط كافة تعديلات المستخدم، الردود، المتاجر الموثقة، وسجل الأنشطة إلى الحالة الافتراضية. هل تريد المتابعة؟",
+    resetSuccess:
+      "اكتملت إعادة تعيين قاعدة البيانات المحلية! جاري إعادة تحميل الصفحة...",
     saveSuccess: "تم حفظ التكوينات والمعايير التشغيلية بنجاح!",
     featureUpdateSuccess: "تم تحديث ميزة '{flag}' بنجاح",
     mainController: "المراقب الرئيسي",
@@ -300,17 +312,23 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     opsRole: "عمليات",
 
     // Analytics
+    analyticsTitle: "تحليلات الأثر البيئي والمالي",
+    analyticsSub:
+      "متابعة كميات الطعام المُنقذة، خفض الكربون، والأثر الاجتماعي لمنصة فود لوب",
+    exportPdf: "تصدير التقرير (PDF)",
     wasteReduced: "هدر طعام تم منعه",
     co2Saved: "انبعاثات CO2 المحفوظة",
     valueSaved: "القيمة المستردة (جنيه)",
     disputesRate: "معدل النزاعات والشكاوى",
     wasteTrendTitle: "الحد من الهدر بمرور الوقت",
-    wasteTrendSub: "كمية الطعام الفائض التي تم إنقاذها شهرياً من مقالب القمامة (كجم)",
+    wasteTrendSub:
+      "كمية الطعام الفائض التي تم إنقاذها شهرياً من مقالب القمامة (كجم)",
     topStores: "أكثر المتاجر الشريكة نشاطاً",
     topCharities: "أكثر الجمعيات الخيرية استقبالاً",
     demandSupply: "إدارة الطلب والعرض",
     bakeryOpportunity: "فرصة لتفادي هدر المخبوزات",
-    bakeryDesc: "تشير التحليلات إلى أن 12% من حقائب طعام المخابز المعروضة تنتهي صلاحيتها صباح كل ثلاثاء. يُنصح بتنبيه مديري المتاجر لتعديل أوقات تغليف وتجهيز العروض.",
+    bakeryDesc:
+      "تشير التحليلات إلى أن 12% من حقائب طعام المخابز المعروضة تنتهي صلاحيتها صباح كل ثلاثاء. يُنصح بتنبيه مديري المتاجر لتعديل أوقات تغليف وتجهيز العروض.",
     adjustSettings: "ضبط الإعدادات التشغيلية",
     systemReports: "سجل تقارير النظام",
     tons: "كجم",
@@ -346,7 +364,8 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     flagLowAiConfidence: "ثقة منخفضة من الذكاء الاصطناعي",
     flagDuplicateListing: "قائمة مكررة؟",
     emptyHeading: "لا توجد قوائم بانتظار المراجعة",
-    emptyBody: "عمل رائع! قائمة المراجعة فارغة تمامًا. جميع المنتجات المضافة تم فحصها بنجاح وهي معروضة الآن للمستخدمين.",
+    emptyBody:
+      "عمل رائع! قائمة المراجعة فارغة تمامًا. جميع المنتجات المضافة تم فحصها بنجاح وهي معروضة الآن للمستخدمين.",
     refreshQueueBtn: "تحديث القائمة",
     lastSync: "آخر تحديث: {time}",
     footerQueueStatus: "حالة القائمة",
@@ -357,13 +376,15 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     requestChangesModalTitle: "طلب تعديلات على المنتجات المرفوعة",
     requestChangesPlaceholder: "اكتب ملاحظات التعديل المطلوبة للمتجر...",
     confirmApproveTitle: "موافقة واعتماد القائمة",
-    confirmApproveMsg: "هل أنت متأكد من النشر والاعتماد النهائي لهذه القائمة على المنصة؟",
+    confirmApproveMsg:
+      "هل أنت متأكد من النشر والاعتماد النهائي لهذه القائمة على المنصة؟",
     confirmRejectTitle: "رفض واستبعاد القائمة",
     confirmRejectMsg: "هل أنت متأكد من رفض هذه القائمة وحذفها من المراجعة؟",
   },
   en: {
     title: "User Management",
-    subtitle: "Monitor and manage consumer accounts, partner stores, and charities.",
+    subtitle:
+      "Monitor and manage consumer accounts, partner stores, and charities.",
     searchPlaceholder: "Search by name, email, or ID...",
     filter: "Filter by Status",
     all: "All",
@@ -443,32 +464,40 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
 
     // Settings
     settingsTitle: "System Settings",
-    settingsSubtitle: "Configure parameters, operational limits, administrative access levels, and toggle feature flags.",
+    settingsSubtitle:
+      "Configure parameters, operational limits, administrative access levels, and toggle feature flags.",
     systemFeatures: "Active System Features",
     systemFeaturesSub: "Toggle global microservices and system configurations",
     autoVerifyLabel: "Auto-Verify Partner Stores",
-    autoVerifySub: "When enabled, newly registered stores bypass the manual admin review queue",
+    autoVerifySub:
+      "When enabled, newly registered stores bypass the manual admin review queue",
     instapayLabel: "InstaPay Settlements Integration",
-    instapaySub: "Process direct real-time settlements from consumer wallets to store accounts",
+    instapaySub:
+      "Process direct real-time settlements from consumer wallets to store accounts",
     bulkLabel: "Bulk Product Upload (Excel)",
-    bulkSub: "Allow partner stores to upload and update inventory catalogs in bulk",
+    bulkSub:
+      "Allow partner stores to upload and update inventory catalogs in bulk",
     operationalParams: "Operational Parameters",
-    operationalParamsSub: "Set platform commission rates and rate-limiting limits",
+    operationalParamsSub:
+      "Set platform commission rates and rate-limiting limits",
     commissionLabel: "Platform Commission (%)",
     rateLimitLabel: "API Request Rate Limit (req/min)",
     saveBtn: "Save Operational Configurations",
     authorizedAdmins: "Authorized Administrative Accounts",
-    authorizedAdminsSub: "Control internal operations staff access to the FoodLoop management portal",
+    authorizedAdminsSub:
+      "Control internal operations staff access to the FoodLoop management portal",
     adminNameCol: "Name",
     adminEmailCol: "Email",
     adminRoleCol: "Role / Permission",
     adminStatusCol: "Status",
     dbTool: "Database Utility",
     dbToolTitle: "Clean Start Utility",
-    dbToolDesc: "Use this tool to wipe all local storage mock changes, support replies, and reset to the default state.",
+    dbToolDesc:
+      "Use this tool to wipe all local storage mock changes, support replies, and reset to the default state.",
     dbResetBtn: "Reset Local DB",
     settingsLog: "Configuration Audit Log",
-    confirmReset: "This will restore all actors, verification states, replies, and logs to factory defaults. Continue?",
+    confirmReset:
+      "This will restore all actors, verification states, replies, and logs to factory defaults. Continue?",
     resetSuccess: "Local database reset successfully! Reloading page...",
     saveSuccess: "Operational configurations saved successfully!",
     featureUpdateSuccess: "Successfully updated feature flag '{flag}'",
@@ -480,7 +509,11 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     opsRole: "Operations",
 
     // Analytics
-    wasteReduced: "Food Waste Prevented",
+    analyticsTitle: "Environmental & Financial Analytics",
+    analyticsSub:
+      "Track food saved, carbon reduced, and social impact across FoodLoop",
+    exportPdf: "Export PDF Report",
+    wasteReduced: "Prevented Food Waste",
     co2Saved: "CO2 Emissions Saved",
     valueSaved: "Recovered Value (EGP)",
     disputesRate: "Dispute & Complaint Rate",
@@ -490,7 +523,8 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     topCharities: "Top Recipient Charities",
     demandSupply: "Demand & Supply Management",
     bakeryOpportunity: "Bakery Waste Mitigation Opportunity",
-    bakeryDesc: "Analytics indicate that 12% of bakery food bags expire on Tuesday mornings. We recommend alerting store managers to adjust packing times.",
+    bakeryDesc:
+      "Analytics indicate that 12% of bakery food bags expire on Tuesday mornings. We recommend alerting store managers to adjust packing times.",
     adjustSettings: "Configure Operations",
     systemReports: "System Operations Log",
     tons: "kg",
@@ -526,7 +560,8 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     flagLowAiConfidence: "Low AI Confidence",
     flagDuplicateListing: "Duplicate Listing?",
     emptyHeading: "No listings pending review",
-    emptyBody: "Great job! The moderation queue is clear. All listings have been successfully vetted and are currently active for the community.",
+    emptyBody:
+      "Great job! The moderation queue is clear. All listings have been successfully vetted and are currently active for the community.",
     refreshQueueBtn: "Refresh Queue",
     lastSync: "Last sync: {time}",
     footerQueueStatus: "Queue Status",
@@ -537,8 +572,10 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     requestChangesModalTitle: "Request Changes for Product Listing",
     requestChangesPlaceholder: "Enter feedback notes for the store...",
     confirmApproveTitle: "Approve & Publish Listing",
-    confirmApproveMsg: "Are you sure you want to approve and publish this product listing to the platform?",
+    confirmApproveMsg:
+      "Are you sure you want to approve and publish this product listing to the platform?",
     confirmRejectTitle: "Reject Listing",
-    confirmRejectMsg: "Are you sure you want to reject and remove this product listing?",
-  }
+    confirmRejectMsg:
+      "Are you sure you want to reject and remove this product listing?",
+  },
 };

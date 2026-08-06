@@ -1,5 +1,6 @@
 import React from "react";
 import { AdminDictionary } from "../constants/dictionary";
+import { CloseIcon, CheckIcon } from "@/components/icons";
 
 interface ModerationFilterModalProps {
   isOpen: boolean;
@@ -34,11 +35,23 @@ export const ModerationFilterModal: React.FC<ModerationFilterModalProps> = ({
     { id: "duplicate_listing", label: t.flagDuplicateListing },
   ];
 
-  const confidenceOptions: { id: "ALL" | "low" | "medium" | "high"; label: string }[] = [
+  const confidenceOptions: {
+    id: "ALL" | "low" | "medium" | "high";
+    label: string;
+  }[] = [
     { id: "ALL", label: t.all },
-    { id: "low", label: isRtl ? "ثقة منخفضة (< 50٪)" : "Low Confidence (< 50%)" },
-    { id: "medium", label: isRtl ? "ثقة متوسطة (50٪ - 75٪)" : "Medium Confidence (50% - 75%)" },
-    { id: "high", label: isRtl ? "ثقة مرتفعة (> 75٪)" : "High Confidence (> 75%)" },
+    {
+      id: "low",
+      label: isRtl ? "ثقة منخفضة (< 50٪)" : "Low Confidence (< 50%)",
+    },
+    {
+      id: "medium",
+      label: isRtl ? "ثقة متوسطة (50٪ - 75٪)" : "Medium Confidence (50% - 75%)",
+    },
+    {
+      id: "high",
+      label: isRtl ? "ثقة مرتفعة (> 75٪)" : "High Confidence (> 75%)",
+    },
   ];
 
   return (
@@ -54,15 +67,15 @@ export const ModerationFilterModal: React.FC<ModerationFilterModalProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-outline-variant/60 pb-3">
-          <h3 className="text-sm font-extrabold text-on-surface">{t.filterBtn}</h3>
+          <h3 className="text-sm font-extrabold text-on-surface">
+            {t.filterBtn}
+          </h3>
           <button
             type="button"
             onClick={onClose}
             className="p-1 hover:bg-surface-container-high rounded-lg text-outline transition-colors cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-5 h-5" />
           </button>
         </div>
 
@@ -108,9 +121,7 @@ export const ModerationFilterModal: React.FC<ModerationFilterModalProps> = ({
               >
                 <span>{opt.label}</span>
                 {confidenceRange === opt.id && (
-                  <svg className="w-4 h-4 text-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <CheckIcon className="w-4 h-4 text-on-primary" />
                 )}
               </button>
             ))}

@@ -14,6 +14,6 @@ export const useAdminLang = create<AdminLangState>()(
     }),
     {
       name: "foodloop-admin-lang",
-    }
-  )
+    },
+  ),
 );

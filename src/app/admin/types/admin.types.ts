@@ -19,7 +19,11 @@ export interface Consumer {
 
 export interface StoreDocument {
   id: string;
-  verificationType: "StoreFacilityPhoto" | "CommercialRegistration" | "TaxIdCertificate" | string;
+  verificationType:
+    | "StoreFacilityPhoto"
+    | "CommercialRegistration"
+    | "TaxIdCertificate"
+    | string;
   documentUrl: string;
   status: "Pending" | "Approved" | "Rejected" | string;
   reviewedAt?: string | null;
@@ -76,6 +80,13 @@ export interface Charity {
   street?: string;
   buildingNo?: string;
 }
+
+export type AdminUserItem = (Consumer | Store | Charity) & {
+  automationMode?: string;
+  verified?: boolean;
+  taxId?: string;
+  joinedDate?: string;
+};
 
 export interface Review {
   id: string;
@@ -203,7 +214,11 @@ export interface AnalyticsSummary {
   revenueSavedEGP?: number;
 }
 
-export type ModerationFlagType = "user_report" | "unverified_origin" | "low_ai_confidence" | "duplicate_listing";
+export type ModerationFlagType =
+  | "user_report"
+  | "unverified_origin"
+  | "low_ai_confidence"
+  | "duplicate_listing";
 
 export interface ModerationItem {
   id: string;
@@ -222,3 +237,68 @@ export interface ModerationItem {
   flagReasonQuote?: string;
 }
 
+export interface UserDetail {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  joinedDate: string;
+  lastActive: string;
+  status: "ACTIVE" | "SUSPENDED" | "PENDING";
+  role: "Consumer" | "Store" | "Charity";
+  avatar?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  taxId?: string;
+  businessCategory?: string;
+  description?: string;
+  governorate?: string;
+  city?: string;
+  neighborhood?: string;
+  street?: string;
+  buildingNo?: string;
+  documents?: StoreDocument[];
+  stats: {
+    totalOrders?: number;
+    savedAmount?: string;
+    activeDisputes?: number;
+    totalSales?: string;
+    fulfillmentRate?: number;
+    donationsReceived?: number;
+  };
+}
+
+export interface UserActivityEntry {
+  id: string;
+  type:
+    | "order"
+    | "dispute"
+    | "listing"
+    | "verified"
+    | "created"
+    | "suspended"
+    | "reactivated";
+  title: string;
+  description: string;
+  timestamp: string;
+}
+
+export interface AdminNote {
+  userId: string;
+  note: string;
+  savedAt: string;
+  savedBy: string;
+}
+
+export interface TabOption<T extends string = string> {
+  id: T;
+  label: string;
+  badge?: number;
+}
+
+export interface FilterOption<T extends string = string> {
+  id: T;
+  label: string;
+}

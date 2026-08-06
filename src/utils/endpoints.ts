@@ -45,7 +45,8 @@ export const Endpoints = {
     moderation: "/admin/moderation",
     moderationApprove: (id: string) => `/admin/moderation/${id}/approve`,
     moderationReject: (id: string) => `/admin/moderation/${id}/reject`,
-    moderationRequestChanges: (id: string) => `/admin/moderation/${id}/request-changes`,
+    moderationRequestChanges: (id: string) =>
+      `/admin/moderation/${id}/request-changes`,
   },
 
   charities: {

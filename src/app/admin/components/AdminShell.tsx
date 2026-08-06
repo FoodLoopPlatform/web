@@ -6,6 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
 import { useAdminLang } from "@/store/use-admin-lang";
+import {
+  UserIcon,
+  AlertCircleIcon,
+  CheckCircleIcon,
+  CloseIcon,
+  SearchIcon,
+  LogoutIcon,
+} from "@/components/icons";
 
 interface NavItem {
   labelAr: string;
@@ -35,7 +43,6 @@ const dict = {
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const hasHydrated = useHasHydrated();
@@ -46,42 +53,47 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const accessToken = useAppStore((state) => state.accessToken);
   const clearSession = useAppStore((state) => state.clearSession);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Close sidebar drawer when pathname changes
-  useEffect(() => {
-    setMobileSidebarOpen(false);
-  }, [pathname]);
+  // Close sidebar drawer when pathname changes during render
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    if (mobileSidebarOpen) {
+      setMobileSidebarOpen(false);
+    }
+  }
 
   // Check auth once rehydrated on the client side
   useEffect(() => {
-    if (hasHydrated && mounted) {
+    if (hasHydrated) {
       const isAdmin = user?.roles?.some(
-        (role) => role.toLowerCase() === "admin" || role.toLowerCase() === "seniorcontroller"
+        (role) =>
+          role.toLowerCase() === "admin" ||
+          role.toLowerCase() === "seniorcontroller",
       );
       if (!accessToken || !isAdmin) {
         router.push("/login");
       }
     }
-  }, [hasHydrated, mounted, user, accessToken, router]);
+  }, [hasHydrated, user, accessToken, router]);
 
   const handleLogout = () => {
     clearSession();
     router.push("/login");
   };
 
-  if (!hasHydrated || !mounted) {
-    return <div className="min-h-screen bg-[#fafaf4]" />;
+  if (!hasHydrated) {
+    return <div className="min-h-screen bg-surface" />;
   }
 
   const isAdmin = user?.roles?.some(
-    (role) => role.toLowerCase() === "admin" || role.toLowerCase() === "seniorcontroller"
+    (role) =>
+      role.toLowerCase() === "admin" ||
+      role.toLowerCase() === "seniorcontroller",
   );
 
   if (!accessToken || !isAdmin) {
-    return <div className="min-h-screen bg-[#fafaf4]" />;
+    return <div className="min-h-screen bg-surface" />;
   }
 
   const currentDict = dict[lang];
@@ -91,39 +103,37 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       labelAr: "إدارة المستخدمين",
       labelEn: "User Management",
       href: "/admin",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      ),
+      icon: <UserIcon className="w-5 h-5" />,
     },
     {
       labelAr: "النزاعات والشكاوى",
       labelEn: "Disputes & Support",
       href: "/admin/disputes",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      ),
+      icon: <AlertCircleIcon className="w-5 h-5" />,
     },
     {
       labelAr: "مراجعة القوائم",
       labelEn: "Moderation",
       href: "/admin/moderation",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      icon: <CheckCircleIcon className="w-5 h-5" />,
     },
     {
       labelAr: "التحليلات والإحصائيات",
       labelEn: "Analytics & Reports",
       href: "/admin/analytics",
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"
+          />
         </svg>
       ),
     },
@@ -132,9 +142,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       labelEn: "System Settings",
       href: "/admin/settings",
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
         </svg>
       ),
     },
@@ -169,7 +194,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 className={`flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200 cursor-pointer text-sm font-medium ${
                   isActive
-                    ? "bg-primary-fixed text-primary font-bold shadow-sm relative before:absolute before:inset-y-3 before:w-1 before:bg-primary before:rounded-full " + (lang === "ar" ? "before:right-0" : "before:left-0")
+                    ? "bg-primary-fixed text-primary font-bold shadow-sm relative before:absolute before:inset-y-3 before:w-1 before:bg-primary before:rounded-full " +
+                      (lang === "ar" ? "before:right-0" : "before:left-0")
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                 }`}
               >
@@ -186,8 +212,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           href="/admin/analytics?generate_report=true"
           className="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all text-xs cursor-pointer shadow-sm active:scale-95"
         >
-          <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <svg
+            className="w-4 h-4 animate-pulse"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
           </svg>
           <span className="whitespace-nowrap">{currentDict.createReport}</span>
         </Link>
@@ -197,18 +233,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             href="/admin/disputes"
             className="flex items-center gap-3 py-2 px-3 rounded-xl text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors text-xs"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
+            <AlertCircleIcon className="w-4 h-4" />
             <span>{currentDict.support}</span>
           </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 py-2 px-3 rounded-xl text-error font-medium hover:bg-error-container hover:text-on-error-container transition-colors text-xs text-start w-full cursor-pointer"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogoutIcon className="w-4 h-4" />
             <span>{currentDict.logout}</span>
           </button>
         </div>
@@ -236,11 +268,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileSidebarOpen(false)}
               className="absolute top-4 left-4 p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <CloseIcon className="w-5 h-5" />
             </button>
-            <div className="mt-6 flex-1 flex flex-col">{sidebarInnerContent}</div>
+            <div className="mt-6 flex-1 flex flex-col">
+              {sidebarInnerContent}
+            </div>
           </aside>
         </div>
       )}
@@ -253,15 +285,23 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="md:hidden p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer"
               title="Open Navigation Menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
 
             <div className="relative hidden sm:block w-80 lg:w-[480px] max-w-xl">
-              <svg className="w-4 h-4 text-outline absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <SearchIcon className="w-4 h-4 text-outline absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none" />
               <input
                 type="text"
                 placeholder={currentDict.searchPlaceholder}
@@ -276,7 +316,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-all text-xs font-bold border border-outline-variant/40 cursor-pointer"
               title={lang === "ar" ? "Switch to English" : "التحويل للعربية"}
             >
-              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4 text-primary"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                viewBox="0 0 24 24"
+              >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="2" y1="12" x2="22" y2="12" />
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -296,16 +344,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </span>
               </div>
               <div className="w-9 h-9 rounded-full bg-primary-fixed text-primary font-bold flex items-center justify-center text-sm shadow-xs border border-primary/20 overflow-hidden shrink-0">
-                {(user as Record<string, any>)?.profilePictureUrl ? (
+                {(user as { profilePictureUrl?: string } | null)
+                  ?.profilePictureUrl ? (
                   <Image
-                    src={(user as Record<string, any>).profilePictureUrl}
+                    src={
+                      (user as { profilePictureUrl?: string })
+                        .profilePictureUrl!
+                    }
                     alt="Profile"
                     width={36}
                     height={36}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span>{(user?.fullName || "A").slice(0, 2).toUpperCase()}</span>
+                  <span>
+                    {(user?.fullName || "A").slice(0, 2).toUpperCase()}
+                  </span>
                 )}
               </div>
             </div>

@@ -3,26 +3,26 @@
  */
 
 export const ADMIN_COLORS = {
-  // Brand Greens
-  primary: "#005129",
-  primaryHover: "#02522a",
-  primaryDark: "#00381a",
-  primaryLightBg: "#005129/20",
+  // Brand Greens (linked to global theme)
+  primary: "var(--color-primary-container)",
+  primaryHover: "var(--color-on-primary-fixed-variant)",
+  primaryDark: "var(--color-primary)",
+  primaryLightBg: "var(--color-light-green)",
 
   // Backgrounds & Surfaces
-  bgMain: "#fafaf4",
-  bgCard: "#ffffff",
-  bgSubtle: "#eeeee9",
-  bgHover: "#fafaf4/60",
+  bgMain: "var(--color-surface)",
+  bgCard: "var(--color-surface-container-lowest)",
+  bgSubtle: "var(--color-surface-container)",
+  bgHover: "var(--color-surface-container-low)",
 
   // Borders
-  borderLight: "#e0e6df",
-  borderMedium: "#bfc9be",
+  borderLight: "var(--color-card-border)",
+  borderMedium: "var(--color-outline-variant)",
 
   // Typography
-  textHeading: "#1a1c19",
-  textBody: "#404941",
-  textMuted: "#707a70",
+  textHeading: "var(--color-on-surface)",
+  textBody: "var(--color-on-surface-variant)",
+  textMuted: "var(--color-outline)",
 
   // Status Colors
   activeBg: "bg-green-100",

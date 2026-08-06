@@ -8,7 +8,7 @@ export type FoodLoopEnvelope<T> = {
 };
 
 export async function unwrapEnvelope<T>(
-  request: Promise<ApiResponse<any>>,
+  request: Promise<ApiResponse<unknown>>,
 ): Promise<ApiResponse<T>> {
   const res = await request;
 
@@ -20,20 +20,26 @@ export async function unwrapEnvelope<T>(
 
   // Check if payload is wrapped in FoodLoopEnvelope
   if (typeof payload === "object" && payload !== null && "success" in payload) {
-    if (!payload.success) {
-      const detail = Array.isArray(payload.errors) && payload.errors.length
-        ? payload.errors.join("\n")
-        : payload.message;
+    const env = payload as Record<string, unknown>;
+    if (!env.success) {
+      const errors = Array.isArray(env.errors) ? env.errors : [];
+      const msg = typeof env.message === "string" ? env.message : null;
+      const detail = errors.length ? errors.join("\n") : msg;
       return {
         error: detail ?? "حدث خطأ غير متوقع",
         status: res.status,
       };
     }
-    const innerData = payload.data?.items ?? payload.data;
+    const envData = env.data as Record<string, unknown> | undefined;
+    const innerData = envData?.items ?? env.data;
     return { data: innerData as T, status: res.status };
   }
 
   // Handle direct data or paginated object { items: [...] }
-  const directData = payload?.items ?? payload;
-  return { data: directData as T, status: res.status };
+  if (typeof payload === "object" && payload !== null && "items" in payload) {
+    const paginated = payload as { items: unknown };
+    return { data: paginated.items as T, status: res.status };
+  }
+
+  return { data: payload as T, status: res.status };
 }

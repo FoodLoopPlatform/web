@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAdminLang } from "@/store/use-admin-lang";
 import {
   getSupportTickets,
@@ -9,10 +9,8 @@ import {
   closeSupportTicket,
   getAdminReviews,
   deleteReview,
-  getAnalyticsSummary,
   SupportTicket,
   Review,
-  AnalyticsSummary,
 } from "../api/admin-api";
 import { adminDictionary } from "../constants/dictionary";
 import { StatsCard } from "../components/StatsCard";
@@ -39,7 +37,6 @@ export default function DisputesPage() {
   // Data states
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
 
   // Search/Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,24 +44,37 @@ export default function DisputesPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // Ticket Detail Drawer
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
+    null,
+  );
   const [replyMessage, setReplyMessage] = useState("");
   const [showTicketDrawer, setShowTicketDrawer] = useState(false);
 
-  const loadData = async () => {
-    const analyticsRes = await getAnalyticsSummary();
-    if (analyticsRes.data) setAnalytics(analyticsRes.data);
-
+  const fetchDisputesData = useCallback(async () => {
     const ticketsRes = await getSupportTickets();
     if (ticketsRes.data) setTickets(ticketsRes.data);
 
     const reviewsRes = await getAdminReviews();
     if (reviewsRes.data) setReviews(reviewsRes.data);
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, [activeTab]);
+    let isSubscribed = true;
+
+    async function load() {
+      const ticketsRes = await getSupportTickets();
+      if (isSubscribed && ticketsRes.data) setTickets(ticketsRes.data);
+
+      const reviewsRes = await getAdminReviews();
+      if (isSubscribed && reviewsRes.data) setReviews(reviewsRes.data);
+    }
+
+    load();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []);
 
   const handleOpenTicket = async (id: string) => {
     const ticketRes = await getSupportTicketById(id);
@@ -77,11 +87,14 @@ export default function DisputesPage() {
   const handleSendReply = async () => {
     if (!selectedTicket || !replyMessage.trim()) return;
 
-    const updatedRes = await replyToSupportTicket(selectedTicket.id, replyMessage);
+    const updatedRes = await replyToSupportTicket(
+      selectedTicket.id,
+      replyMessage,
+    );
     if (updatedRes.data) {
       setSelectedTicket(updatedRes.data);
       setReplyMessage("");
-      loadData();
+      fetchDisputesData();
     }
   };
 
@@ -93,7 +106,7 @@ export default function DisputesPage() {
       await closeSupportTicket(id);
       setShowTicketDrawer(false);
       setSelectedTicket(null);
-      await loadData();
+      await fetchDisputesData();
     }
   };
 
@@ -103,7 +116,7 @@ export default function DisputesPage() {
       : "Are you sure you want to delete this flagged review?";
     if (confirm(confirmMsg)) {
       await deleteReview(id);
-      loadData();
+      fetchDisputesData();
     }
   };
 
@@ -111,7 +124,7 @@ export default function DisputesPage() {
     alert(
       isRtl
         ? "تم تجاهل البلاغ والحفاظ على التقييم بنجاح."
-        : "Dismissed flag. Review kept."
+        : "Dismissed flag. Review kept.",
     );
     setReviews(reviews.filter((r) => r.id !== id));
   };
@@ -121,7 +134,9 @@ export default function DisputesPage() {
       return tickets.filter((t) => {
         const matchesSearch =
           (t.subject ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (t.userName ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t.userName ?? "")
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
           (t.id ?? "").toLowerCase().includes(searchQuery.toLowerCase());
         const matchesPriority =
           priorityFilter === "ALL" || t.priority === priorityFilter;
@@ -142,7 +157,9 @@ export default function DisputesPage() {
   const filteredItems = getFilteredItems();
 
   const openTicketsCount = tickets.filter((t) => t.status === "Open").length;
-  const closedTicketsCount = tickets.filter((t) => t.status === "Closed").length;
+  const closedTicketsCount = tickets.filter(
+    (t) => t.status === "Closed",
+  ).length;
 
   const tabOptions: TabOption<DisputeTab>[] = [
     { id: "Tickets", label: t.tickets },
@@ -161,13 +178,17 @@ export default function DisputesPage() {
       {/* Header & Tab Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#1a1c19] tracking-tight font-brand">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-brand">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#707a70]">{t.subtitle}</p>
+          <p className="text-xs sm:text-sm text-outline">{t.subtitle}</p>
         </div>
 
-        <TabSwitcher tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabSwitcher
+          tabs={tabOptions}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
 
       {/* Metrics Banner */}
@@ -175,7 +196,7 @@ export default function DisputesPage() {
         <StatsCard
           label={t.totalDisputes}
           value={tickets.length + reviews.length}
-          accentClass="bg-[#005129]/20"
+          accentClass="bg-primary-container/20"
           isRtl={isRtl}
         />
         <StatsCard
@@ -199,7 +220,9 @@ export default function DisputesPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         placeholder={
-          activeTab === "Tickets" ? t.searchPlaceholder : t.searchReviewsPlaceholder
+          activeTab === "Tickets"
+            ? t.searchPlaceholder
+            : t.searchReviewsPlaceholder
         }
         isRtl={isRtl}
         filterTitle={activeTab === "Tickets" ? t.filterPriority : undefined}
@@ -214,7 +237,7 @@ export default function DisputesPage() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Main List / Table */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#e0e6df] shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
           {activeTab === "Tickets" ? (
             <>
               <TicketCardList

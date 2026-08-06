@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityLog } from "../api/admin-api";
+import { ActivityLog } from "../types/admin.types";
 
 interface AuditLogsWidgetProps {
   title: string;
@@ -13,24 +13,33 @@ export const AuditLogsWidget: React.FC<AuditLogsWidgetProps> = ({
   isRtl = false,
 }) => {
   return (
-    <div className="bg-white rounded-2xl border border-[#e0e6df] p-6 shadow-sm">
+    <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm">
       <h3
-        className={`text-sm font-extrabold text-[#00381a] pb-4 border-b border-[#eeeee9] ${
+        className={`text-sm font-extrabold text-primary-container pb-4 border-b border-surface-container ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
         {title}
       </h3>
-      <ul className="flex flex-col gap-3.5 mt-4 divide-y divide-[#eeeee9]/50">
+      <ul className="flex flex-col gap-3.5 mt-4 divide-y divide-surface-container/50">
         {logs.map((log) => {
           let actionText = log.action;
           if (isRtl) {
             if (log.action.includes("Replied to ticket"))
-              actionText = actionText.replace("Replied to ticket", "ردّ على تذكرة الدعم");
+              actionText = actionText.replace(
+                "Replied to ticket",
+                "ردّ على تذكرة الدعم",
+              );
             if (log.action.includes("Closed ticket"))
-              actionText = actionText.replace("Closed ticket", "أغلق تذكرة الدعم");
+              actionText = actionText.replace(
+                "Closed ticket",
+                "أغلق تذكرة الدعم",
+              );
             if (log.action.includes("Deleted flagged review"))
-              actionText = actionText.replace("Deleted flagged review", "حذف التقييم المبلغ عنه");
+              actionText = actionText.replace(
+                "Deleted flagged review",
+                "حذف التقييم المبلغ عنه",
+              );
           }
 
           return (
@@ -45,10 +54,14 @@ export const AuditLogsWidget: React.FC<AuditLogsWidgetProps> = ({
                   isRtl ? "flex-row" : "flex-row-reverse"
                 }`}
               >
-                <span className="font-bold text-[#1a1c19]">{log.adminName}</span>
-                <span className="text-[#707a70]">{log.timestamp}</span>
+                <span className="font-bold text-on-surface">
+                  {log.adminName}
+                </span>
+                <span className="text-outline">{log.timestamp}</span>
               </div>
-              <p className="text-[#404941] font-medium leading-relaxed">{actionText}</p>
+              <p className="text-on-surface-variant font-medium leading-relaxed">
+                {actionText}
+              </p>
             </li>
           );
         })}

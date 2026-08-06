@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useAdminLang } from "@/store/use-admin-lang";
 import { adminDictionary } from "../constants/dictionary";
 import {
@@ -30,7 +30,9 @@ export default function ModerationQueuePage() {
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFlagType, setSelectedFlagType] = useState<string>("ALL");
-  const [confidenceRange, setConfidenceRange] = useState<"ALL" | "low" | "medium" | "high">("ALL");
+  const [confidenceRange, setConfidenceRange] = useState<
+    "ALL" | "low" | "medium" | "high"
+  >("ALL");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // Action Modals State
@@ -48,49 +50,63 @@ export default function ModerationQueuePage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      let minConf: number | undefined;
-      let maxConf: number | undefined;
+  useEffect(() => {
+    let isSubscribed = true;
 
-      if (confidenceRange === "low") {
-        maxConf = 49;
-      } else if (confidenceRange === "medium") {
-        minConf = 50;
-        maxConf = 74;
-      } else if (confidenceRange === "high") {
-        minConf = 75;
-      }
+    let minConf: number | undefined;
+    let maxConf: number | undefined;
 
-      const res = await getModerationQueue({
-        search: searchQuery,
-        flagType: selectedFlagType,
-        minConfidence: minConf,
-        maxConfidence: maxConf,
+    if (confidenceRange === "low") {
+      maxConf = 49;
+    } else if (confidenceRange === "medium") {
+      minConf = 50;
+      maxConf = 74;
+    } else if (confidenceRange === "high") {
+      minConf = 75;
+    }
+
+    getModerationQueue({
+      search: searchQuery,
+      flagType: selectedFlagType,
+      minConfidence: minConf,
+      maxConfidence: maxConf,
+    })
+      .then((res) => {
+        if (isSubscribed && res.data) {
+          setItems(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading moderation queue:", err);
+      })
+      .finally(() => {
+        if (isSubscribed) {
+          setIsLoading(false);
+        }
       });
 
-      if (res.data) {
-        setItems(res.data);
-      }
-    } catch (err) {
-      console.error("Error loading moderation queue:", err);
-    } finally {
-      setIsLoading(false);
-    }
+    return () => {
+      isSubscribed = false;
+    };
   }, [searchQuery, selectedFlagType, confidenceRange]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   // Handle Refresh Queue from Empty State
   const handleRefreshQueue = async () => {
     setIsRefreshing(true);
     try {
       resetModerationQueue();
-      await loadData();
-      showToast(isRtl ? "تمت إعادة جلب قائمة المراجعة بنجاح" : "Queue refreshed successfully");
+      const res = await getModerationQueue({
+        search: searchQuery,
+        flagType: selectedFlagType,
+      });
+      if (res.data) {
+        setItems(res.data);
+      }
+      showToast(
+        isRtl
+          ? "تمت إعادة جلب قائمة المراجعة بنجاح"
+          : "Queue refreshed successfully",
+      );
     } finally {
       setIsRefreshing(false);
     }
@@ -122,31 +138,57 @@ export default function ModerationQueuePage() {
     try {
       if (type === "approve") {
         await approveModerationItem(itemId);
-        showToast(isRtl ? "تم التوثيق والقبول بنجاح" : "Approved and published successfully");
+        showToast(
+          isRtl
+            ? "تم التوثيق والقبول بنجاح"
+            : "Approved and published successfully",
+        );
       } else if (type === "reject") {
         await rejectModerationItem(itemId, reasonOrNotes);
-        showToast(isRtl ? "تم رفض القائمة بنجاح" : "Listing rejected successfully");
+        showToast(
+          isRtl ? "تم رفض القائمة بنجاح" : "Listing rejected successfully",
+        );
       } else if (type === "requestChanges") {
         await requestChangesModerationItem(itemId, reasonOrNotes);
-        showToast(isRtl ? "تم إرسال طلب التعديلات للمتجر" : "Change request sent to store");
+        showToast(
+          isRtl
+            ? "تم إرسال طلب التعديلات للمتجر"
+            : "Change request sent to store",
+        );
       }
     } catch (err) {
       console.error("Action error:", err);
-      loadData(); // Revert on failure
+      handleRefreshQueue(); // Revert on failure
     }
   };
 
   const selectedItem = items.find((i) => i.id === activeActionModal.itemId);
 
-  const isFilterActive = selectedFlagType !== "ALL" || confidenceRange !== "ALL" || searchQuery.trim() !== "";
+  const isFilterActive =
+    selectedFlagType !== "ALL" ||
+    confidenceRange !== "ALL" ||
+    searchQuery.trim() !== "";
 
   return (
-    <div style={{ width: "100%", minWidth: "100%" }} className="w-full flex flex-col gap-5 lg:gap-6 max-w-[1600px] mx-auto min-h-screen pb-12 font-sans">
+    <div
+      style={{ width: "100%", minWidth: "100%" }}
+      className="w-full flex flex-col gap-5 lg:gap-6 max-w-[1600px] mx-auto min-h-screen pb-12 font-sans"
+    >
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] bg-primary text-on-primary font-bold text-xs px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border border-primary-fixed-dim animate-bounce">
-          <svg className="w-4 h-4 text-primary-fixed shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+          <svg
+            className="w-4 h-4 text-primary-fixed shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
           <span>{toastMessage}</span>
         </div>
@@ -202,15 +244,30 @@ export default function ModerationQueuePage() {
       {/* Main Content State Rendering */}
       {isLoading ? (
         <div className="py-20 flex flex-col justify-center items-center gap-3 text-xs font-bold text-outline">
-          <svg className="animate-spin h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <svg
+            className="animate-spin h-6 w-6 text-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
             <path
               className="opacity-75"
               fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span>{isRtl ? "جارٍ جلب قائمة المراجعة..." : "Loading moderation queue..."}</span>
+          <span>
+            {isRtl
+              ? "جارٍ جلب قائمة المراجعة..."
+              : "Loading moderation queue..."}
+          </span>
         </div>
       ) : items.length === 0 ? (
         /* Empty State */
@@ -221,10 +278,13 @@ export default function ModerationQueuePage() {
           onClearSearch={() => setSearchQuery("")}
           onRefresh={handleRefreshQueue}
           isRefreshing={isRefreshing}
-          lastSyncTime={new Date().toLocaleTimeString(isRtl ? "ar-EG" : "en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          lastSyncTime={new Date().toLocaleTimeString(
+            isRtl ? "ar-EG" : "en-US",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            },
+          )}
         />
       ) : (
         /* Active State - Compact Multi-Column Grid */
@@ -263,7 +323,9 @@ export default function ModerationQueuePage() {
 
       {/* Confirmation Modals for Actions */}
       <ConfirmationModal
-        isOpen={activeActionModal.isOpen && activeActionModal.type === "approve"}
+        isOpen={
+          activeActionModal.isOpen && activeActionModal.type === "approve"
+        }
         title={t.confirmApproveTitle}
         message={
           selectedItem
@@ -277,7 +339,9 @@ export default function ModerationQueuePage() {
         variant="success"
         isRtl={isRtl}
         onConfirm={() => handleConfirmAction()}
-        onClose={() => setActiveActionModal({ isOpen: false, type: null, itemId: null })}
+        onClose={() =>
+          setActiveActionModal({ isOpen: false, type: null, itemId: null })
+        }
       />
 
       <ConfirmationModal
@@ -294,19 +358,36 @@ export default function ModerationQueuePage() {
         cancelLabel={isRtl ? "إلغاء" : "Cancel"}
         variant="danger"
         showReasonInput={true}
-        reasonPlaceholder={isRtl ? "سبب الرفض والرفع..." : "Enter reason for rejection..."}
+        reasonPlaceholder={
+          isRtl ? "سبب الرفض والرفع..." : "Enter reason for rejection..."
+        }
         presetReasons={
           isRtl
-            ? ["بيانات مضللة", "مستندات غير واضحة", "مخالفة معايير الجودة والسلامة", "منتج مكرر تم نشره سابقاً"]
-            : ["Misleading information", "Unclear documentation", "Safety policy violation", "Duplicate listing"]
+            ? [
+                "بيانات مضللة",
+                "مستندات غير واضحة",
+                "مخالفة معايير الجودة والسلامة",
+                "منتج مكرر تم نشره سابقاً",
+              ]
+            : [
+                "Misleading information",
+                "Unclear documentation",
+                "Safety policy violation",
+                "Duplicate listing",
+              ]
         }
         isRtl={isRtl}
         onConfirm={(reason) => handleConfirmAction(reason)}
-        onClose={() => setActiveActionModal({ isOpen: false, type: null, itemId: null })}
+        onClose={() =>
+          setActiveActionModal({ isOpen: false, type: null, itemId: null })
+        }
       />
 
       <ConfirmationModal
-        isOpen={activeActionModal.isOpen && activeActionModal.type === "requestChanges"}
+        isOpen={
+          activeActionModal.isOpen &&
+          activeActionModal.type === "requestChanges"
+        }
         title={t.requestChangesModalTitle}
         message={
           selectedItem
@@ -322,12 +403,22 @@ export default function ModerationQueuePage() {
         reasonPlaceholder={t.requestChangesPlaceholder}
         presetReasons={
           isRtl
-            ? ["توضيح مكونات وحالة المنتج", "إعادة التقاط صورة أوجب وأوضح للمنتج", "التأكد من سعر العرض مقارنة بالسعر الأصلي"]
-            : ["Clarify ingredients and condition", "Upload higher resolution product image", "Verify offer price vs original price"]
+            ? [
+                "توضيح مكونات وحالة المنتج",
+                "إعادة التقاط صورة أوجب وأوضح للمنتج",
+                "التأكد من سعر العرض مقارنة بالسعر الأصلي",
+              ]
+            : [
+                "Clarify ingredients and condition",
+                "Upload higher resolution product image",
+                "Verify offer price vs original price",
+              ]
         }
         isRtl={isRtl}
         onConfirm={(notes) => handleConfirmAction(notes)}
-        onClose={() => setActiveActionModal({ isOpen: false, type: null, itemId: null })}
+        onClose={() =>
+          setActiveActionModal({ isOpen: false, type: null, itemId: null })
+        }
       />
     </div>
   );

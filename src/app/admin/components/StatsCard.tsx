@@ -11,17 +11,17 @@ interface StatsCardProps {
 export const StatsCard: React.FC<StatsCardProps> = ({
   label,
   value,
-  accentClass = "bg-[#005129]/20",
+  accentClass = "bg-primary-container/20",
   isRtl = false,
-  textColorClass = "text-[#00381a]",
+  textColorClass = "text-primary",
 }) => {
   return (
     <div
-      className={`bg-white rounded-2xl border border-[#e0e6df] p-5 sm:p-6 shadow-sm relative overflow-hidden ${
+      className={`bg-white rounded-2xl border border-card-border p-5 sm:p-6 shadow-sm relative overflow-hidden ${
         isRtl ? "text-right" : "text-left"
       }`}
     >
-      <span className="text-[10px] sm:text-xs font-semibold text-[#707a70] uppercase block">
+      <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase block">
         {label}
       </span>
       <span

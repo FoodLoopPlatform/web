@@ -9,7 +9,14 @@ import {
   UserDetail,
   UserActivityEntry,
 } from "../../api/user-detail-api";
-import { updateUserStatus, verifyStore, verifyCharity, getAdminReviews, deleteReview, Review } from "../../api/admin-api";
+import {
+  updateUserStatus,
+  verifyStore,
+  verifyCharity,
+  getAdminReviews,
+  deleteReview,
+  Review,
+} from "../../api/admin-api";
 
 import { UserDetailHeader } from "../../components/UserDetailHeader";
 import { UserProfileCard } from "../../components/UserProfileCard";
@@ -84,7 +91,11 @@ export default function UserDetailPage({ params }: PageProps) {
             lastActive: "Active recently",
             status: "ACTIVE",
             role: "Store",
-            stats: { totalSales: "EGP 12,400", fulfillmentRate: 90, activeDisputes: 0 },
+            stats: {
+              totalSales: "EGP 12,400",
+              fulfillmentRate: 90,
+              activeDisputes: 0,
+            },
           });
 
           setIsReviewsLoading(true);
@@ -118,7 +129,9 @@ export default function UserDetailPage({ params }: PageProps) {
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
       showToast(isRtl ? "تم حذف التقييم بنجاح" : "Review deleted successfully");
     } catch {
-      showToast(isRtl ? "حدث خطأ أثناء حذف التقييم" : "Failed to delete review");
+      showToast(
+        isRtl ? "حدث خطأ أثناء حذف التقييم" : "Failed to delete review",
+      );
     }
   };
 
@@ -141,9 +154,13 @@ export default function UserDetailPage({ params }: PageProps) {
         setActivities(freshLogs.data);
       }
 
-      showToast(isRtl ? "تم تعطيل الحساب بنجاح" : "Account suspended successfully");
+      showToast(
+        isRtl ? "تم تعطيل الحساب بنجاح" : "Account suspended successfully",
+      );
     } catch {
-      showToast(isRtl ? "حدث خطأ أثناء تعطيل الحساب" : "Failed to suspend account");
+      showToast(
+        isRtl ? "حدث خطأ أثناء تعطيل الحساب" : "Failed to suspend account",
+      );
     }
   };
 
@@ -165,13 +182,19 @@ export default function UserDetailPage({ params }: PageProps) {
         setActivities(freshLogs.data);
       }
 
-      showToast(isRtl ? "تم توثيق وتنشيط الحساب بنجاح" : "Account verified & reactivated successfully");
+      showToast(
+        isRtl
+          ? "تم توثيق وتنشيط الحساب بنجاح"
+          : "Account verified & reactivated successfully",
+      );
     } catch {
-      showToast(isRtl ? "حدث خطأ أثناء تنشيط الحساب" : "Failed to reactivate account");
+      showToast(
+        isRtl ? "حدث خطأ أثناء تنشيط الحساب" : "Failed to reactivate account",
+      );
     }
   };
 
-  const handleBanAction = async (reason?: string) => {
+  const handleBanAction = async () => {
     if (!user) return;
     try {
       await banUserPermanently(user.id);
@@ -201,7 +224,10 @@ export default function UserDetailPage({ params }: PageProps) {
       a.timestamp,
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -215,10 +241,25 @@ export default function UserDetailPage({ params }: PageProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="flex items-center gap-3 text-[#707a70] font-semibold text-xs">
-          <svg className="animate-spin h-5 w-5 text-[#005129]" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <div className="flex items-center gap-3 text-outline font-semibold text-xs">
+          <svg
+            className="animate-spin h-5 w-5 text-primary-container"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
           </svg>
           {isRtl ? "جارٍ تحميل تفاصيل المستخدم..." : "Loading user details..."}
         </div>
@@ -232,9 +273,19 @@ export default function UserDetailPage({ params }: PageProps) {
     <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#1a1c19] text-white px-4 py-3 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 animate-bounce">
-          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+        <div className="fixed bottom-6 right-6 z-50 bg-on-surface text-white px-4 py-3 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 animate-bounce">
+          <svg
+            className="w-4 h-4 text-green-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
           {toastMessage}
         </div>
@@ -252,8 +303,12 @@ export default function UserDetailPage({ params }: PageProps) {
               documents={user.documents}
               isRtl={isRtl}
               status={user.status}
-              onApprove={() => setConfirmModal({ isOpen: true, action: "approve" })}
-              onReject={() => setConfirmModal({ isOpen: true, action: "reject" })}
+              onApprove={() =>
+                setConfirmModal({ isOpen: true, action: "approve" })
+              }
+              onReject={() =>
+                setConfirmModal({ isOpen: true, action: "reject" })
+              }
               isPendingVerification={user.status === "PENDING"}
             />
           )}
@@ -272,9 +327,13 @@ export default function UserDetailPage({ params }: PageProps) {
             userId={user.id}
             status={user.status}
             isRtl={isRtl}
-            onSuspend={() => setConfirmModal({ isOpen: true, action: "suspend" })}
+            onSuspend={() =>
+              setConfirmModal({ isOpen: true, action: "suspend" })
+            }
             onBan={() => setConfirmModal({ isOpen: true, action: "ban" })}
-            onReactivate={() => setConfirmModal({ isOpen: true, action: "reactivate" })}
+            onReactivate={() =>
+              setConfirmModal({ isOpen: true, action: "reactivate" })
+            }
           />
         </div>
       </div>
@@ -300,11 +359,23 @@ export default function UserDetailPage({ params }: PageProps) {
         cancelLabel={isRtl ? "إلغاء" : "Cancel"}
         variant="success"
         showReasonInput={true}
-        reasonPlaceholder={isRtl ? "أدخل ملاحظات الاعتماد (مثلاً: المستندات مكتملة ومطابقة)..." : "Enter verification notes..."}
+        reasonPlaceholder={
+          isRtl
+            ? "أدخل ملاحظات الاعتماد (مثلاً: المستندات مكتملة ومطابقة)..."
+            : "Enter verification notes..."
+        }
         presetReasons={
           isRtl
-            ? ["مستندات مكتملة وموثقة", "تم التحقق من السجل التجاري", "استيفاء شروط التسجيل"]
-            : ["Documents complete & verified", "Tax ID & License checked", "All requirements met"]
+            ? [
+                "مستندات مكتملة وموثقة",
+                "تم التحقق من السجل التجاري",
+                "استيفاء شروط التسجيل",
+              ]
+            : [
+                "Documents complete & verified",
+                "Tax ID & License checked",
+                "All requirements met",
+              ]
         }
         isRtl={isRtl}
         onConfirm={(reason) => handleReactivateAction(reason)}
@@ -312,11 +383,19 @@ export default function UserDetailPage({ params }: PageProps) {
       />
 
       <ConfirmationModal
-        isOpen={confirmModal.isOpen && (confirmModal.action === "reject" || confirmModal.action === "suspend")}
+        isOpen={
+          confirmModal.isOpen &&
+          (confirmModal.action === "reject" ||
+            confirmModal.action === "suspend")
+        }
         title={
           confirmModal.action === "reject"
-            ? (isRtl ? "رفض طلب التوثيق" : "Reject Verification Application")
-            : (isRtl ? "تأكيد تعطيل الحساب" : "Confirm Account Suspension")
+            ? isRtl
+              ? "رفض طلب التوثيق"
+              : "Reject Verification Application"
+            : isRtl
+              ? "تأكيد تعطيل الحساب"
+              : "Confirm Account Suspension"
         }
         message={
           isRtl
@@ -327,11 +406,25 @@ export default function UserDetailPage({ params }: PageProps) {
         cancelLabel={isRtl ? "إلغاء" : "Cancel"}
         variant="warning"
         showReasonInput={true}
-        reasonPlaceholder={isRtl ? "اكتب سبب رفض التوثيق أو تعليق الحساب..." : "Write the reason for rejection/suspension..."}
+        reasonPlaceholder={
+          isRtl
+            ? "اكتب سبب رفض التوثيق أو تعليق الحساب..."
+            : "Write the reason for rejection/suspension..."
+        }
         presetReasons={
           isRtl
-            ? ["مستندات غير واضحة", "سجل تجاري منتهي", "بيانات غير مطابقة للموقع", "مخالفة سياسات المنصة"]
-            : ["Unclear/unreadable documents", "Expired commercial registration", "Information mismatch", "Policy violation"]
+            ? [
+                "مستندات غير واضحة",
+                "سجل تجاري منتهي",
+                "بيانات غير مطابقة للموقع",
+                "مخالفة سياسات المنصة",
+              ]
+            : [
+                "Unclear/unreadable documents",
+                "Expired commercial registration",
+                "Information mismatch",
+                "Policy violation",
+              ]
         }
         isRtl={isRtl}
         onConfirm={(reason) => handleSuspendAction(reason)}
@@ -350,11 +443,21 @@ export default function UserDetailPage({ params }: PageProps) {
         cancelLabel={isRtl ? "إلغاء" : "Cancel"}
         variant="default"
         showReasonInput={true}
-        reasonPlaceholder={isRtl ? "سبب إعادة التنشيط..." : "Reason for reactivation..."}
+        reasonPlaceholder={
+          isRtl ? "سبب إعادة التنشيط..." : "Reason for reactivation..."
+        }
         presetReasons={
           isRtl
-            ? ["استيفاء المستندات المطلوبة", "حل الخلاف بنجاح", "انتهاء فترة التعليق"]
-            : ["Requirements completed", "Dispute resolved", "Suspension period ended"]
+            ? [
+                "استيفاء المستندات المطلوبة",
+                "حل الخلاف بنجاح",
+                "انتهاء فترة التعليق",
+              ]
+            : [
+                "Requirements completed",
+                "Dispute resolved",
+                "Suspension period ended",
+              ]
         }
         isRtl={isRtl}
         onConfirm={(reason) => handleReactivateAction(reason)}
@@ -373,14 +476,24 @@ export default function UserDetailPage({ params }: PageProps) {
         cancelLabel={isRtl ? "إلغاء" : "Cancel"}
         variant="danger"
         showReasonInput={true}
-        reasonPlaceholder={isRtl ? "سبب الحظر النهائي..." : "Reason for permanent ban..."}
+        reasonPlaceholder={
+          isRtl ? "سبب الحظر النهائي..." : "Reason for permanent ban..."
+        }
         presetReasons={
           isRtl
-            ? ["احتيال تجاري", "مخالفات جسيمة ومكررة", "التزوير وإنشاء حسابات وهمية"]
-            : ["Fraudulent activity", "Severe repeated violations", "Identity theft / fake account"]
+            ? [
+                "احتيال تجاري",
+                "مخالفات جسيمة ومكررة",
+                "التزوير وإنشاء حسابات وهمية",
+              ]
+            : [
+                "Fraudulent activity",
+                "Severe repeated violations",
+                "Identity theft / fake account",
+              ]
         }
         isRtl={isRtl}
-        onConfirm={(reason) => handleBanAction(reason)}
+        onConfirm={() => handleBanAction()}
         onClose={() => setConfirmModal({ isOpen: false, action: null })}
       />
     </div>
