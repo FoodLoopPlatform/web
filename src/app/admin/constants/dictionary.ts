@@ -113,9 +113,56 @@ export interface AdminDictionary {
   mainController: string;
   sarahAdmin: string;
   mikeAdmin: string;
-  seniorControllerRole: string;
-  controllerRole: string;
-  opsRole: string;
+  seniorControllerRole?: string;
+  controllerRole?: string;
+  opsRole?: string;
+
+  // Refactored System Settings Keys
+  tabGlobalAutomation: string;
+  tabGuidelineDocs: string;
+  tabSecurityRbac: string;
+  tabAiObservability: string;
+  maxDiscountLabel: string;
+  maxDiscountSub: string;
+  priceFloorLabel: string;
+  priceFloorSub: string;
+  defaultModeLabel: string;
+  defaultModeSub: string;
+  uploadDocumentBtn: string;
+  documentNameCol: string;
+  categoryCol: string;
+  versionCol: string;
+  ragIndexCol: string;
+  publishBtn: string;
+  unpublishBtn: string;
+  draftStatus: string;
+  publishedStatus: string;
+  ragIndexedAt: string;
+  ragPendingIndex: string;
+  inviteAdminBtn: string;
+  permissionsCol: string;
+  canResolveDisputes: string;
+  canEditSystemCaps: string;
+  canBanUsers: string;
+  canManageRoles: string;
+  canManageRagDocs: string;
+  canViewAnalytics: string;
+  auditRetentionLabel: string;
+  auditRetentionSub: string;
+  sessionTimeoutLabel: string;
+  linkAuditLogPage: string;
+  promptCacheLabel: string;
+  promptCacheSub: string;
+  batchingWindowLabel: string;
+  batchingWindowSub: string;
+  sentryLatencyLabel: string;
+  sentryErrorRateLabel: string;
+  apiCostCapLabel: string;
+  sentryStatusLabel: string;
+  confirmSaveGlobalTitle: string;
+  confirmSaveGlobalMsg: string;
+  confirmRoleUpdateTitle: string;
+  confirmRoleUpdateMsg: string;
 
   // Analytics Keys
   analyticsTitle: string;
@@ -465,6 +512,59 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     systemStatus: "حالة النظام التشغيلية",
     supportLink: "الدعم الفني",
     viewAuditDetailsModalTitle: "تفاصيل سجل المراجعة",
+
+    // Refactored System Settings Keys
+    tabGlobalAutomation: "إعدادات الأتمتة والتسعير",
+    tabGuidelineDocs: "قاعدة بيانات RAG ومستندات الإرشادات",
+    tabSecurityRbac: "الأمان والتحكم بالوصول (RBAC)",
+    tabAiObservability: "المراقبة وتحسين تكلفة الذكاء الاصطناعي",
+    maxDiscountLabel: "الحد الأقصى للخصم لكل دورة (محدد بـ ±١٥٪)",
+    maxDiscountSub:
+      "السقف الأعلى المسموح به (١-١٥٪) لكافة إعدادات الخصم التلقائي للمتاجر وفق الموثق بالمنصة.",
+    priceFloorLabel: "سياسة الحد الأدنى الافتراضي لسعر المنتج",
+    priceFloorSub:
+      "يحدد صاحب المتجر السعر الأدنى المطلق لمنتجاته للحد من انخفاض القيمة.",
+    defaultModeLabel: "نمط الأتمتة الافتراضي للمتاجر الجديدة",
+    defaultModeSub: "النمط الافتراضي الذي يبدأ به المتجر فور التسجيل.",
+    uploadDocumentBtn: "رفع مستند مصدر",
+    documentNameCol: "اسم المستند",
+    categoryCol: "الفئة المصدرية",
+    versionCol: "الإصدار",
+    ragIndexCol: "حالة الفهرسة الذكية (RAG)",
+    publishBtn: "نشر للفهرسة",
+    unpublishBtn: "إلغاء النشر",
+    draftStatus: "مسودة",
+    publishedStatus: "مُفهرس ونشط",
+    ragIndexedAt: "تمت الفهرسة في {time}",
+    ragPendingIndex: "في انتظار الفهرسة",
+    inviteAdminBtn: "إضافة حساب إداري",
+    permissionsCol: "مصفوفة الصلاحيات الأفقية",
+    canResolveDisputes: "إدارة وحل المنازعات",
+    canEditSystemCaps: "تعديل حدود أتمتة النظام",
+    canBanUsers: "حظر وتعليق الحسابات",
+    canManageRoles: "إدارة أدوار وصلاحيات الأدمن",
+    canManageRagDocs: "إدارة مستندات RAG",
+    canViewAnalytics: "عرض التحليلات والتقارير",
+    auditRetentionLabel: "فترة الاحتفاظ بسجلات المراجعة (Audit Logs)",
+    auditRetentionSub:
+      "مدة التخزين الرقمي لسجلات الحركات وقرارات الذكاء الاصطناعي قبل الأرشفة.",
+    sessionTimeoutLabel: "مهلة الجلسة الإدارية (بالدقائق)",
+    linkAuditLogPage: "الانتقال لسجل المراجعة الكامل ↗",
+    promptCacheLabel: "مدة التخزين المؤقت للاستعلامات (Prompt Caching TTL)",
+    promptCacheSub: "تحسين تكلفة استعلامات LLM عبر التخزين المؤقت بالدقائق.",
+    batchingWindowLabel: "نافذة التجميع الدفعي للطلبات (Batching Window)",
+    batchingWindowSub:
+      "تجميع طلبات الذكاء الاصطناعي بالمللي ثانية لتقليل تكلفة الربط.",
+    sentryLatencyLabel: "حد تنبيه زمن الاستجابة (Sentry Latency Limit)",
+    sentryErrorRateLabel: "حد تنبيه نسبة الأخطاء (Error Rate %)",
+    apiCostCapLabel: "السقف الشهري المخطط لتكلفة واجهات الذكاء الاصطناعي (ج.م)",
+    sentryStatusLabel: "حالة نظام المراقبة (Sentry Status)",
+    confirmSaveGlobalTitle: "تأكيد تغيير إعدادات النظام العامة",
+    confirmSaveGlobalMsg:
+      "هل أنت متأكد من تغيير حدود الأتمتة على مستوى المنصة؟ سيؤثر هذا التغيير على جميع المتاجر فوراً.",
+    confirmRoleUpdateTitle: "تأكيد تعديل صلاحيات الأدمن",
+    confirmRoleUpdateMsg:
+      "هل أنت متأكد من تعديل الصلاحيات الخاصة بهذا الحساب الإداري؟",
   },
   en: {
     title: "User Management",
@@ -706,5 +806,58 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     systemStatus: "System Status",
     supportLink: "Support",
     viewAuditDetailsModalTitle: "Audit Log Entry Details",
+
+    // Refactored System Settings Keys
+    tabGlobalAutomation: "Automation & Pricing Limits",
+    tabGuidelineDocs: "RAG Knowledge Base Docs",
+    tabSecurityRbac: "Security & RBAC",
+    tabAiObservability: "AI Observability & Cost",
+    maxDiscountLabel: "Max Discount per Cycle (Capped at ±15%)",
+    maxDiscountSub:
+      "Hard ceiling (1–15%) for all per-store autonomous pricing settings as mandated in spec.",
+    priceFloorLabel: "Default Price Floor Policy",
+    priceFloorSub:
+      "Business owner sets an absolute minimum price floor to prevent loss.",
+    defaultModeLabel: "New Business Default Automation Mode",
+    defaultModeSub: "Initial automation mode assigned to stores upon signup.",
+    uploadDocumentBtn: "Upload Source Document",
+    documentNameCol: "Document Name",
+    categoryCol: "RAG Category",
+    versionCol: "Version",
+    ragIndexCol: "RAG Pipeline Status",
+    publishBtn: "Publish to RAG",
+    unpublishBtn: "Unpublish",
+    draftStatus: "Draft",
+    publishedStatus: "Indexed & Active",
+    ragIndexedAt: "Indexed at {time}",
+    ragPendingIndex: "Pending Re-index",
+    inviteAdminBtn: "Add Admin Account",
+    permissionsCol: "Permission Set Matrix",
+    canResolveDisputes: "Can Resolve Disputes",
+    canEditSystemCaps: "Can Edit Automation Caps",
+    canBanUsers: "Can Ban Users",
+    canManageRoles: "Can Manage Roles & Permissions",
+    canManageRagDocs: "Can Manage RAG Docs",
+    canViewAnalytics: "Can View System Analytics",
+    auditRetentionLabel: "Audit Log Retention Period",
+    auditRetentionSub:
+      "Duration activity and AI decision logs are stored before archiving.",
+    sessionTimeoutLabel: "Admin Session Timeout (Minutes)",
+    linkAuditLogPage: "View Full Audit Log Screen ↗",
+    promptCacheLabel: "Prompt Cache TTL (Minutes)",
+    promptCacheSub:
+      "Cost optimization for LLM prompt caching per addendum spec.",
+    batchingWindowLabel: "Request Batching Window (ms)",
+    batchingWindowSub: "Batching threshold window for AI API calls.",
+    sentryLatencyLabel: "Latency Alert Threshold (ms)",
+    sentryErrorRateLabel: "Error Rate Alert Threshold (%)",
+    apiCostCapLabel: "Monthly AI API Cost Cap (EGP)",
+    sentryStatusLabel: "Observability Integration Status",
+    confirmSaveGlobalTitle: "Confirm Global Settings Change",
+    confirmSaveGlobalMsg:
+      "Are you sure you want to update platform-wide automation limits? This affects all connected stores immediately.",
+    confirmRoleUpdateTitle: "Confirm Admin Permissions Update",
+    confirmRoleUpdateMsg:
+      "Are you sure you want to update permissions for this administrative account?",
   },
 };

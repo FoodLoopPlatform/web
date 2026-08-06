@@ -349,3 +349,65 @@ export interface AuditLogFetchResult {
     systemHealthStatus: string;
   };
 }
+
+// ─── System Settings Domain Types ──────────────────────────────────────────
+
+export interface GlobalAutomationDefaults {
+  maxDiscountPerCycle: number; // Hard-clamped 1-15%
+  defaultPriceFloorPolicy: "DYNAMIC_AI" | "FIXED_30" | "FIXED_50";
+  newBusinessDefaultMode: "Manual" | "Assisted" | "Autonomous";
+  autoVerifyStores: boolean;
+  bulkUploads: boolean;
+}
+
+export type DocumentCategory =
+  | "Egyptian Food Safety & Regulations"
+  | "Food Handling & Eligibility"
+  | "Sales & Demand Patterns"
+  | "Partner Inventory Info"
+  | "Store & Customer Location Data";
+
+export interface GuidelineDocument {
+  id: string;
+  name: string;
+  category: DocumentCategory;
+  version: string;
+  lastUpdated: string;
+  fileSize: string;
+  status: "Draft" | "Published";
+  lastRagIndexedAt?: string;
+  fileUrl?: string;
+}
+
+export type AdminPermission =
+  | "can_resolve_disputes"
+  | "can_edit_system_caps"
+  | "can_ban_users"
+  | "can_manage_roles"
+  | "can_manage_rag_docs"
+  | "can_view_analytics";
+
+export interface PlatformAdmin {
+  id: string;
+  name: string;
+  email: string;
+  roleTitle: string; // Generic, admin-configurable role title
+  status: "ACTIVE" | "INACTIVE";
+  lastActive: string;
+  permissions: AdminPermission[];
+  avatar?: string;
+}
+
+export interface SecuritySettings {
+  auditLogRetentionDays: 90 | 180 | 365 | -1;
+  sessionTimeoutMinutes: number;
+}
+
+export interface AiObservabilitySettings {
+  promptCacheTtlMinutes: number;
+  requestBatchingWindowMs: number;
+  sentryAlertThresholdLatencyMs: number;
+  sentryErrorRateThresholdPercent: number;
+  monthlyApiCostCapEgp: number;
+  sentryStatus: "Healthy" | "Degraded" | "Offline";
+}

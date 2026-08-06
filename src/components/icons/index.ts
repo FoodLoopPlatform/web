@@ -30,5 +30,8 @@ export * from "./store-icon";
 export * from "./trash-icon";
 export * from "./upload-cloud-icon";
 export * from "./bar-chart-icon";
+export * from "./bell-icon";
+export * from "./edit-icon";
 export * from "./globe-icon";
+export * from "./sliders-icon";
 export * from "./user-icon";
