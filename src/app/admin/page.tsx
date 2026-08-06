@@ -19,7 +19,8 @@ import {
 } from "./api/admin-api";
 import { adminDictionary } from "./constants/dictionary";
 import { AdminUserItem } from "./types/admin.types";
-import { StatsCard } from "./components/StatsCard";
+import { UserManagementStats } from "./components/UserManagementStats";
+import { UserManagementToolbarActions } from "./components/UserManagementToolbarActions";
 import { TabSwitcher, TabOption } from "./components/TabSwitcher";
 import { SearchToolbar, FilterOption } from "./components/SearchToolbar";
 import { SmartInsightCard } from "./components/SmartInsightCard";
@@ -55,19 +56,20 @@ export default function UserManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
-  const [prevTabFilter, setPrevTabFilter] = useState({
-    activeTab,
-    searchQuery,
-    statusFilter,
-  });
-  if (
-    prevTabFilter.activeTab !== activeTab ||
-    prevTabFilter.searchQuery !== searchQuery ||
-    prevTabFilter.statusFilter !== statusFilter
-  ) {
-    setPrevTabFilter({ activeTab, searchQuery, statusFilter });
+  const handleTabChange = (tab: ActorTab) => {
+    setActiveTab(tab);
     setCurrentPage(1);
-  }
+  };
+
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    setCurrentPage(1);
+  };
+
+  const handleFilterSelect = (filter: StatusFilter) => {
+    setStatusFilter(filter);
+    setCurrentPage(1);
+  };
 
   // Modal & Drawer states
   const [showEnrollModal, setShowEnrollModal] = useState(false);
@@ -271,119 +273,37 @@ export default function UserManagementPage() {
         <TabSwitcher
           tabs={tabOptions}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
       </div>
 
       {/* Top Metrics Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          label={t.totalUsers}
-          value={
-            analytics?.totalConsumers != null
-              ? analytics.totalConsumers.toLocaleString()
-              : "..."
-          }
-          accentClass="bg-primary-container/20"
-          isRtl={isRtl}
-        />
-        <StatsCard
-          label={t.activeStores}
-          value={
-            analytics?.totalStores != null
-              ? analytics.totalStores.toLocaleString()
-              : "..."
-          }
-          accentClass="bg-primary-container"
-          textColorClass="text-primary-container"
-          isRtl={isRtl}
-        />
-        <StatsCard
-          label={t.activeCharities}
-          value={
-            analytics?.totalCharities != null
-              ? analytics.totalCharities.toLocaleString()
-              : "..."
-          }
-          accentClass="bg-blue-600/30"
-          textColorClass="text-blue-900"
-          isRtl={isRtl}
-        />
-        <StatsCard
-          label={t.pendingApproval}
-          value={
-            analytics != null
-              ? (
-                  (analytics.pendingStoresCount ?? 0) +
-                  (analytics.pendingCharitiesCount ?? 0)
-                ).toLocaleString()
-              : "..."
-          }
-          accentClass="bg-amber-500/30"
-          textColorClass="text-amber-900"
-          isRtl={isRtl}
-        />
-      </div>
+      <UserManagementStats t={t} analytics={analytics} isRtl={isRtl} />
 
       {/* Search and Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between bg-white p-4 rounded-2xl border border-card-border shadow-sm gap-4">
         <SearchToolbar
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           placeholder={t.searchPlaceholder}
           isRtl={isRtl}
           filterTitle={t.filter}
           filterButtonLabel={t.filter}
           filterOptions={filterOptions}
           activeFilter={statusFilter}
-          onFilterSelect={setStatusFilter}
+          onFilterSelect={handleFilterSelect}
           showFilterDropdown={showFiltersDropdown}
           onToggleFilterDropdown={() =>
             setShowFiltersDropdown(!showFiltersDropdown)
           }
         />
 
-        <div className="flex items-center gap-3 self-end md:self-auto">
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-outline-variant text-xs font-bold text-on-surface-variant hover:bg-surface-container transition-all cursor-pointer whitespace-nowrap"
-          >
-            <svg
-              className="w-4 h-4 text-outline"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            <span>{t.exportCsv}</span>
-          </button>
-
-          <button
-            onClick={() => setShowEnrollModal(true)}
-            className="flex items-center gap-2 bg-primary-container hover:bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-              />
-            </svg>
-            <span>{isRtl ? "تسجيل يدوي" : "Manual Enroll"}</span>
-          </button>
-        </div>
+        <UserManagementToolbarActions
+          onExportCSV={handleExportCSV}
+          onOpenEnrollModal={() => setShowEnrollModal(true)}
+          exportCsvLabel={t.exportCsv}
+          isRtl={isRtl}
+        />
       </div>
 
       {/* Main Content Layout */}

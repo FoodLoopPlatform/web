@@ -29,4 +29,6 @@ export * from "./spinner-icon";
 export * from "./store-icon";
 export * from "./trash-icon";
 export * from "./upload-cloud-icon";
+export * from "./bar-chart-icon";
+export * from "./globe-icon";
 export * from "./user-icon";

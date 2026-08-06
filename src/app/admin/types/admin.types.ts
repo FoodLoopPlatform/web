@@ -302,3 +302,50 @@ export interface FilterOption<T extends string = string> {
   id: T;
   label: string;
 }
+
+// ─── Audit Log Domain Types ────────────────────────────────────────────────
+
+export type AuditActionType =
+  "Pricing Change" | "Listing Moderation" | "Donation Decision";
+
+export type AuditSeverity = "Low" | "Med" | "High";
+
+export interface AuditLogItem {
+  id: string;
+  actionType: AuditActionType;
+  actorName: string;
+  actorRole: "System AI" | "Admin" | "Moderator";
+  actorAvatar?: string;
+  timestamp: string;
+  isoDate: string;
+  detailsEn: string;
+  detailsAr: string;
+  severity: AuditSeverity;
+  targetId?: string;
+  targetName?: string;
+}
+
+export interface AuditLogFilterParams {
+  search?: string;
+  actionType?: "ALL" | AuditActionType;
+  dateRange?: "ALL" | "TODAY" | "7DAYS" | "30DAYS";
+  startDate?: string;
+  endDate?: string;
+  severity?: "ALL" | AuditSeverity;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AuditLogFetchResult {
+  items: AuditLogItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  stats: {
+    activeSessions: number;
+    aiDecisions24h: number;
+    flaggedEvents: number;
+    systemHealthStatus: string;
+  };
+}

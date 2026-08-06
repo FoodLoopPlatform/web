@@ -181,6 +181,47 @@ export interface AdminDictionary {
   confirmApproveMsg: string;
   confirmRejectTitle: string;
   confirmRejectMsg: string;
+
+  // Audit Log Keys
+  auditDashboardTitle: string;
+  auditDashboardSubtitle: string;
+  searchAuditPlaceholder: string;
+  actionTypeLabel: string;
+  allActions: string;
+  dateRangeLabel: string;
+  allTime: string;
+  today: string;
+  last7Days: string;
+  last30Days: string;
+  advancedFilters: string;
+  severityLabel: string;
+  allSeverities: string;
+  severityLow: string;
+  severityMed: string;
+  severityHigh: string;
+  exportCsvBtn: string;
+  exportLogsBtn: string;
+  pricingChange: string;
+  listingModeration: string;
+  donationDecision: string;
+  actorCol: string;
+  timestampCol: string;
+  systemAiActor: string;
+  activeSessions: string;
+  liveNow: string;
+  aiDecisions24h: string;
+  flaggedEvents: string;
+  attentionSub: string;
+  systemHealth: string;
+  stableOps: string;
+  noAuditResultsHeading: string;
+  noAuditResultsBody: string;
+  resetFiltersBtn: string;
+  footerComplianceMsg: string;
+  privacyPolicy: string;
+  systemStatus: string;
+  supportLink: string;
+  viewAuditDetailsModalTitle: string;
 }
 
 export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
@@ -380,6 +421,50 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
       "هل أنت متأكد من النشر والاعتماد النهائي لهذه القائمة على المنصة؟",
     confirmRejectTitle: "رفض واستبعاد القائمة",
     confirmRejectMsg: "هل أنت متأكد من رفض هذه القائمة وحذفها من المراجعة؟",
+
+    // Audit Log
+    auditDashboardTitle: "لوحة سجل المراجعة",
+    auditDashboardSubtitle:
+      "مراجعة التاريخ الكامل لقرارات الذكاء الاصطناعي والإجراءات الإدارية",
+    searchAuditPlaceholder: "ابحث في سجلات النظام...",
+    actionTypeLabel: "نوع الإجراء",
+    allActions: "كل الإجراءات",
+    dateRangeLabel: "الفترة الزمنية",
+    allTime: "كل الأوقات",
+    today: "اليوم",
+    last7Days: "آخر ٧ أيام",
+    last30Days: "آخر ٣٠ يوماً",
+    advancedFilters: "خيارات متقدمة",
+    severityLabel: "درجة الأهمية",
+    allSeverities: "كل الدرجات",
+    severityLow: "منخفضة",
+    severityMed: "متوسطة",
+    severityHigh: "عالية",
+    exportCsvBtn: "تصدير CSV",
+    exportLogsBtn: "تصدير السجلات",
+    pricingChange: "تغيير في السعر",
+    listingModeration: "مراجعة قائمة منتج",
+    donationDecision: "قرار تبرع",
+    actorCol: "الجهة الفاعلة",
+    timestampCol: "التوقيت",
+    systemAiActor: "الذكاء الاصطناعي للنظام v4.2",
+    activeSessions: "الجلسات النشطة",
+    liveNow: "مباشر الآن",
+    aiDecisions24h: "قرارات الذكاء الاصطناعي (٢٤ ساعة)",
+    flaggedEvents: "أحداث تم الإبلاغ عنها",
+    attentionSub: "تحتاج مراجعة",
+    systemHealth: "حالة النظام",
+    stableOps: "تشغيل مستقر",
+    noAuditResultsHeading: "لا توجد نتائج — جرّب تعديل الفلاتر",
+    noAuditResultsBody:
+      "لم نتمكن من العثور على أي سجلات مطابقة للفلاتر الحالية. جرّب توسيع نطاق التاريخ أو تغيير نوع الإجراء لعرض المزيد من السجلات.",
+    resetFiltersBtn: "إعادة تعيين الفلاتر",
+    footerComplianceMsg:
+      "© 2024 وحدة الامتثال لهدر الطعام — منطق لوجستي عالي الدقة.",
+    privacyPolicy: "سياسة الخصوصية",
+    systemStatus: "حالة النظام التشغيلية",
+    supportLink: "الدعم الفني",
+    viewAuditDetailsModalTitle: "تفاصيل سجل المراجعة",
   },
   en: {
     title: "User Management",
@@ -577,5 +662,49 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     confirmRejectTitle: "Reject Listing",
     confirmRejectMsg:
       "Are you sure you want to reject and remove this product listing?",
+
+    // Audit Log
+    auditDashboardTitle: "Audit Dashboard",
+    auditDashboardSubtitle:
+      "Review the full history of AI decisions and administrative actions",
+    searchAuditPlaceholder: "Search system logs...",
+    actionTypeLabel: "Action Type",
+    allActions: "All Actions",
+    dateRangeLabel: "Date Range",
+    allTime: "All Time",
+    today: "Today",
+    last7Days: "Last 7 Days",
+    last30Days: "Last 30 Days",
+    advancedFilters: "Advanced",
+    severityLabel: "Severity",
+    allSeverities: "All Severities",
+    severityLow: "Low",
+    severityMed: "Med",
+    severityHigh: "High",
+    exportCsvBtn: "Export CSV",
+    exportLogsBtn: "Export Logs",
+    pricingChange: "Pricing Change",
+    listingModeration: "Listing Moderation",
+    donationDecision: "Donation Decision",
+    actorCol: "Actor",
+    timestampCol: "Timestamp",
+    systemAiActor: "System AI v4.2",
+    activeSessions: "Active Sessions",
+    liveNow: "Live Now",
+    aiDecisions24h: "AI Decisions (24h)",
+    flaggedEvents: "Flagged Events",
+    attentionSub: "Attention",
+    systemHealth: "System Health",
+    stableOps: "Stable Ops",
+    noAuditResultsHeading: "No results — try adjusting your filters",
+    noAuditResultsBody:
+      "We couldn't find any audit logs matching your current parameters. Try loosening your date range or changing action types to see more history.",
+    resetFiltersBtn: "Reset Filters",
+    footerComplianceMsg:
+      "© 2024 Food Waste Compliance Module. High-Precision Logistics Logic.",
+    privacyPolicy: "Privacy Policy",
+    systemStatus: "System Status",
+    supportLink: "Support",
+    viewAuditDetailsModalTitle: "Audit Log Entry Details",
   },
 };

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAdminLang } from "@/store/use-admin-lang";
 import { getAnalyticsSummary, type AnalyticsSummary } from "../api/admin-api";
 import { adminDictionary } from "../constants/dictionary";
+import { AnalyticsCharts } from "../components/AnalyticsCharts";
 
 export default function AnalyticsPage() {
   const { lang } = useAdminLang();
@@ -162,137 +163,7 @@ export default function AnalyticsPage() {
         {/* Left Column: Charts (Spans 2) */}
         <div className="lg:col-span-2 flex flex-col gap-6 lg:gap-8">
           {/* Chart 1: Waste Reduction Trend (Line Chart) */}
-          <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-4">
-            <div className={lang === "ar" ? "text-right" : "text-left"}>
-              <h3 className="text-base font-extrabold text-primary font-brand">
-                {t.wasteTrendTitle}
-              </h3>
-              <span className="text-[10px] text-outline font-medium block mt-0.5">
-                {t.wasteTrendSub}
-              </span>
-            </div>
-
-            {/* Custom SVG Line Chart */}
-            <div className="w-full h-[220px] relative mt-4" dir="ltr">
-              <svg
-                className="w-full h-full"
-                viewBox="0 0 600 200"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient
-                    id="chartGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor="var(--color-primary-fixed)"
-                      stopOpacity="0.4"
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="var(--color-primary-fixed)"
-                      stopOpacity="0.0"
-                    />
-                  </linearGradient>
-                </defs>
-                {/* Grid Lines */}
-                <line
-                  x1="0"
-                  y1="40"
-                  x2="600"
-                  y2="40"
-                  className="stroke-surface-container"
-                  strokeWidth="1"
-                  strokeDasharray="4"
-                />
-                <line
-                  x1="0"
-                  y1="90"
-                  x2="600"
-                  y2="90"
-                  className="stroke-surface-container"
-                  strokeWidth="1"
-                  strokeDasharray="4"
-                />
-                <line
-                  x1="0"
-                  y1="140"
-                  x2="600"
-                  y2="140"
-                  className="stroke-surface-container"
-                  strokeWidth="1"
-                  strokeDasharray="4"
-                />
-                <line
-                  x1="0"
-                  y1="190"
-                  x2="600"
-                  y2="190"
-                  className="stroke-surface-container"
-                  strokeWidth="1"
-                />
-
-                {/* Filled Area */}
-                <path
-                  d="M 20 190 L 20 140 Q 110 130 200 110 T 380 70 T 560 40 L 560 190 Z"
-                  fill="url(#chartGradient)"
-                />
-
-                {/* Line Path */}
-                <path
-                  d="M 20 140 Q 110 130 200 110 T 380 70 T 560 40"
-                  fill="none"
-                  className="stroke-primary-container"
-                  strokeWidth="3"
-                />
-
-                {/* Dots at key points */}
-                <circle
-                  cx="20"
-                  cy="140"
-                  r="4"
-                  className="fill-primary-container"
-                />
-                <circle
-                  cx="110"
-                  cy="132"
-                  r="4"
-                  className="fill-primary-container"
-                />
-                <circle
-                  cx="200"
-                  cy="110"
-                  r="4"
-                  className="fill-primary-container"
-                />
-                <circle
-                  cx="380"
-                  cy="70"
-                  r="4"
-                  className="fill-primary-container"
-                />
-                <circle
-                  cx="560"
-                  cy="40"
-                  r="4"
-                  className="fill-primary-container"
-                />
-              </svg>
-
-              {/* Chart Labels */}
-              <div className="flex justify-between text-[9px] text-outline mt-2 font-bold px-2">
-                <span>{t.month3}</span>
-                <span>{t.month4}</span>
-                <span>{t.month5}</span>
-                <span>{t.month6}</span>
-                <span>{t.month7}</span>
-              </div>
-            </div>
-          </div>
+          <AnalyticsCharts t={t} lang={lang} />
 
           {/* Partner & Charity performance grids */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">

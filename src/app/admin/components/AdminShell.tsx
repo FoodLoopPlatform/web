@@ -11,8 +11,12 @@ import {
   AlertCircleIcon,
   CheckCircleIcon,
   CloseIcon,
-  SearchIcon,
   LogoutIcon,
+  BarChartIcon,
+  FileIcon,
+  GlobeIcon,
+  MenuIcon,
+  PlusIcon,
 } from "@/components/icons";
 
 interface NavItem {
@@ -28,7 +32,6 @@ const dict = {
     createReport: "+ إنشاء تقرير",
     support: "الدعم والمساعدة",
     logout: "تسجيل الخروج",
-    searchPlaceholder: "ابحث عن مستخدمين، طلبات، أو متاجر...",
     mainController: "المراقب الرئيسي",
   },
   en: {
@@ -36,7 +39,6 @@ const dict = {
     createReport: "+ Create Report",
     support: "Support & Help",
     logout: "Log Out",
-    searchPlaceholder: "Search users, orders, or stores...",
     mainController: "Main Controller",
   },
 };
@@ -121,21 +123,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       labelAr: "التحليلات والإحصائيات",
       labelEn: "Analytics & Reports",
       href: "/admin/analytics",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"
-          />
-        </svg>
-      ),
+      icon: <BarChartIcon className="w-5 h-5" />,
+    },
+    {
+      labelAr: "سجل المراجعة",
+      labelEn: "Audit Log",
+      href: "/admin/audit-log",
+      icon: <FileIcon className="w-5 h-5" />,
     },
     {
       labelAr: "إعدادات النظام",
@@ -212,19 +206,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           href="/admin/analytics?generate_report=true"
           className="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all text-xs cursor-pointer shadow-sm active:scale-95"
         >
-          <svg
-            className="w-4 h-4 animate-pulse"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+          <PlusIcon className="w-4 h-4" />
           <span className="whitespace-nowrap">{currentDict.createReport}</span>
         </Link>
 
@@ -285,29 +267,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="md:hidden p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer"
               title="Open Navigation Menu"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <MenuIcon className="w-6 h-6" />
             </button>
-
-            <div className="relative hidden sm:block w-80 lg:w-[480px] max-w-xl">
-              <SearchIcon className="w-4 h-4 text-outline absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none" />
-              <input
-                type="text"
-                placeholder={currentDict.searchPlaceholder}
-                className="w-full bg-surface-container-high border-none rounded-full py-2 pr-10 pl-4 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -316,19 +277,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-all text-xs font-bold border border-outline-variant/40 cursor-pointer"
               title={lang === "ar" ? "Switch to English" : "التحويل للعربية"}
             >
-              <svg
-                className="w-4 h-4 text-primary"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-              </svg>
+              <GlobeIcon className="w-4 h-4 text-primary" />
               <span>{lang === "ar" ? "EN" : "العربية"}</span>
             </button>
 
