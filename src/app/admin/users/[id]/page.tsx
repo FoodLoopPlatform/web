@@ -273,7 +273,7 @@ export default function UserDetailPage({ params }: PageProps) {
     <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-on-surface text-white px-4 py-3 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 animate-bounce">
+        <div className="fixed bottom-6 end-6 z-50 bg-on-surface text-white px-4 py-3 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 animate-bounce">
           <svg
             className="w-4 h-4 text-green-400"
             fill="none"

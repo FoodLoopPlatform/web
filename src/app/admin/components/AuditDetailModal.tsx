@@ -31,7 +31,7 @@ export const AuditDetailModal: React.FC<AuditDetailModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-3xl min-w-[320px] sm:min-w-[650px] bg-white rounded-3xl shadow-2xl border border-card-border p-6 sm:p-8 flex flex-col gap-6 shrink-0 my-auto ${
+        className={`w-full max-w-3xl min-w-[320px] sm:min-w-[540px] md:min-w-[650px] bg-white rounded-3xl shadow-2xl border border-card-border p-6 sm:p-8 flex flex-col gap-6 shrink-0 my-auto ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
