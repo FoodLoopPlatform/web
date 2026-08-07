@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useAdminLang } from "@/store/use-admin-lang";
 import { adminDictionary } from "../../constants/dictionary";
-import { TabSwitcher } from "../../components/TabSwitcher";
+import { TabSwitcher } from "../../components";
 import { CheckIcon } from "@/components/icons";
 
 import {

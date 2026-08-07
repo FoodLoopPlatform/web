@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { AdminDictionary } from "../../constants/dictionary";
 import { GlobalAutomationDefaults } from "../../types/admin.types";
-import { ConfirmationModal } from "../../components/ConfirmationModal";
+import { ConfirmationModal } from "../../components";
 import { SlidersIcon, ShieldCheckIcon } from "@/components/icons";
 
 interface AutomationDefaultsSectionProps {

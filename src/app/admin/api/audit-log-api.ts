@@ -24,8 +24,8 @@ export async function exportAuditLogsCsv(
   params: AuditLogFilterParams = {},
   isRtl: boolean = false,
 ): Promise<void> {
-  // Fetch all matching records without pagination for the export
-  const fullResult = fetchMockAuditLogs({
+  // Fetch all matching records without pagination for the export via API client
+  const fullResult = await getAuditLogs({
     ...params,
     page: 1,
     pageSize: 10000,

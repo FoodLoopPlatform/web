@@ -1,12 +1,12 @@
-import { Metadata } from "next";
-import { AuditLogClientContainer } from "../components/AuditLogClientContainer";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Audit Dashboard | FoodLoop Admin",
-  description:
-    "Review AI decisions, dynamic pricing updates, donation eligibility calls, and administrative action logs for FoodLoop.",
-};
+import { Suspense } from "react";
+import { AuditLogClientContainer } from "../components";
 
 export default function AuditLogPage() {
-  return <AuditLogClientContainer />;
+  return (
+    <Suspense fallback={null}>
+      <AuditLogClientContainer />
+    </Suspense>
+  );
 }

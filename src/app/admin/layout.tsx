@@ -1,5 +1,5 @@
 import React from "react";
-import { AdminShell } from "./components/AdminShell";
+import { AdminShell } from "./components/common/AdminShell";
 
 export const metadata = {
   title: "FoodLoop Admin Portal",
