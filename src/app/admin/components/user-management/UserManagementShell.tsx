@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAdminLang } from "@/store/use-admin-lang";
 import {
   updateUserStatus,
@@ -30,6 +30,7 @@ import { UserTable } from "./UserTable";
 import { Pagination } from "../common/Pagination";
 import { EnrollModal } from "./EnrollModal";
 import { ActivityLogsDrawer } from "./ActivityLogsDrawer";
+import { UserManagementSkeleton } from "./UserManagementSkeleton";
 import {
   exportAdminCSV,
   getSmartRecommendation,
@@ -64,6 +65,47 @@ export function UserManagementShell({
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(
     initialAnalytics,
   );
+  const [isLoading, setIsLoading] = useState<boolean>(
+    initialConsumers.length === 0 &&
+      initialStores.length === 0 &&
+      initialCharities.length === 0,
+  );
+
+  useEffect(() => {
+    if (
+      initialConsumers.length > 0 ||
+      initialStores.length > 0 ||
+      initialCharities.length > 0
+    ) {
+      return;
+    }
+
+    let isSubscribed = true;
+
+    Promise.all([
+      getAnalyticsSummary(),
+      getAdminConsumers(),
+      getAdminStores(),
+      getAdminCharities(),
+    ])
+      .then(([analyticsRes, consumersRes, storesRes, charitiesRes]) => {
+        if (!isSubscribed) return;
+        if (analyticsRes.data) setAnalytics(analyticsRes.data);
+        if (consumersRes.data) setConsumers(consumersRes.data);
+        if (storesRes.data) setStores(storesRes.data);
+        if (charitiesRes.data) setCharities(charitiesRes.data);
+      })
+      .catch((err) => {
+        console.error("Error loading user management data:", err);
+      })
+      .finally(() => {
+        if (isSubscribed) setIsLoading(false);
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [initialConsumers.length, initialStores.length, initialCharities.length]);
 
   // Filter & search states
   const [searchQuery, setSearchQuery] = useState("");
@@ -248,6 +290,10 @@ export function UserManagementShell({
     { id: "PENDING", label: t.pending },
     { id: "SUSPENDED", label: t.suspended },
   ];
+
+  if (isLoading) {
+    return <UserManagementSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-6 lg:gap-8 max-w-[1600px] mx-auto">

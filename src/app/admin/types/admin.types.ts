@@ -172,6 +172,12 @@ export interface AnalyticsSummary {
     verified: number;
     rejected: number;
   };
+  organizations?: {
+    pending?: number;
+  };
+  products?: {
+    total?: number;
+  };
   listings?: {
     total: number;
     active: number;

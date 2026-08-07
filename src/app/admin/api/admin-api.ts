@@ -88,10 +88,17 @@ function normalizeAnalytics(raw: AnalyticsSummary): AnalyticsSummary {
   return {
     ...raw,
     totalConsumers: raw.users?.customers ?? raw.totalConsumers ?? 0,
-    totalStores: raw.stores?.total ?? raw.totalStores ?? 0,
-    pendingStoresCount: raw.stores?.pending ?? raw.pendingStoresCount ?? 0,
+    totalStores:
+      raw.users?.merchants ?? raw.stores?.total ?? raw.totalStores ?? 0,
+    pendingStoresCount:
+      raw.organizations?.pending ?? raw.pendingStoresCount ?? 0,
+    pendingCharitiesCount: 0,
     totalCharities: raw.users?.charities ?? raw.totalCharities ?? 0,
-    totalProductsListed: raw.listings?.total ?? raw.totalProductsListed ?? 0,
+    totalProductsListed:
+      raw.products?.total ??
+      raw.listings?.total ??
+      raw.totalProductsListed ??
+      0,
     revenueSavedEGP: raw.totalRevenue ?? raw.revenueSavedEGP ?? 0,
     wasteReducedKg: raw.totalFoodSavings ?? raw.wasteReducedKg ?? 0,
   };
@@ -317,13 +324,20 @@ function normalizeConsumer(raw: RawEntity): Consumer {
 /** GET /admin/stores */
 export function getAdminStores() {
   return withAuth<Store[]>(async (token) => {
-    const res = await unwrapEnvelope<RawEntity[]>(
-      getMany<FoodLoopEnvelope<RawEntity[]>>(Endpoints.admin.stores, { token }),
+    const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
+      getMany<FoodLoopEnvelope<RawEntity[] | { items: RawEntity[] }>>(
+        Endpoints.admin.stores,
+        { token },
+      ),
     );
-    if (res.data && Array.isArray(res.data)) {
-      return { ...res, data: res.data.map(normalizeStore) };
+    const list = Array.isArray(res.data)
+      ? res.data
+      : (res.data as unknown as { items?: RawEntity[] })?.items;
+
+    if (Array.isArray(list)) {
+      return { status: res.status, data: list.map(normalizeStore) };
     }
-    return res as unknown as ApiResponse<Store[]>;
+    return { status: res.status, data: [] };
   });
 }
 
@@ -444,30 +458,44 @@ export function getAnalyticsSummary() {
 /** GET /admin/charities */
 export function getAdminCharities() {
   return withAuth<Charity[]>(async (token) => {
-    const res = await unwrapEnvelope<RawEntity[]>(
-      getMany<FoodLoopEnvelope<RawEntity[]>>(Endpoints.admin.charities, {
-        token,
-      }),
+    const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
+      getMany<FoodLoopEnvelope<RawEntity[] | { items: RawEntity[] }>>(
+        Endpoints.admin.charities,
+        {
+          token,
+        },
+      ),
     );
-    if (res.data && Array.isArray(res.data)) {
-      return { ...res, data: res.data.map(normalizeCharity) };
+    const list = Array.isArray(res.data)
+      ? res.data
+      : (res.data as unknown as { items?: RawEntity[] })?.items;
+
+    if (Array.isArray(list)) {
+      return { status: res.status, data: list.map(normalizeCharity) };
     }
-    return res as unknown as ApiResponse<Charity[]>;
+    return { status: res.status, data: [] };
   });
 }
 
 /** GET /users?role=Customer */
 export function getAdminConsumers() {
   return withAuth<Consumer[]>(async (token) => {
-    const res = await unwrapEnvelope<RawEntity[]>(
-      getMany<FoodLoopEnvelope<RawEntity[]>>(Endpoints.admin.consumers, {
-        token,
-      }),
+    const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
+      getMany<FoodLoopEnvelope<RawEntity[] | { items: RawEntity[] }>>(
+        Endpoints.admin.consumers,
+        {
+          token,
+        },
+      ),
     );
-    if (res.data && Array.isArray(res.data)) {
-      return { ...res, data: res.data.map(normalizeConsumer) };
+    const list = Array.isArray(res.data)
+      ? res.data
+      : (res.data as unknown as { items?: RawEntity[] })?.items;
+
+    if (Array.isArray(list)) {
+      return { status: res.status, data: list.map(normalizeConsumer) };
     }
-    return res as unknown as ApiResponse<Consumer[]>;
+    return { status: res.status, data: [] };
   });
 }
 
