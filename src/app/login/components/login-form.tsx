@@ -12,6 +12,7 @@ import { ArrowForwardIcon } from "@/components/icons/arrow-forward-icon";
 import { PasswordField } from "@/app/register/components/password-field";
 import { login } from "@/app/register/api/auth-api";
 import { useAppStore } from "@/store/use-app-store";
+import { isAdminUser } from "@/utils/roles";
 
 type LoginFormState = { email: string; password: string };
 
@@ -49,13 +50,7 @@ export function LoginForm() {
 
     setSession(res.data);
 
-    const isPlatformAdmin = res.data.user.roles?.some(
-      (role) =>
-        role.toLowerCase() === "admin" ||
-        role.toLowerCase() === "seniorcontroller",
-    );
-
-    if (isPlatformAdmin) {
+    if (isAdminUser(res.data.user)) {
       router.push("/admin");
       return;
     }
