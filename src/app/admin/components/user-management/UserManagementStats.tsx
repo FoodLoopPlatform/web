@@ -21,7 +21,7 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
         value={
           analytics?.totalConsumers != null
             ? analytics.totalConsumers.toLocaleString()
-            : "..."
+            : "0"
         }
         accentClass="bg-primary-container/20"
         isRtl={isRtl}
@@ -31,7 +31,7 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
         value={
           analytics?.totalStores != null
             ? analytics.totalStores.toLocaleString()
-            : "..."
+            : "0"
         }
         accentClass="bg-primary-container"
         textColorClass="text-primary-container"
@@ -42,7 +42,7 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
         value={
           analytics?.totalCharities != null
             ? analytics.totalCharities.toLocaleString()
-            : "..."
+            : "0"
         }
         accentClass="bg-blue-600/30"
         textColorClass="text-blue-900"
@@ -56,7 +56,7 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
                 (analytics.pendingStoresCount ?? 0) +
                 (analytics.pendingCharitiesCount ?? 0)
               ).toLocaleString()
-            : "..."
+            : "0"
         }
         accentClass="bg-amber-500/30"
         textColorClass="text-amber-900"
