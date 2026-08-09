@@ -1,61 +1,32 @@
-import { BrandMark } from "@/components/ui/brand-mark";
-import { Text } from "@/components/ui/text";
-import { BottomNav } from "@/components/ui/bottom-nav";
-import { HomeIcon } from "@/components/icons/home-icon";
-import { SearchIcon } from "@/components/icons/search-icon";
-import { BagIcon } from "@/components/icons/bag-icon";
-import { UserIcon } from "@/components/icons/user-icon";
-import { ColorShowcase } from "./_sections/color-showcase";
-import { TypographyShowcase } from "./_sections/typography-showcase";
-import { ButtonShowcase } from "./_sections/button-showcase";
-import { BadgeShowcase } from "./_sections/badge-showcase";
-import { CardShowcase } from "./_sections/card-showcase";
-import { FormShowcase } from "./_sections/form-showcase";
-import { ListShowcase } from "./_sections/list-showcase";
+"use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppStore, useHasHydrated } from "@/store/use-app-store";
+import { isAdminUser, ADMIN_HOME_ROUTE, STORE_HOME_ROUTE } from "@/utils/roles";
+
+/**
+ * "/" is not a real page — it only decides where to send the visitor:
+ * /login when signed out, /admin for admin accounts, /dashboard otherwise.
+ * Session state lives in localStorage (zustand persist), so this has to be
+ * a client-side gate rather than middleware, same constraint as withAuth.
+ */
 export default function Home() {
-  return (
-    <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b border-outline-variant px-margin-mobile py-4 md:px-margin-desktop">
-        <BrandMark />
-        <Text variant="label-md" className="text-on-surface-variant">
-          نظام التصميم
-        </Text>
-      </header>
+  const router = useRouter();
+  const hasHydrated = useHasHydrated();
+  const accessToken = useAppStore((state) => state.accessToken);
+  const user = useAppStore((state) => state.user);
 
-      <main className="flex flex-1 flex-col gap-stack-lg px-margin-mobile py-stack-lg md:px-margin-desktop">
-        <ColorShowcase />
-        <TypographyShowcase />
-        <ButtonShowcase />
-        <BadgeShowcase />
-        <CardShowcase />
-        <FormShowcase />
-        <ListShowcase />
-      </main>
+  useEffect(() => {
+    if (!hasHydrated) return;
+    if (!accessToken) {
+      router.replace("/login");
+    } else if (isAdminUser(user)) {
+      router.replace(ADMIN_HOME_ROUTE);
+    } else {
+      router.replace(STORE_HOME_ROUTE);
+    }
+  }, [hasHydrated, accessToken, user, router]);
 
-      <BottomNav.Root>
-        <BottomNav.Item
-          href="#"
-          icon={<HomeIcon className="h-full w-full" />}
-          label="الرئيسية"
-          active
-        />
-        <BottomNav.Item
-          href="#"
-          icon={<SearchIcon className="h-full w-full" />}
-          label="بحث"
-        />
-        <BottomNav.Item
-          href="#"
-          icon={<BagIcon className="h-full w-full" />}
-          label="السلة"
-        />
-        <BottomNav.Item
-          href="#"
-          icon={<UserIcon className="h-full w-full" />}
-          label="حسابي"
-        />
-      </BottomNav.Root>
-    </div>
-  );
+  return null;
 }
