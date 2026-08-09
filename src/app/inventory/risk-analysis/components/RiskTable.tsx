@@ -49,26 +49,26 @@ export function RiskTable({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-right">
+      <div>
+        <table className="w-full table-fixed border-collapse text-right">
           <thead>
             <tr className="bg-surface-container-low">
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[9%]">
                 الإجراءات
               </th>
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[16%]">
                 مستوى المخاطر
               </th>
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[18%]">
                 درجة الطلب
               </th>
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[15%]">
                 تاريخ الانتهاء
               </th>
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[14%]">
                 الكمية الحالية
               </th>
-              <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">
+              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[28%]">
                 اسم المنتج
               </th>
             </tr>

@@ -53,4 +53,13 @@ export const Endpoints = {
     me: "/charities/me",
     documents: "/charities/me/documents",
   },
+
+  // Non-admin "SupportTickets" tag from the live Swagger spec — scoped to
+  // the authenticated account, distinct from the /admin/support-tickets
+  // moderation endpoints above.
+  supportTickets: {
+    base: "/support-tickets",
+    byId: (id: string) => `/support-tickets/${id}`,
+    reply: (id: string) => `/support-tickets/${id}/reply`,
+  },
 };

@@ -23,7 +23,7 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
   return (
     <tr className="hover:bg-surface/70 transition-colors">
       {/* Actions */}
-      <td className="px-6 py-4 whitespace-nowrap relative">
+      <td className="px-2 sm:px-4 py-3 relative">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
@@ -58,48 +58,48 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
       </td>
 
       {/* Risk level */}
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-2 sm:px-4 py-3">
         <RiskLevelBadge level={riskLevel} />
       </td>
 
       {/* Demand score */}
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-2 sm:px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="bg-surface-container-high h-1.5 w-24 rounded-full overflow-hidden">
+          <div className="bg-surface-container-high h-1.5 flex-1 min-w-6 rounded-full overflow-hidden">
             <div
               className="bg-primary h-full rounded-full"
               style={{ width: `${demandScore}%` }}
             />
           </div>
-          <span className="text-xs text-on-surface-variant">
+          <span className="text-xs text-on-surface-variant shrink-0">
             {demandScore}%
           </span>
         </div>
       </td>
 
       {/* Expiry date */}
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-2 sm:px-4 py-3">
         <div
           className={`flex items-center gap-1 font-bold text-sm ${
             isUrgent ? "text-error" : "text-on-surface-variant"
           }`}
         >
-          <span>{formatExpiryLabel(daysUntilExpiry)}</span>
+          <span className="truncate">{formatExpiryLabel(daysUntilExpiry)}</span>
           {isUrgent && <ClockIcon className="h-3.5 w-3.5 shrink-0" />}
         </div>
       </td>
 
       {/* Current quantity */}
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className="text-sm text-on-surface">
+      <td className="px-2 sm:px-4 py-3">
+        <span className="text-sm text-on-surface truncate block">
           {product.quantityAvailable ?? 0} وحدة
         </span>
       </td>
 
       {/* Product name + image */}
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-3 justify-end">
-          <span className="text-sm font-bold text-primary">
+      <td className="px-2 sm:px-4 py-3">
+        <div className="flex items-center gap-3 justify-end min-w-0">
+          <span className="text-sm font-bold text-primary truncate min-w-0">
             {product.titleAr || product.title}
           </span>
           <div className="relative rounded-lg shrink-0 size-10 overflow-hidden bg-surface-container-high">
