@@ -30,6 +30,7 @@ import { TicketTable } from "./TicketTable";
 import { ReviewCardList } from "./ReviewCardList";
 import { ReviewTable } from "./ReviewTable";
 import { TicketDrawer } from "./TicketDrawer";
+import { DisputeDrawer } from "./DisputeDrawer";
 import { DisputesSkeleton } from "./DisputesSkeleton";
 import { Pagination } from "../common/Pagination";
 import { ConfirmationModal } from "../common/ConfirmationModal";
@@ -80,6 +81,11 @@ export function DisputesShell({
     setCurrentPage(1);
   }
 
+  // Dispute Detail Drawer & Modal State
+  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [showDisputeDrawer, setShowDisputeDrawer] = useState(false);
+  const [resolveDisputeModalId, setResolveDisputeModalId] = useState<string | null>(null);
+
   // Ticket Detail Drawer
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
     null,
@@ -124,10 +130,64 @@ export function DisputesShell({
     fetchDisputesData,
   ]);
 
-  const handleResolveDispute = async (id: string) => {
-    const note = window.prompt(t.resolveDisputePrompt);
-    if (!note || !note.trim()) return;
-    await resolveDispute(id, note.trim());
+  const handleOpenDispute = (id: string) => {
+    const target = disputes.find((d) => d.id === id);
+    if (target) {
+      setSelectedDispute(target);
+      setShowDisputeDrawer(true);
+    }
+  };
+
+  const handleResolveDisputeClick = (id: string) => {
+    setResolveDisputeModalId(id);
+  };
+
+  const confirmResolveDisputeModal = async (reasonNote?: string) => {
+    if (!resolveDisputeModalId) return;
+    const id = resolveDisputeModalId;
+    const noteText =
+      (reasonNote || "").trim() ||
+      (isRtl ? "تمت تسوية النزاع وتوثيق الحل من قِبل الإدارة" : "Resolved by admin.");
+
+    setResolveDisputeModalId(null);
+    setShowDisputeDrawer(false);
+    setSelectedDispute(null);
+
+    setDisputes((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              isResolved: true,
+              adminNote: noteText,
+              resolvedAt: new Date().toISOString(),
+            }
+          : d,
+      ),
+    );
+
+    await resolveDispute(id, noteText);
+    await fetchDisputesData();
+  };
+
+  const handleResolveDisputeFromDrawer = async (id: string, adminNote: string) => {
+    setShowDisputeDrawer(false);
+    setSelectedDispute(null);
+
+    setDisputes((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              isResolved: true,
+              adminNote,
+              resolvedAt: new Date().toISOString(),
+            }
+          : d,
+      ),
+    );
+
+    await resolveDispute(id, adminNote);
     await fetchDisputesData();
   };
 
@@ -393,17 +453,19 @@ export function DisputesShell({
           {activeTab === "Disputes" ? (
             <>
               <DisputeCardList
-                disputes={filteredItems as Dispute[]}
+                disputes={paginatedItems as Dispute[]}
                 t={t}
                 isRtl={isRtl}
-                onResolveDispute={handleResolveDispute}
+                onOpenDispute={handleOpenDispute}
+                onResolveDispute={handleResolveDisputeClick}
               />
               <div className="hidden md:block overflow-x-auto w-full">
                 <DisputeTable
-                  disputes={filteredItems as Dispute[]}
+                  disputes={paginatedItems as Dispute[]}
                   t={t}
                   isRtl={isRtl}
-                  onResolveDispute={handleResolveDispute}
+                  onOpenDispute={handleOpenDispute}
+                  onResolveDispute={handleResolveDisputeClick}
                 />
               </div>
             </>
@@ -481,6 +543,20 @@ export function DisputesShell({
         </div>
       </div>
 
+      {/* Dispute Detail Drawer */}
+      {showDisputeDrawer && selectedDispute && (
+        <DisputeDrawer
+          dispute={selectedDispute}
+          t={t}
+          isRtl={isRtl}
+          onCloseDrawer={() => {
+            setShowDisputeDrawer(false);
+            setSelectedDispute(null);
+          }}
+          onResolveDispute={handleResolveDisputeFromDrawer}
+        />
+      )}
+
       {/* Ticket Detail Drawer */}
       {showTicketDrawer && selectedTicket && (
         <TicketDrawer
@@ -498,7 +574,30 @@ export function DisputesShell({
         />
       )}
 
-      {/* Custom Resolution Modal */}
+      {/* Dispute Resolution Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(resolveDisputeModalId)}
+        title={isRtl ? "اعتماد وتسوية النزاع" : "Resolve Dispute"}
+        message={
+          isRtl
+            ? "هل أنت متأكد من تسوية وإغلاق هذا النزاع؟ سيتم اعتماد الإجراء وتسجيل ملاحظة الحل."
+            : "Are you sure you want to resolve and close this dispute? Notes will be logged."
+        }
+        confirmLabel={isRtl ? "تأكيد وتسوية النزاع" : "Confirm Resolution"}
+        cancelLabel={isRtl ? "إلغاء" : "Cancel"}
+        variant="success"
+        isRtl={isRtl}
+        showReasonInput={true}
+        reasonPlaceholder={
+          isRtl
+            ? "أدخل ملاحظات القرار والتسوية والإجراء المتخذ..."
+            : "Enter resolution notes or administrative decision..."
+        }
+        onConfirm={confirmResolveDisputeModal}
+        onClose={() => setResolveDisputeModalId(null)}
+      />
+
+      {/* Ticket Resolution Modal */}
       {resolveTicketId && (
         <div className="fixed inset-0 z-[10000] w-full h-full min-h-screen flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div
@@ -507,12 +606,12 @@ export function DisputesShell({
           >
             <div className="flex flex-col gap-1">
               <h3 className="text-base sm:text-lg font-bold text-on-surface">
-                {isRtl ? "حل وإغلاق الشكوى" : "Resolve & Close Dispute"}
+                {isRtl ? "حل وإغلاق الشكوى" : "Resolve & Close Ticket"}
               </h3>
               <p className="text-xs text-outline">
                 {isRtl
                   ? "أدخل ملاحظات التوجيه أو الإغلاق الخاصة بحل الشكوى للتسجيل في السجل:"
-                  : "Enter resolution notes for the dispute audit log:"}
+                  : "Enter resolution notes for the ticket audit log:"}
               </p>
             </div>
 
