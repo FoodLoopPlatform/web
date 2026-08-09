@@ -313,6 +313,125 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "search":
+      return (
+        <svg {...svgProps}>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      );
+
+    case "schedule":
+      return (
+        <svg {...svgProps}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      );
+
+    case "download":
+      return (
+        <svg {...svgProps}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+
+    case "bolt":
+      return (
+        <svg {...svgProps}>
+          <polygon
+            points="13 2 3 14 11 14 11 22 21 10 13 10 13 2"
+            fill={fill ? "currentColor" : "none"}
+          />
+        </svg>
+      );
+
+    case "tune":
+      return (
+        <svg {...svgProps}>
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="18" x2="20" y2="18" />
+          <circle cx="9" cy="6" r="2" fill="currentColor" />
+          <circle cx="16" cy="12" r="2" fill="currentColor" />
+          <circle cx="10" cy="18" r="2" fill="currentColor" />
+        </svg>
+      );
+
+    case "check_circle":
+      return (
+        <svg {...svgProps}>
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            fill={fill ? "currentColor" : "none"}
+          />
+          <polyline
+            points="8 12.5 10.5 15 16 9"
+            stroke={fill ? "white" : "currentColor"}
+          />
+        </svg>
+      );
+
+    case "info":
+      return (
+        <svg {...svgProps}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="11" x2="12" y2="16" />
+          <line x1="12" y1="7.5" x2="12.01" y2="7.5" />
+        </svg>
+      );
+
+    case "edit":
+      return (
+        <svg {...svgProps}>
+          <path d="M17 3a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L17 3z" />
+        </svg>
+      );
+
+    case "favorite":
+      return (
+        <svg {...svgProps}>
+          <path
+            d="M12 21s-7.5-4.6-10-9.3C.5 8.3 2 4.5 5.6 4c2-.3 3.9.7 5 2.3C11.7 4.7 13.6 3.7 15.6 4c3.6.5 5.1 4.3 3.6 7.7C16.7 16.4 12 21 12 21z"
+            fill={fill ? "currentColor" : "none"}
+          />
+        </svg>
+      );
+
+    case "calendar_today":
+      return (
+        <svg {...svgProps}>
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <line x1="8" y1="3" x2="8" y2="7" />
+          <line x1="16" y1="3" x2="16" y2="7" />
+        </svg>
+      );
+
+    case "filter_list":
+      return (
+        <svg {...svgProps}>
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="7" y1="12" x2="17" y2="12" />
+          <line x1="10" y1="18" x2="14" y2="18" />
+        </svg>
+      );
+
+    case "auto_awesome":
+      return (
+        <svg {...svgProps}>
+          <path
+            d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"
+            fill={fill ? "currentColor" : "none"}
+          />
+          <path d="M19 14l.7 1.9L21.5 16.5l-1.8.7L19 19l-.7-1.8-1.8-.7 1.8-.7L19 14z" />
+        </svg>
+      );
+
     default:
       return null;
   }

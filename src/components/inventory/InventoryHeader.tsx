@@ -77,7 +77,7 @@ export function InventoryHeader({
       </div>
 
       {/* Search bar inside content area. Explicit min-width prevents input collapsing into a circle in RTL/flexbox layout. */}
-      <div className="relative w-full max-w-md min-w-[280px] sm:min-w-[320px]">
+      <div className="relative w-full max-w-3xl min-w-[280px] sm:min-w-[320px]">
         <Icon
           name="search"
           className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
