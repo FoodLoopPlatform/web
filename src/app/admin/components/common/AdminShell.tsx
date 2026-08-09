@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
 import { useAppLang } from "@/store/use-app-lang";
+import { isAdminUser, STORE_HOME_ROUTE } from "@/utils/roles";
 import {
   UserIcon,
   AlertCircleIcon,
@@ -65,16 +66,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Check auth once rehydrated on the client side
+  // Check auth once rehydrated on the client side. A signed-in store/merchant
+  // account gets bounced to its own home rather than /login — the admin and
+  // merchant portals are separate surfaces, each role only ever sees its own.
   useEffect(() => {
     if (hasHydrated) {
-      const isAdmin = user?.roles?.some(
-        (role) =>
-          role.toLowerCase() === "admin" ||
-          role.toLowerCase() === "seniorcontroller",
-      );
-      if (!accessToken || !isAdmin) {
+      if (!accessToken) {
         router.push("/login");
+      } else if (!isAdminUser(user)) {
+        router.push(STORE_HOME_ROUTE);
       }
     }
   }, [hasHydrated, user, accessToken, router]);
@@ -88,13 +88,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return <div className="min-h-screen bg-surface" />;
   }
 
-  const isAdmin = user?.roles?.some(
-    (role) =>
-      role.toLowerCase() === "admin" ||
-      role.toLowerCase() === "seniorcontroller",
-  );
-
-  if (!accessToken || !isAdmin) {
+  if (!accessToken || !isAdminUser(user)) {
     return <div className="min-h-screen bg-surface" />;
   }
 

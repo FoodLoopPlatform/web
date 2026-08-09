@@ -19,6 +19,8 @@ export type {
   TicketReply,
   SupportTicket,
   RawBackendTicket,
+  Dispute,
+  RawDispute,
   ActivityLog,
   AnalyticsSummary,
   ModerationFlagType,
@@ -34,6 +36,8 @@ import type {
   SupportTicket,
   RawBackendTicket,
   RawBackendDispute,
+  Dispute,
+  RawDispute,
   ActivityLog,
   AnalyticsSummary,
   ModerationItem,
@@ -572,7 +576,6 @@ export function getAdminConsumers() {
   });
 }
 
-/** GET /admin/reviews?pageNumber=1&pageSize=10&storeId=... */
 export function getAdminReviews(params?: {
   storeId?: string;
   rating?: number;
@@ -592,9 +595,21 @@ export function getAdminReviews(params?: {
       url += `?${queryString}`;
     }
 
-    return unwrapEnvelope<Review[]>(
-      getMany<FoodLoopEnvelope<Review[]>>(url, { token }),
+    const result = await unwrapEnvelope<unknown>(
+      getMany<FoodLoopEnvelope<unknown>>(url, { token }),
     );
+
+    const rawList = Array.isArray(result.data)
+      ? result.data
+      : (result.data as Record<string, unknown>)?.items ||
+        (result.data as Record<string, unknown>)?.data ||
+        (result.data as Record<string, unknown>)?.reviews;
+
+    if (Array.isArray(rawList)) {
+      return { data: rawList as Review[] };
+    }
+
+    return { data: [] as Review[] };
   });
 }
 
@@ -662,22 +677,6 @@ export function getAdminDisputes(params?: {
   });
 }
 
-/** PATCH /admin/disputes/{id}/resolve */
-export function resolveDispute(
-  id: string,
-  adminNote: string = "Reviewed and resolved by admin",
-) {
-  return withAuth(async (token) =>
-    unwrapEnvelope<RawBackendDispute>(
-      updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
-        Endpoints.admin.resolveDispute(id),
-        { adminNote },
-        { token },
-      ),
-    ),
-  );
-}
-
 /** GET /admin/support-tickets?pageNumber=1&pageSize=10&status=...&priority=... */
 export function getSupportTickets(params?: {
   pageNumber?: number;
@@ -700,12 +699,22 @@ export function getSupportTickets(params?: {
       url += `?${queryString}`;
     }
 
-    const result = await unwrapEnvelope<RawBackendTicket[]>(
-      getMany<FoodLoopEnvelope<RawBackendTicket[]>>(url, { token }),
+    const result = await unwrapEnvelope<unknown>(
+      getMany<FoodLoopEnvelope<unknown>>(url, { token }),
     );
-    if (result.data && Array.isArray(result.data)) {
-      return { data: result.data.map(normalizeSupportTicket) };
+
+    const rawList = Array.isArray(result.data)
+      ? result.data
+      : (result.data as Record<string, unknown>)?.items ||
+        (result.data as Record<string, unknown>)?.data ||
+        (result.data as Record<string, unknown>)?.tickets;
+
+    if (Array.isArray(rawList)) {
+      return {
+        data: rawList.map((t) => normalizeSupportTicket(t as RawBackendTicket)),
+      };
     }
+
     return { data: [] as SupportTicket[] };
   });
 }
@@ -858,7 +867,113 @@ function normalizeProductToModerationItem(
   };
 }
 
-/** GET /admin/products/pending-ai */
+// ─── Disputes ───────────────────────────────────────────────────────────────
+// A genuine backend resource (/admin/disputes), distinct from SupportTicket.
+// Admin-only — there is no non-admin dispute endpoint in the API.
+
+function normalizeDispute(raw: Record<string, unknown>): Dispute {
+  const getStr = (val: unknown) =>
+    typeof val === "string" || typeof val === "number"
+      ? String(val)
+      : undefined;
+  const id =
+    getStr(raw.id) ||
+    getStr(raw._id) ||
+    `disp-${Math.random().toString(36).substring(2, 7)}`;
+  const orderId = getStr(raw.orderId) || getStr(raw.productId);
+  const raisedByName =
+    getStr(raw.raisedByName) ||
+    getStr(raw.reporterName) ||
+    getStr(raw.userFullName) ||
+    getStr(raw.userName) ||
+    getStr(raw.reportedBy) ||
+    getStr(raw.userEmail) ||
+    "عميل نود";
+  const raisedByType =
+    (raw.userType as Dispute["raisedByType"]) ||
+    (raw.raisedByType as Dispute["raisedByType"]) ||
+    "Consumer";
+  const reason =
+    getStr(raw.reason) ||
+    getStr(raw.details) ||
+    getStr(raw.description) ||
+    getStr(raw.message) ||
+    getStr(raw.productTitle) ||
+    "طلب مراجعة أو تظلم بشأن طلب";
+  const isResolved = Boolean(
+    raw.isResolved ?? (raw.status === "Resolved" || raw.status === "Closed"),
+  );
+  const adminNote = getStr(raw.adminNote) || getStr(raw.note);
+  const createdAt = getStr(raw.createdAt) || new Date().toISOString();
+  const resolvedAt = getStr(raw.resolvedAt);
+
+  return {
+    id,
+    orderId,
+    raisedByName,
+    raisedByType,
+    reason,
+    isResolved,
+    adminNote,
+    createdAt,
+    resolvedAt,
+  };
+}
+
+/** GET /admin/disputes?pageNumber=&pageSize=&isResolved= */
+export function getDisputes(params?: {
+  pageNumber?: number;
+  pageSize?: number;
+  isResolved?: boolean;
+}) {
+  return withAuth(async (token) => {
+    let url = Endpoints.admin.disputes;
+    const query = new URLSearchParams();
+    if (params?.pageNumber) query.set("pageNumber", String(params.pageNumber));
+    if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+    if (params?.isResolved !== undefined) {
+      query.set("isResolved", String(params.isResolved));
+    }
+
+    const queryString = query.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+
+    const result = await unwrapEnvelope<unknown>(
+      getMany<FoodLoopEnvelope<unknown>>(url, { token }),
+    );
+
+    const rawList = Array.isArray(result.data)
+      ? result.data
+      : (result.data as Record<string, unknown>)?.items ||
+        (result.data as Record<string, unknown>)?.data ||
+        (result.data as Record<string, unknown>)?.disputes;
+
+    if (Array.isArray(rawList)) {
+      return {
+        data: rawList.map((item) =>
+          normalizeDispute(item as Record<string, unknown>),
+        ),
+      };
+    }
+
+    return { data: [] as Dispute[] };
+  });
+}
+
+/** PATCH /admin/disputes/{id}/resolve */
+export function resolveDispute(id: string, adminNote: string) {
+  return withAuth(async (token) =>
+    unwrapEnvelope<RawDispute>(
+      updateOne<FoodLoopEnvelope<RawDispute>, { adminNote: string }>(
+        Endpoints.admin.resolveDispute(id),
+        { adminNote },
+        { token },
+      ),
+    ),
+  );
+}
 export function getModerationQueue(params?: {
   search?: string;
   flagType?: string;

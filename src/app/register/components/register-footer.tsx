@@ -1,5 +1,7 @@
+import Link from "next/link";
+
 const links = [
-  { label: "سياسة الخصوصية", href: "#" },
+  { label: "سياسة الخصوصية", href: "/policies" },
   { label: "شروط الخدمة", href: "#" },
   { label: "تواصل مع الدعم", href: "#" },
 ];
@@ -12,13 +14,13 @@ export function RegisterFooter() {
       </p>
       <nav className="flex items-center gap-stack-md">
         {links.map((link) => (
-          <a
+          <Link
             key={link.label}
             href={link.href}
             className="text-body-md text-link opacity-80 transition-opacity hover:opacity-100"
           >
             {link.label}
-          </a>
+          </Link>
         ))}
       </nav>
     </footer>

@@ -2,7 +2,7 @@
 
 import type { ApiResponse } from "@/utils/server";
 import { updateMyStoreProfile } from "../api/stores-api";
-import { invalidateStoreResource } from "../api/store-resource";
+import { setStoreResource } from "../api/store-resource";
 import { formValueToBusinessCategory } from "../api/types";
 import {
   setStoredProfile,
@@ -18,19 +18,30 @@ import { serializeOperatingHours } from "../lib/operating-hours";
  */
 export async function updateStoreProfile(
   data: ProfileSaveInput,
+  files: { logoFile?: File | null; coverFile?: File | null } = {},
+  accessToken?: string,
 ): Promise<ApiResponse<{ success: true; lastUpdated: string }>> {
   const storeRes = await updateMyStoreProfile({
     name: data.businessName,
     businessCategory: formValueToBusinessCategory[data.businessType],
     description: data.description ?? "",
     openingHours: serializeOperatingHours(data.operatingHours),
+    logoFile: files.logoFile,
+    coverFile: files.coverFile,
   });
 
   if (storeRes.error) {
     return { error: storeRes.error };
   }
 
-  invalidateStoreResource();
+  // Seed the resource cache with the fresh store the PATCH just returned
+  // instead of invalidating it — invalidating would make the next
+  // use(getStoreResource(...)) read re-suspend, and /settings has a
+  // route-level loading.tsx, so that re-suspension would flash the whole
+  // page back to its skeleton right after a successful save.
+  if (accessToken && storeRes.data) {
+    setStoreResource(accessToken, storeRes.data);
+  }
 
   const lastUpdated = new Date().toISOString();
   setStoredProfile({ ...data, lastUpdated });

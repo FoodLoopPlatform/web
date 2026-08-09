@@ -4,16 +4,18 @@
 import React, { useState, useCallback } from "react";
 import { useAppLang } from "@/store/use-app-lang";
 import {
-  getAdminDisputes,
   getSupportTickets,
   getSupportTicketById,
   replyToSupportTicket,
   closeSupportTicket,
   getAdminReviews,
   deleteReview,
+  getDisputes,
+  resolveDispute,
   type SupportTicket,
   type TicketReply,
   type Review,
+  type Dispute,
 } from "../../api/admin-api";
 import { adminDictionary } from "../../constants/dictionary";
 import { StatsCard } from "../common/StatsCard";
@@ -21,6 +23,8 @@ import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
 import { SmartInsightCard } from "../common/SmartInsightCard";
 import { AuditLogsWidget } from "../audit-log/AuditLogsWidget";
+import { DisputeCardList } from "./DisputeCardList";
+import { DisputeTable } from "./DisputeTable";
 import { TicketCardList } from "./TicketCardList";
 import { TicketTable } from "./TicketTable";
 import { ReviewCardList } from "./ReviewCardList";
@@ -30,17 +34,19 @@ import { DisputesSkeleton } from "./DisputesSkeleton";
 import { Pagination } from "../common/Pagination";
 import { ConfirmationModal } from "../common/ConfirmationModal";
 
-type DisputeTab = "Disputes" | "Support" | "Reviews";
+type DisputeTab = "Disputes" | "Tickets" | "Reviews";
 type PriorityFilter = "ALL" | "High" | "Medium" | "Low";
 
 const PAGE_SIZE = 5;
 
 interface DisputesShellProps {
+  initialDisputes?: Dispute[];
   initialTickets?: SupportTicket[];
   initialReviews?: Review[];
 }
 
 export function DisputesShell({
+  initialDisputes = [],
   initialTickets = [],
   initialReviews = [],
 }: DisputesShellProps = {}) {
@@ -50,12 +56,15 @@ export function DisputesShell({
 
   const [activeTab, setActiveTab] = useState<DisputeTab>("Disputes");
 
-  // Separate data states for Disputes, Support Tickets, and Reviews
-  const [disputes, setDisputes] = useState<SupportTicket[]>([]);
-  const [supportTickets, setSupportTickets] =
-    useState<SupportTicket[]>(initialTickets);
+  // Data states seeded from props or fetched on client
+  const [disputes, setDisputes] = useState<Dispute[]>(initialDisputes);
+  const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(
+    initialDisputes.length === 0 &&
+      initialTickets.length === 0 &&
+      initialReviews.length === 0,
+  );
 
   // Search/Filters & Pagination
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,52 +94,46 @@ export function DisputesShell({
   const [resolveTicketId, setResolveTicketId] = useState<string | null>(null);
   const [resolutionNote, setResolutionNote] = useState("");
 
-  const mergeLocalReplies = useCallback(
-    (tickets: SupportTicket[]): SupportTicket[] => {
-      return tickets.map((t) => {
-        const extra = localRepliesMap[t.id] || [];
-        if (!extra.length) return t;
-        const existingIds = new Set((t.replies || []).map((r) => r.id));
-        const newReplies = extra.filter((r) => !existingIds.has(r.id));
-        return {
-          ...t,
-          replies: [...(t.replies || []), ...newReplies],
-        };
-      });
-    },
-    [localRepliesMap],
-  );
-
   const fetchDisputesData = useCallback(async () => {
     try {
       const [disputesRes, ticketsRes, reviewsRes] = await Promise.all([
-        getAdminDisputes({ pageSize: 50 }),
-        getSupportTickets({ pageSize: 50 }),
-        getAdminReviews({ pageSize: 50 }),
+        getDisputes(),
+        getSupportTickets(),
+        getAdminReviews(),
       ]);
-      if (disputesRes.data && Array.isArray(disputesRes.data)) {
-        setDisputes(mergeLocalReplies(disputesRes.data as SupportTicket[]));
-      }
-      if (ticketsRes.data && Array.isArray(ticketsRes.data)) {
-        setSupportTickets(
-          mergeLocalReplies(ticketsRes.data as SupportTicket[]),
-        );
-      }
-      if (reviewsRes.data && Array.isArray(reviewsRes.data)) {
-        setReviews(reviewsRes.data as Review[]);
-      }
+      if (disputesRes.data) setDisputes(disputesRes.data);
+      if (ticketsRes.data) setTickets(ticketsRes.data);
+      if (reviewsRes.data) setReviews(reviewsRes.data);
     } finally {
       setIsLoading(false);
     }
-  }, [mergeLocalReplies]);
+  }, []);
 
   React.useEffect(() => {
-    fetchDisputesData();
-  }, [fetchDisputesData]);
+    if (
+      initialDisputes.length === 0 &&
+      initialTickets.length === 0 &&
+      initialReviews.length === 0
+    ) {
+      fetchDisputesData();
+    }
+  }, [
+    initialDisputes.length,
+    initialTickets.length,
+    initialReviews.length,
+    fetchDisputesData,
+  ]);
+
+  const handleResolveDispute = async (id: string) => {
+    const note = window.prompt(t.resolveDisputePrompt);
+    if (!note || !note.trim()) return;
+    await resolveDispute(id, note.trim());
+    await fetchDisputesData();
+  };
 
   const handleOpenTicket = async (id: string) => {
     // 1. Immediately open drawer with local item so UI reacts instantly
-    const local = [...disputes, ...supportTickets].find((t) => t.id === id);
+    const local = tickets.find((t) => t.id === id);
     if (local) {
       const extra = localRepliesMap[id] || [];
       const existingIds = new Set((local.replies || []).map((r) => r.id));
@@ -189,10 +192,7 @@ export function DisputesShell({
     };
 
     setSelectedTicket(updatedSelectedTicket);
-    setDisputes((prev) =>
-      prev.map((t) => (t.id === selectedTicket.id ? updatedSelectedTicket : t)),
-    );
-    setSupportTickets((prev) =>
+    setTickets((prev) =>
       prev.map((t) => (t.id === selectedTicket.id ? updatedSelectedTicket : t)),
     );
 
@@ -230,10 +230,7 @@ export function DisputesShell({
     setResolutionNote("");
 
     // Optimistically mark as Closed locally
-    setDisputes((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status: "Closed" } : t)),
-    );
-    setSupportTickets((prev) =>
+    setTickets((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status: "Closed" } : t)),
     );
 
@@ -264,40 +261,38 @@ export function DisputesShell({
     setReviews((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const getActiveDataset = (): SupportTicket[] | Review[] => {
-    if (activeTab === "Disputes") return disputes;
-    if (activeTab === "Support") return supportTickets;
-    return reviews;
-  };
-
-  const activeDataset = getActiveDataset();
-
   const getFilteredItems = () => {
-    if (activeTab === "Disputes" || activeTab === "Support") {
-      const list = activeDataset as SupportTicket[];
-      return list.filter((t) => {
+    const q = searchQuery.toLowerCase().trim();
+    if (activeTab === "Disputes") {
+      return disputes.filter((d) => {
+        if (!q) return true;
+        return (
+          (d.reason ?? "").toLowerCase().includes(q) ||
+          (d.raisedByName ?? "").toLowerCase().includes(q) ||
+          (d.id ?? "").toLowerCase().includes(q) ||
+          (d.orderId ?? "").toLowerCase().includes(q)
+        );
+      });
+    } else if (activeTab === "Tickets") {
+      return tickets.filter((t) => {
         const matchesSearch =
-          (t.subject ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (t.userName ?? "")
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          (t.id ?? "").toLowerCase().includes(searchQuery.toLowerCase());
+          !q ||
+          (t.subject ?? "").toLowerCase().includes(q) ||
+          (t.userName ?? "").toLowerCase().includes(q) ||
+          (t.id ?? "").toLowerCase().includes(q);
         const matchesPriority =
           priorityFilter === "ALL" || t.priority === priorityFilter;
         return matchesSearch && matchesPriority;
       });
     } else {
-      const list = activeDataset as Review[];
+      const list = (reviews || []) as Review[];
       return list.filter((r) => {
+        if (!q) return true;
         return (
-          (r.userName ?? "")
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          (r.storeName ?? "")
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          (r.comment ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (r.flagReason ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+          (r.userName ?? "").toLowerCase().includes(q) ||
+          (r.storeName ?? "").toLowerCase().includes(q) ||
+          (r.comment ?? "").toLowerCase().includes(q) ||
+          (r.flagReason ?? "").toLowerCase().includes(q)
         );
       });
     }
@@ -310,29 +305,13 @@ export function DisputesShell({
     currentPage * PAGE_SIZE,
   );
 
-  const openTicketsCount = [...disputes, ...supportTickets].filter(
-    (t) => t.status === "Open",
-  ).length;
-  const closedTicketsCount = [...disputes, ...supportTickets].filter(
-    (t) => t.status === "Closed",
-  ).length;
+  const openDisputesCount = disputes.filter((d) => !d.isResolved).length;
+  const resolvedDisputesCount = disputes.filter((d) => d.isResolved).length;
 
   const tabOptions: TabOption<DisputeTab>[] = [
-    {
-      id: "Disputes",
-      label: isRtl ? "النزاعات والشكاوى" : "Disputes",
-      badge: disputes.length,
-    },
-    {
-      id: "Support",
-      label: isRtl ? "تذاكر الدعم" : "Support Tickets",
-      badge: supportTickets.length,
-    },
-    {
-      id: "Reviews",
-      label: isRtl ? "تقييمات المتاجر" : "Reviews",
-      badge: reviews.length,
-    },
+    { id: "Disputes", label: t.disputesTabLabel },
+    { id: "Tickets", label: t.tickets },
+    { id: "Reviews", label: t.reviews },
   ];
 
   const priorityOptions: FilterOption<PriorityFilter>[] = [
@@ -368,20 +347,20 @@ export function DisputesShell({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
           label={t.totalDisputes}
-          value={disputes.length + supportTickets.length + reviews.length}
+          value={disputes.length}
           accentClass="bg-primary-container/20"
           isRtl={isRtl}
         />
         <StatsCard
           label={t.openDisputes}
-          value={openTicketsCount}
+          value={openDisputesCount}
           accentClass="bg-red-500"
           textColorClass="text-red-900"
           isRtl={isRtl}
         />
         <StatsCard
           label={t.resolvedDisputes}
-          value={closedTicketsCount}
+          value={resolvedDisputesCount}
           accentClass="bg-green-500"
           textColorClass="text-green-900"
           isRtl={isRtl}
@@ -393,9 +372,9 @@ export function DisputesShell({
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         placeholder={
-          activeTab !== "Reviews"
-            ? t.searchPlaceholder
-            : t.searchReviewsPlaceholder
+          activeTab === "Reviews"
+            ? t.searchReviewsPlaceholder
+            : t.searchPlaceholder
         }
         isRtl={isRtl}
         filterTitle={activeTab !== "Reviews" ? t.filterPriority : undefined}
@@ -411,7 +390,24 @@ export function DisputesShell({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Main List / Table */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
-          {activeTab === "Disputes" || activeTab === "Support" ? (
+          {activeTab === "Disputes" ? (
+            <>
+              <DisputeCardList
+                disputes={filteredItems as Dispute[]}
+                t={t}
+                isRtl={isRtl}
+                onResolveDispute={handleResolveDispute}
+              />
+              <div className="hidden md:block overflow-x-auto w-full">
+                <DisputeTable
+                  disputes={filteredItems as Dispute[]}
+                  t={t}
+                  isRtl={isRtl}
+                  onResolveDispute={handleResolveDispute}
+                />
+              </div>
+            </>
+          ) : activeTab === "Tickets" ? (
             <>
               <TicketCardList
                 tickets={paginatedItems as SupportTicket[]}

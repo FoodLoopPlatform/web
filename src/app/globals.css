@@ -72,6 +72,11 @@
   /* ---- Typography ---- */
   --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
   --font-brand: var(--font-plus-jakarta-sans), ui-sans-serif, sans-serif;
+  --font-data-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --text-data-mono: 14px;
+  --text-data-mono--line-height: 20px;
+  --text-data-mono--font-weight: 500;
 
   --text-headline-lg: 32px;
   --text-headline-lg--line-height: 48px;

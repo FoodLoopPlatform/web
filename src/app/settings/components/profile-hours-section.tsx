@@ -68,7 +68,7 @@ export function ProfileHoursSection({
                         : "bg-surface-container-lowest border-outline-variant/60"
                     }`}
                   >
-                    <span className="text-body-md font-semibold text-on-surface min-w-[100px]">
+                    <span className="text-body-md font-semibold text-on-surface min-w-25">
                       {dayLabel}
                     </span>
 
@@ -96,7 +96,7 @@ export function ProfileHoursSection({
                           />
                         </div>
                       ) : (
-                        <div className="text-center py-2 bg-surface-container-high text-outline text-label-md font-bold rounded-lg border border-outline-variant/30 w-full sm:w-[204px]">
+                        <div className="text-center py-2 bg-surface-container-high text-outline text-label-md font-bold rounded-lg border border-outline-variant/30 w-full sm:w-51">
                           مغلق
                         </div>
                       )}
@@ -108,7 +108,7 @@ export function ProfileHoursSection({
                           onChange={() => handleClosedToggle(day)}
                           className="sr-only peer"
                         />
-                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+                        <div className="relative w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                         <span
                           className={`text-label-md font-semibold ${!dayHours.closed ? "text-primary" : "text-outline"}`}
                         >
