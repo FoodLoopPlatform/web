@@ -30,7 +30,6 @@ import { TicketTable } from "./TicketTable";
 import { ReviewCardList } from "./ReviewCardList";
 import { ReviewTable } from "./ReviewTable";
 import { TicketDrawer } from "./TicketDrawer";
-import { DisputeDrawer } from "./DisputeDrawer";
 import { DisputesSkeleton } from "./DisputesSkeleton";
 import { Pagination } from "../common/Pagination";
 import { ConfirmationModal } from "../common/ConfirmationModal";
@@ -81,9 +80,7 @@ export function DisputesShell({
     setCurrentPage(1);
   }
 
-  // Dispute Detail Drawer & Modal State
-  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
-  const [showDisputeDrawer, setShowDisputeDrawer] = useState(false);
+  // Dispute Resolution Modal State
   const [resolveDisputeModalId, setResolveDisputeModalId] = useState<string | null>(null);
 
   // Ticket Detail Drawer
@@ -130,11 +127,33 @@ export function DisputesShell({
     fetchDisputesData,
   ]);
 
+  const disputeToTicket = useCallback((dispute: Dispute): SupportTicket => ({
+    id: dispute.id,
+    userType: dispute.raisedByType || "Consumer",
+    userName: dispute.raisedByName,
+    userEmail: dispute.raisedByName,
+    subject: dispute.orderId ? `طلب رقم: ${dispute.orderId}` : dispute.reason,
+    description: dispute.reason,
+    status: dispute.isResolved ? "Closed" : "Pending",
+    priority: "High",
+    createdAt: dispute.createdAt,
+    replies: dispute.adminNote
+      ? [
+          {
+            id: `rep_${dispute.id}`,
+            sender: "Admin",
+            message: dispute.adminNote,
+            createdAt: dispute.resolvedAt || dispute.createdAt,
+          },
+        ]
+      : [],
+  }), []);
+
   const handleOpenDispute = (id: string) => {
     const target = disputes.find((d) => d.id === id);
     if (target) {
-      setSelectedDispute(target);
-      setShowDisputeDrawer(true);
+      setSelectedTicket(disputeToTicket(target));
+      setShowTicketDrawer(true);
     }
   };
 
@@ -150,8 +169,8 @@ export function DisputesShell({
       (isRtl ? "تمت تسوية النزاع وتوثيق الحل من قِبل الإدارة" : "Resolved by admin.");
 
     setResolveDisputeModalId(null);
-    setShowDisputeDrawer(false);
-    setSelectedDispute(null);
+    setShowTicketDrawer(false);
+    setSelectedTicket(null);
 
     setDisputes((prev) =>
       prev.map((d) =>
@@ -167,27 +186,6 @@ export function DisputesShell({
     );
 
     await resolveDispute(id, noteText);
-    await fetchDisputesData();
-  };
-
-  const handleResolveDisputeFromDrawer = async (id: string, adminNote: string) => {
-    setShowDisputeDrawer(false);
-    setSelectedDispute(null);
-
-    setDisputes((prev) =>
-      prev.map((d) =>
-        d.id === id
-          ? {
-              ...d,
-              isResolved: true,
-              adminNote,
-              resolvedAt: new Date().toISOString(),
-            }
-          : d,
-      ),
-    );
-
-    await resolveDispute(id, adminNote);
     await fetchDisputesData();
   };
 
@@ -543,19 +541,6 @@ export function DisputesShell({
         </div>
       </div>
 
-      {/* Dispute Detail Drawer */}
-      {showDisputeDrawer && selectedDispute && (
-        <DisputeDrawer
-          dispute={selectedDispute}
-          t={t}
-          isRtl={isRtl}
-          onCloseDrawer={() => {
-            setShowDisputeDrawer(false);
-            setSelectedDispute(null);
-          }}
-          onResolveDispute={handleResolveDisputeFromDrawer}
-        />
-      )}
 
       {/* Ticket Detail Drawer */}
       {showTicketDrawer && selectedTicket && (

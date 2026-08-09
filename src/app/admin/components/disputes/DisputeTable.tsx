@@ -26,7 +26,7 @@ export const DisputeTable: React.FC<DisputeTableProps> = ({
     >
       <thead>
         <tr className="bg-surface border-b border-card-border">
-          <th className="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-outline whitespace-nowrap">
+          <th className="px-3 py-3 min-w-[280px] max-w-[450px] text-[10px] font-bold uppercase tracking-wider text-outline whitespace-nowrap">
             {t.reason}
           </th>
           <th className="px-2 py-3 text-[10px] font-bold uppercase tracking-wider text-outline whitespace-nowrap">
@@ -65,7 +65,7 @@ export const DisputeTable: React.FC<DisputeTableProps> = ({
                 dispute.isResolved ? "opacity-75" : ""
               }`}
             >
-              <td className="px-3 py-3 max-w-[220px] truncate">
+              <td className="px-3 py-3 min-w-[280px] max-w-[450px]">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-on-surface hover:text-primary-container transition-colors">
                     {dispute.reason || "—"}
