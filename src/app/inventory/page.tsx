@@ -88,21 +88,6 @@ function InventoryPage() {
             >
               <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
-
-            {/* Search Input (Responsive layout) */}
-            <div className="relative max-w-3xl w-full hidden md:block">
-              <Icon
-                name="search"
-                className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
-              />
-              <input
-                className="w-full bg-surface-container-high border-none rounded-full py-2 pr-11 pl-4 font-body-md text-body-md focus:ring-2 focus:ring-primary transition-all outline-none"
-                placeholder="البحث في المخزون، أو الفئات..."
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-md">

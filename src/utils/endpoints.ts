@@ -18,6 +18,7 @@ export const Endpoints = {
     productById: (id: string) => `/stores/me/products/${id}`,
     productImages: (id: string) => `/stores/me/products/${id}/images`,
     productsBulk: "/stores/me/products/bulk",
+    analytics: "/stores/me/analytics",
   },
 
   admin: {

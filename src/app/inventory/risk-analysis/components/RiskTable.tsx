@@ -53,29 +53,33 @@ export function RiskTable({
         <table className="w-full table-fixed border-collapse text-right">
           <thead>
             <tr className="bg-surface-container-low">
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[9%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[9%]">
                 الإجراءات
               </th>
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[16%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[16%]">
                 مستوى المخاطر
               </th>
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[18%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[14%]">
                 درجة الطلب
               </th>
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[15%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[19%]">
                 تاريخ الانتهاء
               </th>
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[14%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[14%]">
                 الكمية الحالية
               </th>
-              <th className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-bold text-on-surface-variant w-[28%]">
+              <th className="px-2 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-on-surface-variant w-[28%]">
                 اسم المنتج
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant">
-            {items.map((item) => (
-              <RiskTableRow key={item.product.id} item={item} />
+            {items.map((item, index) => (
+              <RiskTableRow
+                key={item.product.id}
+                item={item}
+                openMenuUpward={index >= items.length - 2}
+              />
             ))}
           </tbody>
         </table>

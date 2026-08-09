@@ -78,7 +78,9 @@ export const DisputeTable: React.FC<DisputeTableProps> = ({
               </td>
 
               <td className="px-2 py-3 whitespace-nowrap text-xs text-outline font-mono">
-                {dispute.orderId ? dispute.orderId.slice(0, 8).toUpperCase() : "—"}
+                {dispute.orderId
+                  ? dispute.orderId.slice(0, 8).toUpperCase()
+                  : "—"}
               </td>
 
               <td className="px-2 py-3 whitespace-nowrap">

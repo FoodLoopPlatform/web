@@ -98,15 +98,6 @@ export function ProductForm({
           </div>
 
           <div className="flex items-center gap-gutter">
-            <div className="hidden md:flex items-center bg-light-green px-4 py-2 rounded-full border border-outline-variant w-64">
-              <Icon name="search" className="h-5 w-5 text-on-surface-variant" />
-              <input
-                className="bg-transparent border-none focus:ring-0 text-body-md w-full mr-2 outline-none font-sans"
-                placeholder="البحث في الطلبات..."
-                type="text"
-              />
-            </div>
-
             <div className="flex items-center gap-4 text-primary">
               <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer">
                 <Icon

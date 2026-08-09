@@ -9,7 +9,7 @@ const RISK_LEVEL_BADGE_STYLES: Record<RiskLevel, string> = {
 export function RiskLevelBadge({ level }: { level: RiskLevel }) {
   return (
     <span
-      className={`inline-flex items-center px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap ${RISK_LEVEL_BADGE_STYLES[level]}`}
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${RISK_LEVEL_BADGE_STYLES[level]}`}
     >
       {RISK_LEVEL_LABELS[level]}
     </span>

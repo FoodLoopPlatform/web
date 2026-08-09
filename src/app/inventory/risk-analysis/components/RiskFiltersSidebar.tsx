@@ -37,8 +37,8 @@ export function RiskFiltersSidebar({
   insight,
 }: RiskFiltersSidebarProps) {
   return (
-    <aside className="w-full lg:w-80 shrink-0 flex flex-col gap-md">
-      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col gap-lg">
+    <aside className="w-full lg:w-60 shrink-0 flex flex-col gap-md">
+      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-4 shadow-sm flex flex-col gap-lg">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-primary">الفلاتر</h3>
           <FilterIcon className="h-4 w-4 text-on-surface-variant" />

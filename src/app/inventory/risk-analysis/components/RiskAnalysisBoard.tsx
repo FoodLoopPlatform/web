@@ -10,7 +10,7 @@ import { ValueAtRiskWidget } from "./ValueAtRiskWidget";
 import { RiskTable } from "./RiskTable";
 import { ForecastSpotlight } from "./ForecastSpotlight";
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 5;
 
 interface RiskAnalysisBoardProps {
   productsPromise: Promise<ApiResponse<MerchantProduct[]>>;

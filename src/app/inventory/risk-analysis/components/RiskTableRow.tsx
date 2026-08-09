@@ -12,7 +12,13 @@ import { formatExpiryLabel, type RiskAnalysisItem } from "../lib/risk-analysis";
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
 
-export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
+export function RiskTableRow({
+  item,
+  openMenuUpward = false,
+}: {
+  item: RiskAnalysisItem;
+  openMenuUpward?: boolean;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { product, daysUntilExpiry, demandScore, riskLevel } = item;
 
@@ -23,11 +29,11 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
   return (
     <tr className="hover:bg-surface/70 transition-colors">
       {/* Actions */}
-      <td className="px-2 sm:px-4 py-3 relative">
+      <td className="px-2 sm:px-3 py-2 relative">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="p-2 rounded-full hover:bg-surface-container-high transition-colors cursor-pointer flex items-center justify-center"
+          className="p-1.5 rounded-full hover:bg-surface-container-high transition-colors cursor-pointer flex items-center justify-center"
           title="خيارات إضافية"
         >
           <Icon name="more_vert" className="h-4 w-4 text-on-surface-variant" />
@@ -39,7 +45,11 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
               onClick={() => setMenuOpen(false)}
               className="fixed inset-0 z-10"
             />
-            <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white border border-outline-variant shadow-lg z-20 overflow-hidden">
+            <div
+              className={`absolute right-0 w-44 rounded-xl bg-white border border-outline-variant shadow-lg z-20 overflow-hidden ${
+                openMenuUpward ? "bottom-full mb-1" : "top-full mt-1"
+              }`}
+            >
               <Link
                 href={`/product/${product.id}`}
                 className="block px-4 py-3 text-sm text-on-surface hover:bg-light-green transition-colors"
@@ -58,12 +68,12 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
       </td>
 
       {/* Risk level */}
-      <td className="px-2 sm:px-4 py-3">
+      <td className="px-2 sm:px-3 py-2">
         <RiskLevelBadge level={riskLevel} />
       </td>
 
       {/* Demand score */}
-      <td className="px-2 sm:px-4 py-3">
+      <td className="px-2 sm:px-3 py-2">
         <div className="flex items-center gap-2">
           <div className="bg-surface-container-high h-1.5 flex-1 min-w-6 rounded-full overflow-hidden">
             <div
@@ -71,16 +81,16 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
               style={{ width: `${demandScore}%` }}
             />
           </div>
-          <span className="text-xs text-on-surface-variant shrink-0">
+          <span className="text-[11px] text-on-surface-variant shrink-0">
             {demandScore}%
           </span>
         </div>
       </td>
 
       {/* Expiry date */}
-      <td className="px-2 sm:px-4 py-3">
+      <td className="px-2 sm:px-3 py-2">
         <div
-          className={`flex items-center gap-1 font-bold text-sm ${
+          className={`flex items-center gap-1 font-bold text-xs ${
             isUrgent ? "text-error" : "text-on-surface-variant"
           }`}
         >
@@ -90,24 +100,24 @@ export function RiskTableRow({ item }: { item: RiskAnalysisItem }) {
       </td>
 
       {/* Current quantity */}
-      <td className="px-2 sm:px-4 py-3">
-        <span className="text-sm text-on-surface truncate block">
+      <td className="px-2 sm:px-3 py-2">
+        <span className="text-xs text-on-surface truncate block">
           {product.quantityAvailable ?? 0} وحدة
         </span>
       </td>
 
       {/* Product name + image */}
-      <td className="px-2 sm:px-4 py-3">
+      <td className="px-2 sm:px-3 py-2">
         <div className="flex items-center gap-3 justify-end min-w-0">
-          <span className="text-sm font-bold text-primary truncate min-w-0">
+          <span className="text-xs font-bold text-primary truncate min-w-0">
             {product.titleAr || product.title}
           </span>
-          <div className="relative rounded-lg shrink-0 size-10 overflow-hidden bg-surface-container-high">
+          <div className="relative rounded-lg shrink-0 size-8 overflow-hidden bg-surface-container-high">
             <Image
               src={imageSrc}
               alt={product.titleAr || product.title}
               fill
-              sizes="40px"
+              sizes="32px"
               className="object-cover"
               unoptimized
             />

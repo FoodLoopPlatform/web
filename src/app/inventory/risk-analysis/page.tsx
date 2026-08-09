@@ -18,7 +18,6 @@ function InventoryRiskAnalysisPage() {
   const store = useStoreProfile();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const categoriesPromise = useMemo(() => getCategories(), []);
 
@@ -26,12 +25,8 @@ function InventoryRiskAnalysisPage() {
   // analyze it client-side, mirroring the "fetch everything" pattern used
   // for admin audit-log analysis (see app/admin/api/audit-log-api.ts).
   const productsPromise = useMemo(
-    () =>
-      getMerchantProducts({
-        pageSize: 500,
-        searchTerm: searchQuery.trim() || undefined,
-      }),
-    [searchQuery],
+    () => getMerchantProducts({ pageSize: 500 }),
+    [],
   );
 
   return (
@@ -83,20 +78,6 @@ function InventoryRiskAnalysisPage() {
             >
               <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
-
-            <div className="relative max-w-3xl w-full hidden md:block">
-              <Icon
-                name="search"
-                className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
-              />
-              <input
-                className="w-full bg-surface-container-high border-none rounded-full py-2 pr-11 pl-4 font-body-md text-body-md focus:ring-2 focus:ring-primary transition-all outline-none"
-                placeholder="بحث عن منتج ضمن التحليل..."
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-md">

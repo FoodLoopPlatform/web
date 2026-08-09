@@ -13,14 +13,16 @@ import {
 import { type LocationFormProps } from "../lib/types";
 import { EGYPTIAN_GOVERNORATES } from "../lib/constants";
 import { updateMyStoreLocation } from "../api/stores-api";
-import { invalidateStoreResource } from "../api/store-resource";
+import { setStoreResource } from "../api/store-resource";
 import { LocationMapPreview } from "./location-map-preview";
+import { useAppStore } from "@/store/use-app-store";
 
 export function LocationForm({
   initialData,
   onSaveSuccess,
   showToast,
 }: LocationFormProps) {
+  const accessToken = useAppStore((state) => state.accessToken);
   const [form, setForm] = useState<LocationSettingsInput>({
     governorate: initialData.governorate,
     city: initialData.city,
@@ -114,7 +116,7 @@ export function LocationForm({
     if (result.error) {
       showToast(result.error, "error");
     } else if (result.data) {
-      invalidateStoreResource();
+      if (accessToken) setStoreResource(accessToken, result.data);
       showToast("تم حفظ موقع المتجر بنجاح", "success");
       onSaveSuccess(new Date().toISOString());
     }
@@ -195,42 +197,6 @@ export function LocationForm({
                 </Field.Root>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Field.Root invalid={!!errors.city}>
-                    <Field.Label className="font-semibold text-on-surface">
-                      المدينة
-                    </Field.Label>
-                    <Field.Control
-                      name="city"
-                      placeholder="مثال: القاهرة"
-                      value={form.city}
-                      onChange={(e) =>
-                        handleInputChange("city", e.target.value)
-                      }
-                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
-                    />
-                    {errors.city && <Field.Error>{errors.city}</Field.Error>}
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.cityArea}>
-                    <Field.Label className="font-semibold text-on-surface">
-                      الحي / المنطقة
-                    </Field.Label>
-                    <Field.Control
-                      name="cityArea"
-                      placeholder="مثال: المعادي"
-                      value={form.cityArea}
-                      onChange={(e) =>
-                        handleInputChange("cityArea", e.target.value)
-                      }
-                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
-                    />
-                    {errors.cityArea && (
-                      <Field.Error>{errors.cityArea}</Field.Error>
-                    )}
-                  </Field.Root>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
                   <Field.Root invalid={!!errors.governorate}>
                     <Field.Label className="font-semibold text-on-surface">
                       المحافظة
@@ -254,6 +220,41 @@ export function LocationForm({
                     </Field.Select>
                     {errors.governorate && (
                       <Field.Error>{errors.governorate}</Field.Error>
+                    )}
+                  </Field.Root>
+                  <Field.Root invalid={!!errors.city}>
+                    <Field.Label className="font-semibold text-on-surface">
+                      المدينة
+                    </Field.Label>
+                    <Field.Control
+                      name="city"
+                      placeholder="مثال: القاهرة"
+                      value={form.city}
+                      onChange={(e) =>
+                        handleInputChange("city", e.target.value)
+                      }
+                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
+                    />
+                    {errors.city && <Field.Error>{errors.city}</Field.Error>}
+                  </Field.Root>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Field.Root invalid={!!errors.cityArea}>
+                    <Field.Label className="font-semibold text-on-surface">
+                      الحي / المنطقة
+                    </Field.Label>
+                    <Field.Control
+                      name="cityArea"
+                      placeholder="مثال: المعادي"
+                      value={form.cityArea}
+                      onChange={(e) =>
+                        handleInputChange("cityArea", e.target.value)
+                      }
+                      className="rounded-xl border border-outline-variant p-3 mt-1 w-full"
+                    />
+                    {errors.cityArea && (
+                      <Field.Error>{errors.cityArea}</Field.Error>
                     )}
                   </Field.Root>
                 </div>

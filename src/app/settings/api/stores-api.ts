@@ -29,11 +29,27 @@ export function updateMyStoreLocation(payload: UpdateStoreLocationPayload) {
 }
 
 export function updateMyStoreProfile(payload: UpdateStoreProfilePayload) {
+  const formData = new FormData();
+  if (payload.name !== undefined) formData.append("Name", payload.name);
+  if (payload.description !== undefined) {
+    formData.append("Description", payload.description);
+  }
+  if (payload.businessCategory !== undefined) {
+    formData.append("BusinessCategory", payload.businessCategory);
+  }
+  if (payload.phone !== undefined) formData.append("Phone", payload.phone);
+  if (payload.email !== undefined) formData.append("Email", payload.email);
+  if (payload.openingHours != null) {
+    formData.append("OpeningHours", payload.openingHours);
+  }
+  if (payload.logoFile) formData.append("Logo", payload.logoFile);
+  if (payload.coverFile) formData.append("CoverPhoto", payload.coverFile);
+
   return withAuth((token) =>
     unwrapEnvelope<Store>(
-      updateOne<FoodLoopEnvelope<Store>, UpdateStoreProfilePayload>(
+      updateOne<FoodLoopEnvelope<Store>, FormData>(
         Endpoints.stores.me,
-        payload,
+        formData,
         { token },
       ),
     ),

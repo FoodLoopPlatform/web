@@ -19,6 +19,7 @@ export type Store = {
   description: string | null;
   descriptionAr: string | null;
   logo: string | null;
+  coverPhoto: string | null;
   phone: string | null;
   email: string | null;
   openingHours: string | null;
@@ -43,17 +44,21 @@ export type UpdateStoreLocationPayload = {
   longitude: number | null;
 };
 
-/** Request body for PATCH /stores/me — all fields optional. */
+/**
+ * Request body for PATCH /stores/me. The backend only accepts this endpoint
+ * as multipart/form-data (it takes Logo/CoverPhoto as binary file parts) —
+ * a JSON body gets rejected with 415 Unsupported Media Type. All fields
+ * optional; see `updateMyStoreProfile` for the FormData field-name mapping.
+ */
 export type UpdateStoreProfilePayload = {
   name?: string;
-  nameAr?: string;
   description?: string;
-  descriptionAr?: string;
   businessCategory?: BusinessCategory;
-  logo?: string | null;
   phone?: string;
   email?: string;
   openingHours?: string | null;
+  logoFile?: File | null;
+  coverFile?: File | null;
 };
 
 /** Maps the API's BusinessCategory enum to the settings form's businessTypesList values. */
