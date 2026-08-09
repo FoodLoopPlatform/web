@@ -47,7 +47,7 @@ export function MerchantSidebar({
     },
     {
       label: "التسعير",
-      href: "#",
+      href: "/pricing",
       icon: "payments",
     },
     {
