@@ -27,10 +27,13 @@ export function StoreProfileForm({
   showToast,
 }: StoreProfileFormProps) {
   const user = useAppStore((state) => state.user);
+  const accessToken = useAppStore((state) => state.accessToken);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const logoUrlRef = useRef<string>("");
   const coverUrlRef = useRef<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   const [form, setForm] = useState<
     Omit<StoreProfileInput, "logoFile" | "coverFile">
@@ -128,6 +131,7 @@ export function StoreProfileForm({
       }
       const newUrl = URL.createObjectURL(squareFile);
       logoUrlRef.current = newUrl;
+      setLogoFile(squareFile);
       setForm((prev) => ({
         ...prev,
         logoUrl: newUrl,
@@ -151,6 +155,7 @@ export function StoreProfileForm({
     }
     const newUrl = URL.createObjectURL(file);
     coverUrlRef.current = newUrl;
+    setCoverFile(file);
     setForm((prev) => ({ ...prev, coverUrl: newUrl }));
     showToast("تم تحديث غلاف المتجر بنجاح", "success");
   };
@@ -184,7 +189,11 @@ export function StoreProfileForm({
       return;
     }
 
-    const result = await updateStoreProfile(form);
+    const result = await updateStoreProfile(
+      form,
+      { logoFile, coverFile },
+      accessToken ?? undefined,
+    );
     if (result.error) {
       showToast(result.error, "error");
     } else if (result.data) {

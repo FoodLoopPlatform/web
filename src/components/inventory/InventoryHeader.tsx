@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
+import { SparklesIcon } from "@/components/icons";
 
 interface InventoryHeaderProps {
   searchQuery: string;
@@ -28,51 +29,65 @@ export function InventoryHeader({
           </p>
         </div>
 
-        {/* Add Product Dropdown */}
-        <div className="relative inline-block text-right shrink-0">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="bg-primary text-white px-lg py-3 rounded-xl flex items-center gap-sm font-bold text-label-md hover:opacity-90 transition-all active:scale-95 shadow-sm cursor-pointer"
+        <div className="flex items-center gap-sm shrink-0">
+          {/* Entry point to AI-powered inventory risk analysis */}
+          <Link
+            href="/inventory/risk-analysis"
+            className="border border-primary text-primary px-lg py-3 rounded-xl flex items-center gap-sm font-bold text-label-md hover:bg-light-green transition-all active:scale-95 cursor-pointer"
           >
-            <Icon name="add" className="h-4 w-4" />
-            <span>إضافة منتج</span>
-          </button>
+            <SparklesIcon className="h-4 w-4" />
+            <span>تحليل مخاطر المخزون</span>
+          </Link>
 
-          {dropdownOpen && (
-            <>
-              <div
-                onClick={() => setDropdownOpen(false)}
-                className="fixed inset-0 z-10"
-              />
-              <div className="absolute left-0 right-auto mt-2 w-56 rounded-xl bg-white border border-outline-variant shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-                <Link
-                  href="/products/add"
-                  className="flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group"
-                >
-                  <Icon name="edit_note" className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-bold text-sm">إدخال يدوي</p>
-                    <p className="text-[10px] text-on-surface-variant opacity-75 mt-0.5">
-                      إضافة منتج فردي للكتالوج
-                    </p>
-                  </div>
-                </Link>
-                <div className="h-px bg-outline-variant/50" />
-                <Link
-                  href="#"
-                  className="flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group"
-                >
-                  <Icon name="cloud_upload" className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-bold text-sm">تحميل جماعي</p>
-                    <p className="text-[10px] text-on-surface-variant opacity-75 mt-0.5">
-                      استيراد ملف Excel أو CSV
-                    </p>
-                  </div>
-                </Link>
-              </div>
-            </>
-          )}
+          {/* Add Product Dropdown */}
+          <div className="relative inline-block text-right shrink-0">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="bg-primary text-white px-lg py-3 rounded-xl flex items-center gap-sm font-bold text-label-md hover:opacity-90 transition-all active:scale-95 shadow-sm cursor-pointer"
+            >
+              <Icon name="add" className="h-4 w-4" />
+              <span>إضافة منتج</span>
+            </button>
+
+            {dropdownOpen && (
+              <>
+                <div
+                  onClick={() => setDropdownOpen(false)}
+                  className="fixed inset-0 z-10"
+                />
+                <div className="absolute left-0 right-auto mt-2 w-56 rounded-xl bg-white border border-outline-variant shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <Link
+                    href="/products/add"
+                    className="flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group"
+                  >
+                    <Icon name="edit_note" className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-bold text-sm">إدخال يدوي</p>
+                      <p className="text-[10px] text-on-surface-variant opacity-75 mt-0.5">
+                        إضافة منتج فردي للكتالوج
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="h-px bg-outline-variant/50" />
+                  <Link
+                    href="#"
+                    className="flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group"
+                  >
+                    <Icon
+                      name="cloud_upload"
+                      className="h-5 w-5 text-primary"
+                    />
+                    <div>
+                      <p className="font-bold text-sm">تحميل جماعي</p>
+                      <p className="text-[10px] text-on-surface-variant opacity-75 mt-0.5">
+                        استيراد ملف Excel أو CSV
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

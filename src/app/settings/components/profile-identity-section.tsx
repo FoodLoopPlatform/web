@@ -4,6 +4,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { UploadCloudIcon } from "@/components/icons/upload-cloud-icon";
+import { EditIcon } from "@/components/icons";
 import type { RefObject, ChangeEvent } from "react";
 
 type ProfileIdentitySectionProps = {
@@ -45,12 +46,20 @@ export function ProfileIdentitySection({
               className="relative h-44 w-full cursor-pointer rounded-lg border-2 border-dashed border-outline-variant/80 bg-surface-container-low hover:bg-surface-container-high/40 transition-all overflow-hidden flex flex-col items-center justify-center gap-2 group"
             >
               {coverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={coverUrl}
-                  alt="Cover preview"
-                  className="absolute inset-0 h-full w-full object-contain bg-surface-container-lowest"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverUrl}
+                    alt="Cover preview"
+                    className="absolute inset-0 h-full w-full object-contain bg-surface-container-lowest"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/0 group-hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all">
+                    <EditIcon className="h-6 w-6 text-white" />
+                    <span className="text-body-md font-bold text-white">
+                      تغيير غلاف المتجر
+                    </span>
+                  </div>
+                </>
               ) : (
                 <>
                   <UploadCloudIcon className="h-7 w-7 text-outline group-hover:scale-110 transition-transform" />
@@ -71,15 +80,20 @@ export function ProfileIdentitySection({
             <div className="flex items-center gap-5 mt-2">
               <div
                 onClick={() => logoInputRef.current?.click()}
-                className="relative h-20 w-20 shrink-0 cursor-pointer rounded-full border border-outline-variant/80 bg-surface-container-lowest hover:scale-105 transition-transform overflow-hidden flex items-center justify-center shadow-sm"
+                className="relative h-20 w-20 shrink-0 cursor-pointer rounded-full border border-outline-variant/80 bg-surface-container-lowest hover:scale-105 transition-transform overflow-hidden flex items-center justify-center shadow-sm group"
               >
                 {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoUrl}
-                    alt="Logo preview"
-                    className="h-full w-full object-contain bg-surface-container-lowest p-1"
-                  />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={logoUrl}
+                      alt="Logo preview"
+                      className="h-full w-full object-contain bg-surface-container-lowest p-1"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all">
+                      <EditIcon className="h-5 w-5 text-white" />
+                    </div>
+                  </>
                 ) : (
                   <span className="text-[11px] font-bold text-outline text-center p-2">
                     رفع شعار

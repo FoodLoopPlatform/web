@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "./icon";
+import { useAppStore } from "@/store/use-app-store";
+import { logoutSession } from "@/app/register/api/auth-api";
 
 interface MerchantSidebarProps {
   onClose?: () => void;
@@ -16,6 +18,21 @@ export function MerchantSidebar({
   onToggleCollapse,
 }: MerchantSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const refreshToken = useAppStore((state) => state.refreshToken);
+  const clearSession = useAppStore((state) => state.clearSession);
+
+  // Best-effort: revoke the refresh token server-side, but always clear the
+  // local session and leave — a failed/offline logout call shouldn't strand
+  // the user on an authenticated-looking screen.
+  const handleLogout = async () => {
+    if (refreshToken) {
+      await logoutSession(refreshToken);
+    }
+    clearSession();
+    onClose?.();
+    router.push("/login");
+  };
 
   const menuItems = [
     {
@@ -55,11 +72,6 @@ export function MerchantSidebar({
       label: "الدعم والمساعدة",
       href: "#",
       icon: "contact_support",
-    },
-    {
-      label: "تسجيل الخروج",
-      href: "#",
-      icon: "logout",
     },
   ];
 
@@ -170,6 +182,20 @@ export function MerchantSidebar({
               )}
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`flex items-center gap-3 py-2.5 rounded-xl text-error font-medium hover:bg-error-container hover:text-on-error-container transition-colors cursor-pointer text-start ${
+              isCollapsed ? "justify-center px-1" : "px-4"
+            }`}
+          >
+            <Icon name="logout" className="h-5 w-5 shrink-0" />
+            {!isCollapsed && (
+              <span className="text-body-md font-sans leading-none">
+                تسجيل الخروج
+              </span>
+            )}
+          </button>
         </div>
       </div>
     </div>

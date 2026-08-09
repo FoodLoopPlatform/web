@@ -9,8 +9,11 @@ import {
   closeSupportTicket,
   getAdminReviews,
   deleteReview,
+  getDisputes,
+  resolveDispute,
   type SupportTicket,
   type Review,
+  type Dispute,
 } from "../../api/admin-api";
 import { adminDictionary } from "../../constants/dictionary";
 import { StatsCard } from "../common/StatsCard";
@@ -18,6 +21,8 @@ import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
 import { SmartInsightCard } from "../common/SmartInsightCard";
 import { AuditLogsWidget } from "../audit-log/AuditLogsWidget";
+import { DisputeCardList } from "./DisputeCardList";
+import { DisputeTable } from "./DisputeTable";
 import { TicketCardList } from "./TicketCardList";
 import { TicketTable } from "./TicketTable";
 import { ReviewCardList } from "./ReviewCardList";
@@ -25,15 +30,17 @@ import { ReviewTable } from "./ReviewTable";
 import { TicketDrawer } from "./TicketDrawer";
 import { DisputesSkeleton } from "./DisputesSkeleton";
 
-type DisputeTab = "Tickets" | "Reviews";
+type DisputeTab = "Disputes" | "Tickets" | "Reviews";
 type PriorityFilter = "ALL" | "High" | "Medium" | "Low";
 
 interface DisputesShellProps {
+  initialDisputes?: Dispute[];
   initialTickets?: SupportTicket[];
   initialReviews?: Review[];
 }
 
 export function DisputesShell({
+  initialDisputes = [],
   initialTickets = [],
   initialReviews = [],
 }: DisputesShellProps = {}) {
@@ -41,13 +48,16 @@ export function DisputesShell({
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
-  const [activeTab, setActiveTab] = useState<DisputeTab>("Tickets");
+  const [activeTab, setActiveTab] = useState<DisputeTab>("Disputes");
 
   // Data states seeded from props or fetched on client
+  const [disputes, setDisputes] = useState<Dispute[]>(initialDisputes);
   const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [isLoading, setIsLoading] = useState<boolean>(
-    initialTickets.length === 0 && initialReviews.length === 0,
+    initialDisputes.length === 0 &&
+      initialTickets.length === 0 &&
+      initialReviews.length === 0,
   );
 
   // Search/Filters
@@ -64,10 +74,12 @@ export function DisputesShell({
 
   const fetchDisputesData = useCallback(async () => {
     try {
-      const [ticketsRes, reviewsRes] = await Promise.all([
+      const [disputesRes, ticketsRes, reviewsRes] = await Promise.all([
+        getDisputes(),
         getSupportTickets(),
         getAdminReviews(),
       ]);
+      if (disputesRes.data) setDisputes(disputesRes.data);
       if (ticketsRes.data) setTickets(ticketsRes.data);
       if (reviewsRes.data) setReviews(reviewsRes.data);
     } finally {
@@ -76,10 +88,26 @@ export function DisputesShell({
   }, []);
 
   React.useEffect(() => {
-    if (initialTickets.length === 0 && initialReviews.length === 0) {
+    if (
+      initialDisputes.length === 0 &&
+      initialTickets.length === 0 &&
+      initialReviews.length === 0
+    ) {
       fetchDisputesData();
     }
-  }, [initialTickets.length, initialReviews.length, fetchDisputesData]);
+  }, [
+    initialDisputes.length,
+    initialTickets.length,
+    initialReviews.length,
+    fetchDisputesData,
+  ]);
+
+  const handleResolveDispute = async (id: string) => {
+    const note = window.prompt(t.resolveDisputePrompt);
+    if (!note || !note.trim()) return;
+    await resolveDispute(id, note.trim());
+    await fetchDisputesData();
+  };
 
   const handleOpenTicket = async (id: string) => {
     const ticketRes = await getSupportTicketById(id);
@@ -135,7 +163,16 @@ export function DisputesShell({
   };
 
   const getFilteredItems = () => {
-    if (activeTab === "Tickets") {
+    if (activeTab === "Disputes") {
+      return disputes.filter((d) => {
+        return (
+          d.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          d.raisedByName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (d.orderId ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      });
+    } else if (activeTab === "Tickets") {
       return tickets.filter((t) => {
         const matchesSearch =
           (t.subject ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,12 +198,11 @@ export function DisputesShell({
 
   const filteredItems = getFilteredItems();
 
-  const openTicketsCount = tickets.filter((t) => t.status === "Open").length;
-  const closedTicketsCount = tickets.filter(
-    (t) => t.status === "Closed",
-  ).length;
+  const openDisputesCount = disputes.filter((d) => !d.isResolved).length;
+  const resolvedDisputesCount = disputes.filter((d) => d.isResolved).length;
 
   const tabOptions: TabOption<DisputeTab>[] = [
+    { id: "Disputes", label: t.disputesTabLabel },
     { id: "Tickets", label: t.tickets },
     { id: "Reviews", label: t.reviews },
   ];
@@ -204,20 +240,20 @@ export function DisputesShell({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
           label={t.totalDisputes}
-          value={tickets.length + reviews.length}
+          value={disputes.length}
           accentClass="bg-primary-container/20"
           isRtl={isRtl}
         />
         <StatsCard
           label={t.openDisputes}
-          value={openTicketsCount}
+          value={openDisputesCount}
           accentClass="bg-red-500"
           textColorClass="text-red-900"
           isRtl={isRtl}
         />
         <StatsCard
           label={t.resolvedDisputes}
-          value={closedTicketsCount}
+          value={resolvedDisputesCount}
           accentClass="bg-green-500"
           textColorClass="text-green-900"
           isRtl={isRtl}
@@ -229,9 +265,9 @@ export function DisputesShell({
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         placeholder={
-          activeTab === "Tickets"
-            ? t.searchPlaceholder
-            : t.searchReviewsPlaceholder
+          activeTab === "Reviews"
+            ? t.searchReviewsPlaceholder
+            : t.searchPlaceholder
         }
         isRtl={isRtl}
         filterTitle={activeTab === "Tickets" ? t.filterPriority : undefined}
@@ -247,7 +283,24 @@ export function DisputesShell({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Main List / Table */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
-          {activeTab === "Tickets" ? (
+          {activeTab === "Disputes" ? (
+            <>
+              <DisputeCardList
+                disputes={filteredItems as Dispute[]}
+                t={t}
+                isRtl={isRtl}
+                onResolveDispute={handleResolveDispute}
+              />
+              <div className="hidden md:block overflow-x-auto w-full">
+                <DisputeTable
+                  disputes={filteredItems as Dispute[]}
+                  t={t}
+                  isRtl={isRtl}
+                  onResolveDispute={handleResolveDispute}
+                />
+              </div>
+            </>
+          ) : activeTab === "Tickets" ? (
             <>
               <TicketCardList
                 tickets={filteredItems as SupportTicket[]}

@@ -19,6 +19,8 @@ export type {
   TicketReply,
   SupportTicket,
   RawBackendTicket,
+  Dispute,
+  RawDispute,
   ActivityLog,
   AnalyticsSummary,
   ModerationFlagType,
@@ -33,6 +35,8 @@ import type {
   Product,
   SupportTicket,
   RawBackendTicket,
+  Dispute,
+  RawDispute,
   ActivityLog,
   AnalyticsSummary,
   ModerationItem,
@@ -643,6 +647,68 @@ export function closeSupportTicket(id: string) {
       updateOne<FoodLoopEnvelope<SupportTicket>, Record<string, never>>(
         Endpoints.admin.closeSupportTicket(id),
         {},
+        { token },
+      ),
+    ),
+  );
+}
+
+// ─── Disputes ───────────────────────────────────────────────────────────────
+// A genuine backend resource (/admin/disputes), distinct from SupportTicket.
+// Admin-only — there is no non-admin dispute endpoint in the API.
+
+function normalizeDispute(raw: RawDispute): Dispute {
+  return {
+    id: raw.id,
+    orderId: raw.orderId,
+    raisedByName:
+      raw.raisedByName ?? raw.userFullName ?? raw.userName ?? "Unknown User",
+    raisedByType: (raw.userType as Dispute["raisedByType"]) ?? "Consumer",
+    reason: raw.reason ?? raw.description ?? raw.message ?? "",
+    isResolved: raw.isResolved ?? raw.status === "Resolved",
+    adminNote: raw.adminNote ?? raw.note,
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    resolvedAt: raw.resolvedAt,
+  };
+}
+
+/** GET /admin/disputes?pageNumber=&pageSize=&isResolved= */
+export function getDisputes(params?: {
+  pageNumber?: number;
+  pageSize?: number;
+  isResolved?: boolean;
+}) {
+  return withAuth(async (token) => {
+    let url = Endpoints.admin.disputes;
+    const query = new URLSearchParams();
+    if (params?.pageNumber) query.set("pageNumber", String(params.pageNumber));
+    if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+    if (params?.isResolved !== undefined) {
+      query.set("isResolved", String(params.isResolved));
+    }
+
+    const queryString = query.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+
+    const result = await unwrapEnvelope<RawDispute[]>(
+      getMany<FoodLoopEnvelope<RawDispute[]>>(url, { token }),
+    );
+    if (result.data && Array.isArray(result.data)) {
+      return { data: result.data.map(normalizeDispute) };
+    }
+    return { data: [] as Dispute[] };
+  });
+}
+
+/** PATCH /admin/disputes/{id}/resolve */
+export function resolveDispute(id: string, adminNote: string) {
+  return withAuth(async (token) =>
+    unwrapEnvelope<RawDispute>(
+      updateOne<FoodLoopEnvelope<RawDispute>, { adminNote: string }>(
+        Endpoints.admin.disputeResolve(id),
+        { adminNote },
         { token },
       ),
     ),

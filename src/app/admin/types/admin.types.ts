@@ -148,6 +148,47 @@ export interface RawBackendTicket {
   replies?: TicketReply[];
 }
 
+/**
+ * A genuine dispute record from GET /admin/disputes — a distinct backend
+ * resource from SupportTicket (`/support-tickets`, `/admin/support-tickets`),
+ * scoped to admin-only resolution via PATCH /admin/disputes/{id}/resolve.
+ */
+export interface Dispute {
+  id: string;
+  orderId?: string;
+  raisedByName: string;
+  raisedByType?: "Consumer" | "Store" | "Charity";
+  reason: string;
+  isResolved: boolean;
+  adminNote?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+/**
+ * Raw shape returned by GET /admin/disputes — the Swagger spec documents
+ * `200: OK` with no response schema, so field names are inferred
+ * defensively (same hedge as RawBackendTicket above).
+ */
+export interface RawDispute {
+  id: string;
+  orderId?: string;
+  userId?: string;
+  userName?: string;
+  userFullName?: string;
+  raisedByName?: string;
+  userType?: string;
+  reason?: string;
+  description?: string;
+  message?: string;
+  isResolved?: boolean;
+  status?: string;
+  adminNote?: string;
+  note?: string;
+  createdAt?: string;
+  resolvedAt?: string;
+}
+
 export interface ActivityLog {
   id: string;
   adminName: string;

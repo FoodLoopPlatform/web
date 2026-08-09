@@ -18,11 +18,14 @@ export const Endpoints = {
     productById: (id: string) => `/stores/me/products/${id}`,
     productImages: (id: string) => `/stores/me/products/${id}/images`,
     productsBulk: "/stores/me/products/bulk",
+    analytics: "/stores/me/analytics",
   },
 
   admin: {
     products: "/admin/products",
     productById: (id: string) => `/admin/products/${id}`,
+    disputes: "/admin/disputes",
+    disputeResolve: (id: string) => `/admin/disputes/${id}/resolve`,
     storesPending: "/admin/stores/pending",
     storeById: (id: string) => `/admin/stores/${id}`,
     userById: (id: string) => `/users/${id}`,
@@ -52,5 +55,14 @@ export const Endpoints = {
   charities: {
     me: "/charities/me",
     documents: "/charities/me/documents",
+  },
+
+  // Non-admin "SupportTickets" tag from the live Swagger spec — scoped to
+  // the authenticated account, distinct from the /admin/support-tickets
+  // moderation endpoints above.
+  supportTickets: {
+    base: "/support-tickets",
+    byId: (id: string) => `/support-tickets/${id}`,
+    reply: (id: string) => `/support-tickets/${id}/reply`,
   },
 };
