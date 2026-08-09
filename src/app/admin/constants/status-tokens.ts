@@ -7,33 +7,63 @@ export interface StatusBadgeToken {
 export const statusBadgeTokens: Record<string, StatusBadgeToken> = {
   ACTIVE: {
     textKey: "active",
-    classes: "bg-green-100 text-green-800 border border-green-200",
-    accentBarClass: "bg-green-500/20",
+    classes:
+      "bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-emerald-500/20",
+  },
+  Active: {
+    textKey: "active",
+    classes:
+      "bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-emerald-500/20",
+  },
+  APPROVED: {
+    textKey: "active",
+    classes:
+      "bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-emerald-500/20",
+  },
+  VERIFIED: {
+    textKey: "active",
+    classes:
+      "bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-emerald-500/20",
   },
   PENDING: {
     textKey: "pending",
-    classes: "bg-amber-100 text-amber-800 border border-amber-200",
+    classes:
+      "bg-amber-100 text-amber-800 border border-amber-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-amber-500/20",
+  },
+  Pending: {
+    textKey: "pending",
+    classes:
+      "bg-amber-100 text-amber-800 border border-amber-300 font-extrabold shadow-2xs",
     accentBarClass: "bg-amber-500/20",
   },
   SUSPENDED: {
     textKey: "suspended",
-    classes: "bg-red-100 text-red-800 border border-red-200",
-    accentBarClass: "bg-red-500/20",
+    classes:
+      "bg-rose-100 text-rose-800 border border-rose-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-rose-500/20",
+  },
+  Suspended: {
+    textKey: "suspended",
+    classes:
+      "bg-rose-100 text-rose-800 border border-rose-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-rose-500/20",
   },
   Open: {
     textKey: "open",
-    classes: "bg-red-100 text-red-800 border border-red-200",
-    accentBarClass: "bg-red-500/20",
-  },
-  Pending: {
-    textKey: "pending",
-    classes: "bg-amber-100 text-amber-800 border border-amber-200",
-    accentBarClass: "bg-amber-500/20",
+    classes:
+      "bg-rose-100 text-rose-800 border border-rose-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-rose-500/20",
   },
   Closed: {
     textKey: "closed",
-    classes: "bg-gray-100 text-gray-800 border border-gray-200",
-    accentBarClass: "bg-gray-500/20",
+    classes:
+      "bg-slate-100 text-slate-800 border border-slate-300 font-extrabold shadow-2xs",
+    accentBarClass: "bg-slate-500/20",
   },
 };
 

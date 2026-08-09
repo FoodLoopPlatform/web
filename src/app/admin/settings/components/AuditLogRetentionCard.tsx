@@ -37,7 +37,7 @@ export const AuditLogRetentionCard: React.FC<AuditLogRetentionCardProps> = ({
           <ClockIcon className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="text-base font-extrabold text-primary font-brand">
+          <h3 className="text-base font-extrabold text-primary font-sans">
             {t.auditRetentionLabel}
           </h3>
           <p className="text-xs text-outline font-medium">

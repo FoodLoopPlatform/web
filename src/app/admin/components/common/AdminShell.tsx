@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import {
   UserIcon,
   AlertCircleIcon,
@@ -29,14 +29,14 @@ interface NavItem {
 const dict = {
   ar: {
     platformAdmin: "إدارة المنصة",
-    createReport: "+ إنشاء تقرير",
+    createReport: "إنشاء تقرير",
     support: "الدعم والمساعدة",
     logout: "تسجيل الخروج",
     mainController: "المراقب الرئيسي",
   },
   en: {
     platformAdmin: "Platform Operations",
-    createReport: "+ Create Report",
+    createReport: "Create Report",
     support: "Support & Help",
     logout: "Log Out",
     mainController: "Main Controller",
@@ -49,7 +49,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hasHydrated = useHasHydrated();
 
-  const { lang, setLang } = useAdminLang();
+  const { lang, setLang } = useAppLang();
 
   const user = useAppStore((state) => state.user);
   const accessToken = useAppStore((state) => state.accessToken);
@@ -315,7 +315,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto relative">
           {children}
         </main>
       </div>

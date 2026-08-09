@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import { TabSwitcher } from "../../components";
 import { CheckIcon } from "@/components/icons";
@@ -47,7 +47,7 @@ export function SystemSettingsClientContainer({
   initialSecuritySettings,
   initialAiObservabilitySettings,
 }: SystemSettingsClientContainerProps) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -195,7 +195,7 @@ export function SystemSettingsClientContainer({
 
       {/* Page Header */}
       <div className={isRtl ? "text-right" : "text-left"}>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary font-brand tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary font-sans tracking-tight">
           {t.settingsTitle}
         </h1>
         <p className="text-xs sm:text-sm text-outline mt-1 font-medium">

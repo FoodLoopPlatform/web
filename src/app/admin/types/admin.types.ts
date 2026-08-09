@@ -148,6 +148,21 @@ export interface RawBackendTicket {
   replies?: TicketReply[];
 }
 
+/** Raw shape returned by GET /admin/disputes */
+export interface RawBackendDispute {
+  id: string;
+  productId: string;
+  productTitle?: string;
+  reportedBy?: string;
+  reporterName?: string;
+  reason?: string;
+  details?: string;
+  isResolved: boolean;
+  adminNote?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+}
+
 export interface ActivityLog {
   id: string;
   adminName: string;

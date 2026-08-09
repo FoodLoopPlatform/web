@@ -29,7 +29,7 @@ export const AuditStatsRow: React.FC<AuditStatsRowProps> = ({
           <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
             {t.activeSessions}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-brand font-mono">
+          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-mono">
             {stats.activeSessions}
           </span>
         </div>
@@ -56,7 +56,7 @@ export const AuditStatsRow: React.FC<AuditStatsRowProps> = ({
           <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
             {t.aiDecisions24h}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-brand font-mono">
+          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-mono">
             {stats.aiDecisions24h.toLocaleString()}
           </span>
         </div>
@@ -80,7 +80,7 @@ export const AuditStatsRow: React.FC<AuditStatsRowProps> = ({
           <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
             {t.flaggedEvents}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-error block mt-2 tracking-tight font-brand font-mono">
+          <span className="text-2xl sm:text-3xl font-extrabold text-error block mt-2 tracking-tight font-mono">
             {stats.flaggedEvents}
           </span>
         </div>
@@ -104,7 +104,7 @@ export const AuditStatsRow: React.FC<AuditStatsRowProps> = ({
           <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
             {t.systemHealth}
           </span>
-          <span className="text-xl sm:text-2xl font-extrabold text-primary block mt-2 tracking-tight font-brand">
+          <span className="text-xl sm:text-2xl font-extrabold text-primary block mt-2 tracking-tight font-sans">
             {t.stableOps}
           </span>
         </div>

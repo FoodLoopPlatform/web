@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import {
   getAnalyticsSummary,
   type AnalyticsSummary,
@@ -15,7 +15,7 @@ interface AnalyticsShellProps {
 }
 
 export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
 
   const [analytics, setAnalytics] = React.useState<AnalyticsSummary | null>(
@@ -51,7 +51,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className={lang === "ar" ? "text-right" : "text-left"}>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-brand">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-sans">
             {t.analyticsTitle}
           </h1>
           <p className="text-xs sm:text-sm text-outline mt-1">
@@ -93,7 +93,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
               {t.wasteReduced}
             </span>
-            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-brand whitespace-nowrap">
+            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-sans whitespace-nowrap">
               {analytics?.wasteReducedKg != null
                 ? `${analytics.wasteReducedKg.toLocaleString()} ${t.tons}`
                 : `8,520 ${t.tons}`}
@@ -116,7 +116,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
               {t.co2Saved}
             </span>
-            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-brand whitespace-nowrap">
+            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-sans whitespace-nowrap">
               {analytics?.co2SavedKg != null
                 ? `${analytics.co2SavedKg.toLocaleString()} ${t.tons}`
                 : `19,600 ${t.tons}`}
@@ -139,7 +139,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
               {t.valueSaved}
             </span>
-            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-brand whitespace-nowrap">
+            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-sans whitespace-nowrap">
               {analytics?.revenueSavedEGP != null
                 ? `${analytics.revenueSavedEGP.toLocaleString()} ${t.egp}`
                 : `624,000 ${t.egp}`}
@@ -162,7 +162,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
               {t.disputesRate}
             </span>
-            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-brand whitespace-nowrap">
+            <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 sm:mt-3 tracking-tight font-sans whitespace-nowrap">
               0.8%
             </span>
           </div>
@@ -187,7 +187,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             {/* Top Partner Stores */}
             <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-3">
               <h4
-                className={`text-sm font-extrabold text-primary font-brand ${lang === "ar" ? "text-right" : "text-left"}`}
+                className={`text-sm font-extrabold text-primary font-sans ${lang === "ar" ? "text-right" : "text-left"}`}
               >
                 {t.topStores}
               </h4>
@@ -253,7 +253,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
             {/* Top Recipient Charities */}
             <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-3">
               <h4
-                className={`text-sm font-extrabold text-primary font-brand ${lang === "ar" ? "text-right" : "text-left"}`}
+                className={`text-sm font-extrabold text-primary font-sans ${lang === "ar" ? "text-right" : "text-left"}`}
               >
                 {t.topCharities}
               </h4>
@@ -343,7 +343,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
                 </svg>
               </div>
               <div className="flex flex-col gap-2">
-                <h4 className="text-sm font-extrabold tracking-tight font-brand text-on-primary-container">
+                <h4 className="text-sm font-extrabold tracking-tight font-sans text-on-primary-container">
                   {t.demandSupply}
                 </h4>
                 <h3 className="text-base font-bold leading-snug mt-1">

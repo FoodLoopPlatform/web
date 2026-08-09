@@ -12,7 +12,18 @@ export async function unwrapEnvelope<T>(
 ): Promise<ApiResponse<T>> {
   const res = await request;
 
-  if (!res.data) {
+  if (
+    res.status === 204 ||
+    (res.status &&
+      res.status >= 200 &&
+      res.status < 300 &&
+      !res.error &&
+      !res.data)
+  ) {
+    return { data: undefined as T, status: res.status ?? 200 };
+  }
+
+  if (res.error || !res.data) {
     return { error: res.error ?? "حدث خطأ غير متوقع", status: res.status };
   }
 
@@ -30,12 +41,17 @@ export async function unwrapEnvelope<T>(
         status: res.status,
       };
     }
-    const envData = env.data as Record<string, unknown> | undefined;
-    const innerData = envData?.items ?? env.data;
-    return { data: innerData as T, status: res.status };
+    const envData = env.data;
+    if (typeof envData === "object" && envData !== null && "items" in envData) {
+      return {
+        data: (envData as { items: unknown }).items as T,
+        status: res.status,
+      };
+    }
+    return { data: env.data as T, status: res.status };
   }
 
-  // Handle direct data or paginated object { items: [...] }
+  // Handle direct paginated object { items: [...] }
   if (typeof payload === "object" && payload !== null && "items" in payload) {
     const paginated = payload as { items: unknown };
     return { data: paginated.items as T, status: res.status };

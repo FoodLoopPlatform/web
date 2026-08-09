@@ -30,6 +30,8 @@ export const Endpoints = {
     verifyCharity: (id: string) => `/admin/charities/${id}/verify`,
     userStatus: (id: string) => `/admin/users/${id}/status`,
     userActivityLog: (id: string) => `/admin/users/${id}/activity-log`,
+    storeActivityLog: (id: string) => `/admin/stores/${id}/activity-log`,
+    charityActivityLog: (id: string) => `/admin/charities/${id}/activity-log`,
     userNote: (id: string) => `/admin/users/${id}/note`,
     banUser: (id: string) => `/admin/users/${id}/ban`,
     analyticsSummary: "/admin/analytics/summary",
@@ -38,15 +40,17 @@ export const Endpoints = {
     charities: "/admin/charities",
     reviews: "/admin/reviews",
     reviewById: (id: string) => `/admin/reviews/${id}`,
+    disputes: "/admin/disputes",
+    resolveDispute: (id: string) => `/admin/disputes/${id}/resolve`,
     supportTickets: "/admin/support-tickets",
     supportTicketById: (id: string) => `/admin/support-tickets/${id}`,
     replySupportTicket: (id: string) => `/admin/support-tickets/${id}/reply`,
     closeSupportTicket: (id: string) => `/admin/support-tickets/${id}/close`,
-    moderation: "/admin/moderation",
-    moderationApprove: (id: string) => `/admin/moderation/${id}/approve`,
-    moderationReject: (id: string) => `/admin/moderation/${id}/reject`,
-    moderationRequestChanges: (id: string) =>
-      `/admin/moderation/${id}/request-changes`,
+    productsPendingAi: "/admin/products/pending-ai",
+    approveProduct: (id: string) => `/admin/products/${id}/approve`,
+    rejectProduct: (id: string) => `/admin/products/${id}/reject`,
+    requestChangesProduct: (id: string) =>
+      `/admin/products/${id}/request-changes`,
   },
 
   charities: {

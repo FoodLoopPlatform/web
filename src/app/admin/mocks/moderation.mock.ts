@@ -14,7 +14,7 @@ export const SAMPLE_MODERATION_ITEMS: ModerationItem[] = [
     storeNameAr: "مزرعة المروج الخضراء",
     storeNameEn: "Sun-Drenched Meadows Farm",
     imageUrl:
-      "https://images.pexels.com/photos/33260/honey-sweet-glass-jar.jpg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=600&auto=format&fit=crop",
     aiConfidence: 65,
     flags: ["user_report", "unverified_origin"],
     flagReasonQuoteAr:
@@ -30,7 +30,7 @@ export const SAMPLE_MODERATION_ITEMS: ModerationItem[] = [
     storeNameAr: "مخبز الحقل والفرن",
     storeNameEn: "Hearth & Soil Bakery",
     imageUrl:
-      "https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=600&auto=format&fit=crop",
     aiConfidence: 32,
     flags: ["low_ai_confidence", "duplicate_listing"],
     flagReasonQuoteAr:
@@ -46,7 +46,7 @@ export const SAMPLE_MODERATION_ITEMS: ModerationItem[] = [
     storeNameAr: "عضويات وادي النيل",
     storeNameEn: "Nile Valley Organics",
     imageUrl:
-      "https://images.pexels.com/photos/89778/strawberries-frisch-ripe-sweet-89778.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&auto=format&fit=crop",
     aiConfidence: 89,
     flags: ["low_ai_confidence"],
     flagReasonQuoteAr:
@@ -62,7 +62,7 @@ export const SAMPLE_MODERATION_ITEMS: ModerationItem[] = [
     storeNameAr: "أجبان الفيوم الريفية",
     storeNameEn: "Fayoum Dairy Artisans",
     imageUrl:
-      "https://images.pexels.com/photos/773253/pexels-photo-773253.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=600&auto=format&fit=crop",
     aiConfidence: 71,
     flags: ["user_report", "duplicate_listing"],
     flagReasonQuoteAr:

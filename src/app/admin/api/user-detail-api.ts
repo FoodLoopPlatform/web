@@ -215,6 +215,25 @@ export function getUserDetail(id: string): Promise<ApiResponse<UserDetail>> {
           reviewedAt: d.reviewedAt ? String(d.reviewedAt) : undefined,
         }));
 
+        const rawAvatar =
+          u.avatar ??
+          u.logo ??
+          u.logoUrl ??
+          u.avatarUrl ??
+          u.profileImageUrl ??
+          u.imageUrl ??
+          u.picture;
+        let avatar: string | undefined = undefined;
+        if (
+          rawAvatar &&
+          typeof rawAvatar === "string" &&
+          rawAvatar.trim() !== ""
+        ) {
+          avatar = rawAvatar.startsWith("http")
+            ? rawAvatar
+            : `${baseUrl}${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`;
+        }
+
         const userDetail: UserDetail = {
           id: String(u.id || id),
           name: String(u.name ?? u.fullName ?? u.ownerName ?? "User"),
@@ -239,6 +258,7 @@ export function getUserDetail(id: string): Promise<ApiResponse<UserDetail>> {
             : String(u.lastActive || "Recently"),
           status: st,
           role,
+          avatar,
           stats: realStats,
           documents: normalizedDocs,
           description: u.description
@@ -492,6 +512,7 @@ export function getUserActivityEntries(
   id: string,
 ): Promise<ApiResponse<UserActivityEntry[]>> {
   return withAuth<UserActivityEntry[]>(async (token) => {
+    // 1. Try /admin/users/{id}/activity-log
     try {
       const result = await unwrapEnvelope<RawActivityEntry[]>(
         getMany<FoodLoopEnvelope<RawActivityEntry[]>>(
@@ -501,6 +522,46 @@ export function getUserActivityEntries(
       );
       if (result.data && Array.isArray(result.data) && result.data.length > 0) {
         const mapped = result.data.map(normalizeActivityEntry);
+        return { data: mapped };
+      }
+    } catch {
+      // API call failed
+    }
+
+    // 2. Try /admin/stores/{id}/activity-log
+    try {
+      const storeRes = await unwrapEnvelope<RawActivityEntry[]>(
+        getMany<FoodLoopEnvelope<RawActivityEntry[]>>(
+          Endpoints.admin.storeActivityLog(id),
+          { token },
+        ),
+      );
+      if (
+        storeRes.data &&
+        Array.isArray(storeRes.data) &&
+        storeRes.data.length > 0
+      ) {
+        const mapped = storeRes.data.map(normalizeActivityEntry);
+        return { data: mapped };
+      }
+    } catch {
+      // API call failed
+    }
+
+    // 3. Try /admin/charities/{id}/activity-log
+    try {
+      const charityRes = await unwrapEnvelope<RawActivityEntry[]>(
+        getMany<FoodLoopEnvelope<RawActivityEntry[]>>(
+          Endpoints.admin.charityActivityLog(id),
+          { token },
+        ),
+      );
+      if (
+        charityRes.data &&
+        Array.isArray(charityRes.data) &&
+        charityRes.data.length > 0
+      ) {
+        const mapped = charityRes.data.map(normalizeActivityEntry);
         return { data: mapped };
       }
     } catch {

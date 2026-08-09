@@ -13,7 +13,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
   return (
     <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-4">
       <div className={lang === "ar" ? "text-right" : "text-left"}>
-        <h3 className="text-base font-extrabold text-primary font-brand">
+        <h3 className="text-base font-extrabold text-primary font-sans">
           {t.wasteTrendTitle}
         </h3>
         <span className="text-[10px] text-outline font-medium block mt-0.5">

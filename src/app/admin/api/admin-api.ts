@@ -33,6 +33,7 @@ import type {
   Product,
   SupportTicket,
   RawBackendTicket,
+  RawBackendDispute,
   ActivityLog,
   AnalyticsSummary,
   ModerationItem,
@@ -78,6 +79,37 @@ function normalizeSupportTicket(raw: RawBackendTicket): SupportTicket {
     createdAt: raw.createdAt ?? new Date().toISOString(),
     updatedAt: raw.updatedAt,
     replies: raw.replies ?? [],
+  };
+}
+
+function normalizeDisputeToTicket(raw: RawBackendDispute): SupportTicket {
+  return {
+    id: raw.id,
+    userType: "Consumer",
+    userName: raw.reporterName || "عميل",
+    userEmail: undefined,
+    subject: raw.productTitle
+      ? `${raw.productTitle} (${raw.reason || "نزاع"})`
+      : raw.reason || "نزاع حول منتج",
+    description: raw.details || raw.reason || "",
+    status: raw.isResolved ? "Closed" : "Open",
+    priority:
+      raw.reason?.toLowerCase().includes("expiry") ||
+      raw.reason === "WrongExpiry"
+        ? "High"
+        : "Medium",
+    createdAt: raw.createdAt || new Date().toISOString(),
+    updatedAt: raw.resolvedAt || undefined,
+    replies: raw.adminNote
+      ? [
+          {
+            id: `note-${raw.id}`,
+            sender: "Admin",
+            message: raw.adminNote,
+            createdAt: raw.resolvedAt || raw.createdAt,
+          },
+        ]
+      : [],
   };
 }
 
@@ -429,10 +461,51 @@ export function updateUserStatus(
 
 /** GET /admin/users/{id}/activity-log */
 export function getUserActivityLog(id: string) {
+  return withAuth(async (token) => {
+    const res = await unwrapEnvelope<ActivityLog[]>(
+      getMany<FoodLoopEnvelope<ActivityLog[]>>(
+        Endpoints.admin.userActivityLog(id),
+        { token },
+      ),
+    );
+    if (!res.error && res.data && res.data.length > 0) return res;
+
+    const storeRes = await unwrapEnvelope<ActivityLog[]>(
+      getMany<FoodLoopEnvelope<ActivityLog[]>>(
+        Endpoints.admin.storeActivityLog(id),
+        { token },
+      ),
+    );
+    if (!storeRes.error && storeRes.data && storeRes.data.length > 0)
+      return storeRes;
+
+    return unwrapEnvelope<ActivityLog[]>(
+      getMany<FoodLoopEnvelope<ActivityLog[]>>(
+        Endpoints.admin.charityActivityLog(id),
+        { token },
+      ),
+    );
+  });
+}
+
+/** GET /admin/stores/{id}/activity-log */
+export function getStoreActivityLog(id: string) {
   return withAuth(async (token) =>
     unwrapEnvelope<ActivityLog[]>(
       getMany<FoodLoopEnvelope<ActivityLog[]>>(
-        Endpoints.admin.userActivityLog(id),
+        Endpoints.admin.storeActivityLog(id),
+        { token },
+      ),
+    ),
+  );
+}
+
+/** GET /admin/charities/{id}/activity-log */
+export function getCharityActivityLog(id: string) {
+  return withAuth(async (token) =>
+    unwrapEnvelope<ActivityLog[]>(
+      getMany<FoodLoopEnvelope<ActivityLog[]>>(
+        Endpoints.admin.charityActivityLog(id),
         { token },
       ),
     ),
@@ -560,6 +633,51 @@ export function deleteProduct(id: string) {
   );
 }
 
+/** GET /admin/disputes?pageNumber=1&pageSize=10&isResolved=... */
+export function getAdminDisputes(params?: {
+  pageNumber?: number;
+  pageSize?: number;
+  isResolved?: boolean;
+}) {
+  return withAuth(async (token) => {
+    let url = Endpoints.admin.disputes;
+    const query = new URLSearchParams();
+    if (params?.pageNumber) query.set("pageNumber", String(params.pageNumber));
+    if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+    if (params?.isResolved !== undefined)
+      query.set("isResolved", String(params.isResolved));
+
+    const queryString = query.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+
+    const result = await unwrapEnvelope<RawBackendDispute[]>(
+      getMany<FoodLoopEnvelope<RawBackendDispute[]>>(url, { token }),
+    );
+    if (result.data && Array.isArray(result.data)) {
+      return { data: result.data.map(normalizeDisputeToTicket) };
+    }
+    return { data: [] as SupportTicket[] };
+  });
+}
+
+/** PATCH /admin/disputes/{id}/resolve */
+export function resolveDispute(
+  id: string,
+  adminNote: string = "Reviewed and resolved by admin",
+) {
+  return withAuth(async (token) =>
+    unwrapEnvelope<RawBackendDispute>(
+      updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
+        Endpoints.admin.resolveDispute(id),
+        { adminNote },
+        { token },
+      ),
+    ),
+  );
+}
+
 /** GET /admin/support-tickets?pageNumber=1&pageSize=10&status=...&priority=... */
 export function getSupportTickets(params?: {
   pageNumber?: number;
@@ -608,10 +726,10 @@ export function getSupportTicketById(id: string) {
   });
 }
 
-/** POST /admin/support-tickets/{id}/reply */
+/** POST /admin/support-tickets/{id}/reply OR PATCH /admin/disputes/{id}/resolve */
 export function replyToSupportTicket(id: string, message: string) {
   return withAuth(async (token) => {
-    // Try sending raw string body as required by OpenAPI spec
+    // 1. Try sending raw string body as required by OpenAPI spec
     let res = await unwrapEnvelope<RawBackendTicket>(
       createOne<FoodLoopEnvelope<RawBackendTicket>, string>(
         Endpoints.admin.replySupportTicket(id),
@@ -620,7 +738,7 @@ export function replyToSupportTicket(id: string, message: string) {
       ),
     );
     if (res.error) {
-      // Fallback to object payload { message }
+      // 2. Fallback to object payload { message }
       res = await unwrapEnvelope<RawBackendTicket>(
         createOne<FoodLoopEnvelope<RawBackendTicket>, { message: string }>(
           Endpoints.admin.replySupportTicket(id),
@@ -629,6 +747,19 @@ export function replyToSupportTicket(id: string, message: string) {
         ),
       );
     }
+    if (res.error) {
+      // 3. Fallback to dispute resolve endpoint if this ID is a dispute
+      const disputeRes = await unwrapEnvelope<RawBackendDispute>(
+        updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
+          Endpoints.admin.resolveDispute(id),
+          { adminNote: message },
+          { token },
+        ),
+      );
+      if (disputeRes.data) {
+        return { data: normalizeDisputeToTicket(disputeRes.data) };
+      }
+    }
     if (res.data) {
       return { data: normalizeSupportTicket(res.data) };
     }
@@ -636,51 +767,151 @@ export function replyToSupportTicket(id: string, message: string) {
   });
 }
 
-/** PATCH /admin/support-tickets/{id}/close */
-export function closeSupportTicket(id: string) {
-  return withAuth(async (token) =>
-    unwrapEnvelope<SupportTicket>(
+/** PATCH /admin/disputes/{id}/resolve OR /admin/support-tickets/{id}/close */
+export function closeSupportTicket(id: string, adminNote?: string) {
+  return withAuth(async (token) => {
+    const noteText = adminNote || "Reviewed and confirmed by admin";
+    const disputeRes = await unwrapEnvelope<RawBackendDispute>(
+      updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
+        Endpoints.admin.resolveDispute(id),
+        { adminNote: noteText },
+        { token },
+      ),
+    );
+    if (!disputeRes.error && disputeRes.data) {
+      return { data: normalizeDisputeToTicket(disputeRes.data) };
+    }
+
+    return unwrapEnvelope<SupportTicket>(
       updateOne<FoodLoopEnvelope<SupportTicket>, Record<string, never>>(
         Endpoints.admin.closeSupportTicket(id),
         {},
         { token },
       ),
-    ),
-  );
+    );
+  });
 }
 
-/** GET /admin/moderation */
+function normalizeProductToModerationItem(
+  raw: Record<string, unknown>,
+): ModerationItem {
+  const id = String(
+    raw.id ?? `mod-${Math.random().toString(36).substring(2, 9)}`,
+  );
+  const productNameAr = String(
+    raw.nameAr ?? raw.name ?? raw.titleAr ?? raw.title ?? "منتج تحت المراجعة",
+  );
+  const productNameEn = String(
+    raw.nameEn ?? raw.name ?? raw.titleEn ?? raw.title ?? "Pending Product",
+  );
+  const storeNameAr = String(
+    raw.storeNameAr ?? raw.storeName ?? raw.vendorName ?? "متجر شركاء الطعام",
+  );
+  const storeNameEn = String(
+    raw.storeNameEn ?? raw.storeName ?? raw.vendorName ?? "Partner Store",
+  );
+  const imageUrl = String(
+    raw.imageUrl ??
+      raw.image ??
+      raw.coverImageUrl ??
+      "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=600&auto=format&fit=crop",
+  );
+  const aiConfidence = Number(
+    raw.confidenceScore ?? raw.aiConfidence ?? raw.confidenceThreshold ?? 75,
+  );
+
+  let flags: ModerationItem["flags"] = ["low_ai_confidence"];
+  if (Array.isArray(raw.flags) && raw.flags.length > 0) {
+    flags = raw.flags as ModerationItem["flags"];
+  } else if (aiConfidence < 50) {
+    flags = ["low_ai_confidence", "unverified_origin"];
+  } else {
+    flags = ["user_report"];
+  }
+
+  const flagReasonQuoteAr = String(
+    raw.flagReasonAr ??
+      raw.reasonAr ??
+      raw.aiNote ??
+      "مراجعة جودة المنتج وتفاصيل الإدراج بواسطة الذكاء الاصطناعي",
+  );
+  const flagReasonQuoteEn = String(
+    raw.flagReasonEn ??
+      raw.reasonEn ??
+      raw.aiNote ??
+      "AI quality and listing detail review pending",
+  );
+  const createdAt = String(raw.createdAt ?? new Date().toISOString());
+
+  return {
+    id,
+    productNameAr,
+    productNameEn,
+    storeNameAr,
+    storeNameEn,
+    imageUrl,
+    aiConfidence,
+    flags,
+    flagReasonQuoteAr,
+    flagReasonQuoteEn,
+    createdAt,
+  };
+}
+
+/** GET /admin/products/pending-ai */
 export function getModerationQueue(params?: {
   search?: string;
   flagType?: string;
   minConfidence?: number;
   maxConfidence?: number;
+  pageNumber?: number;
+  pageSize?: number;
 }) {
   return withAuth(async (token) => {
-    let url = Endpoints.admin.moderation;
-    const query = new URLSearchParams();
-    if (params?.search) query.set("search", params.search);
-    if (params?.flagType && params.flagType !== "ALL")
-      query.set("flagType", params.flagType);
-    if (params?.minConfidence !== undefined)
-      query.set("minConfidence", String(params.minConfidence));
-    if (params?.maxConfidence !== undefined)
-      query.set("maxConfidence", String(params.maxConfidence));
+    try {
+      const pendingQuery = new URLSearchParams();
+      pendingQuery.set("pageNumber", String(params?.pageNumber ?? 1));
+      pendingQuery.set("pageSize", String(params?.pageSize ?? 50));
+      if (params?.minConfidence !== undefined) {
+        pendingQuery.set(
+          "confidenceThreshold",
+          String(params.minConfidence / 100),
+        );
+      }
 
-    const queryString = query.toString();
-    if (queryString) {
-      url += `?${queryString}`;
+      const aiRes = await unwrapEnvelope<Record<string, unknown>[]>(
+        getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
+          `${Endpoints.admin.productsPendingAi}?${pendingQuery.toString()}`,
+          { token },
+        ),
+      );
+
+      if (aiRes.data && Array.isArray(aiRes.data) && aiRes.data.length > 0) {
+        let items = aiRes.data.map(normalizeProductToModerationItem);
+        if (params?.flagType && params.flagType !== "ALL") {
+          items = items.filter((item) =>
+            item.flags.includes(
+              params.flagType as ModerationItem["flags"][number],
+            ),
+          );
+        }
+        if (params?.search && params.search.trim()) {
+          const q = params.search.toLowerCase().trim();
+          items = items.filter(
+            (item) =>
+              item.productNameAr.toLowerCase().includes(q) ||
+              item.productNameEn.toLowerCase().includes(q) ||
+              item.storeNameAr.toLowerCase().includes(q) ||
+              item.storeNameEn.toLowerCase().includes(q),
+          );
+        }
+        return { data: items };
+      }
+    } catch {
+      // Fallback to in-memory mock store
     }
 
-    const result = await unwrapEnvelope<ModerationItem[]>(
-      getMany<FoodLoopEnvelope<ModerationItem[]>>(url, { token }),
-    );
-
-    if (result.data && Array.isArray(result.data)) {
-      return { data: result.data };
-    }
-
-    // Fallback to in-memory mock store
+    // Fallback to in-memory mock store if API returns empty array or error
     let filtered = [...mockModerationStore];
 
     if (params?.flagType && params.flagType !== "ALL") {
@@ -704,51 +935,53 @@ export function getModerationQueue(params?: {
   });
 }
 
-/** POST /admin/moderation/{id}/approve */
+/** POST /admin/products/{id}/approve */
 export function approveModerationItem(id: string) {
   return withAuth(async (token) => {
-    const res = await unwrapEnvelope<void>(
+    await unwrapEnvelope<void>(
       createOne<FoodLoopEnvelope<void>, Record<string, never>>(
-        Endpoints.admin.moderationApprove(id),
+        Endpoints.admin.approveProduct(id),
         {},
         { token },
       ),
     );
     // Optimistic / mock update
     filterMockModerationItem(id);
-    return res.error ? { data: undefined } : res;
+    return { data: undefined };
   });
 }
 
-/** POST /admin/moderation/{id}/reject */
+/** PATCH /admin/products/{id}/reject */
 export function rejectModerationItem(id: string, reason?: string) {
   return withAuth(async (token) => {
-    const res = await unwrapEnvelope<void>(
-      createOne<FoodLoopEnvelope<void>, { reason?: string }>(
-        Endpoints.admin.moderationReject(id),
-        { reason },
+    const noteText = reason || "Rejected by admin";
+    await unwrapEnvelope<void>(
+      updateOne<FoodLoopEnvelope<void>, { note: string }>(
+        Endpoints.admin.rejectProduct(id),
+        { note: noteText },
         { token },
       ),
     );
     // Optimistic / mock update
     filterMockModerationItem(id);
-    return res.error ? { data: undefined } : res;
+    return { data: undefined };
   });
 }
 
-/** POST /admin/moderation/{id}/request-changes */
+/** PATCH /admin/products/{id}/request-changes */
 export function requestChangesModerationItem(id: string, notes?: string) {
   return withAuth(async (token) => {
-    const res = await unwrapEnvelope<void>(
-      createOne<FoodLoopEnvelope<void>, { notes?: string }>(
-        Endpoints.admin.moderationRequestChanges(id),
-        { notes },
+    const noteText = notes || "Requested changes by admin";
+    await unwrapEnvelope<void>(
+      updateOne<FoodLoopEnvelope<void>, { note: string }>(
+        Endpoints.admin.requestChangesProduct(id),
+        { note: noteText },
         { token },
       ),
     );
     // Optimistic / mock update
     filterMockModerationItem(id);
-    return res.error ? { data: undefined } : res;
+    return { data: undefined };
   });
 }
 

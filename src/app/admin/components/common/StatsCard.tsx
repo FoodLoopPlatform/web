@@ -25,7 +25,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         {label}
       </span>
       <span
-        className={`text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-3 block font-brand ${textColorClass}`}
+        className={`text-2xl sm:text-3xl font-extrabold mt-2 sm:mt-3 block font-sans ${textColorClass}`}
       >
         {value}
       </span>

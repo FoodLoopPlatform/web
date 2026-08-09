@@ -28,7 +28,7 @@ export const AuditEmptyState: React.FC<AuditEmptyStateProps> = ({
         </div>
 
         {/* Heading */}
-        <h3 className="text-base sm:text-lg font-extrabold text-on-surface tracking-tight font-brand">
+        <h3 className="text-base sm:text-lg font-extrabold text-on-surface tracking-tight font-sans">
           {t.noAuditResultsHeading}
         </h3>
 

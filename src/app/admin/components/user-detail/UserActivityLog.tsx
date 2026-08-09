@@ -1,15 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { UserActivityEntry } from "../../types/admin.types";
 import { ActivityLogEntry } from "./ActivityLogEntry";
 import { DownloadIcon, SpinnerIcon } from "@/components/icons";
+import { Pagination } from "../common/Pagination";
 
 interface UserActivityLogProps {
   entries: UserActivityEntry[];
   isLoading?: boolean;
   isRtl?: boolean;
   onExport: () => void;
+  pageSize?: number;
 }
 
 export const UserActivityLog: React.FC<UserActivityLogProps> = ({
@@ -17,7 +19,23 @@ export const UserActivityLog: React.FC<UserActivityLogProps> = ({
   isLoading = false,
   isRtl = false,
   onExport,
+  pageSize = 5,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 whenever entries change
+  const [prevEntriesLength, setPrevEntriesLength] = useState(entries.length);
+  if (prevEntriesLength !== entries.length) {
+    setPrevEntriesLength(entries.length);
+    setCurrentPage(1);
+  }
+
+  const totalPages = Math.ceil(entries.length / pageSize) || 1;
+  const paginatedEntries = entries.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <div
       className={`bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-6 ${isRtl ? "text-right" : "text-left"}`}
@@ -51,15 +69,26 @@ export const UserActivityLog: React.FC<UserActivityLogProps> = ({
             : "No activity recorded for this user yet."}
         </div>
       ) : (
-        <div className="flex flex-col pt-2">
-          {entries.map((entry, idx) => (
-            <ActivityLogEntry
-              key={`${entry.id || "act"}-${idx}`}
-              entry={entry}
-              isLast={idx === entries.length - 1}
-              isRtl={isRtl}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col pt-2">
+            {paginatedEntries.map((entry, idx) => (
+              <ActivityLogEntry
+                key={`${entry.id || "act"}-${idx}`}
+                entry={entry}
+                isLast={idx === paginatedEntries.length - 1}
+                isRtl={isRtl}
+              />
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={entries.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            isRtl={isRtl}
+          />
         </div>
       )}
     </div>

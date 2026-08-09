@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import {
   updateUserStatus,
   verifyStore,
@@ -52,7 +52,7 @@ export function UserManagementShell({
   initialStores = [],
   initialCharities = [],
 }: UserManagementShellProps = {}) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -112,7 +112,7 @@ export function UserManagementShell({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 5;
 
   const handleTabChange = (tab: ActorTab) => {
     setActiveTab(tab);
@@ -300,7 +300,7 @@ export function UserManagementShell({
       {/* Header Title & Tab Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-brand">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-sans">
             {t.title}
           </h1>
           <p className="text-xs sm:text-sm text-outline">{t.subtitle}</p>

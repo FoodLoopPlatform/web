@@ -279,13 +279,13 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3 justify-end">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
                 {onApprove && (
                   <button
                     type="button"
                     onClick={handleApproveAction}
                     disabled={isApproving || isRejecting}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-container text-on-primary hover:bg-primary disabled:opacity-50 transition-all text-xs font-extrabold cursor-pointer shadow-sm active:scale-95"
+                    className="w-full sm:flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary-container text-on-primary hover:bg-primary disabled:opacity-50 transition-all text-xs font-extrabold cursor-pointer shadow-sm active:scale-95"
                   >
                     {isApproving ? (
                       <SpinnerIcon className="w-4 h-4 animate-spin text-on-primary" />
@@ -307,7 +307,7 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
                     type="button"
                     onClick={handleRejectAction}
                     disabled={isApproving || isRejecting}
-                    className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 disabled:opacity-50 transition-all text-xs font-bold cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-xs"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 disabled:opacity-50 transition-all text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 shadow-2xs"
                   >
                     {isRejecting ? (
                       <SpinnerIcon className="w-4 h-4 animate-spin text-red-600" />
@@ -340,12 +340,8 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
             }`}
           >
             {/* Modal Header */}
-            <div
-              className={`p-4 border-b border-surface-container flex items-center justify-between bg-surface ${isRtl ? "flex-row-reverse" : ""}`}
-            >
-              <div
-                className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}
-              >
+            <div className="p-4 border-b border-surface-container flex items-center justify-between bg-surface">
+              <div className="flex items-center gap-3">
                 {getDocIcon(previewDoc.documentUrl)}
                 <div>
                   <h4 className="text-sm font-bold text-on-surface">

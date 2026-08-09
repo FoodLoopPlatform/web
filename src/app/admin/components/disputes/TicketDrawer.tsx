@@ -50,7 +50,7 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
       <div
         className={`fixed top-0 bottom-0 ${
           isRtl ? "left-0" : "right-0"
-        } z-[9999] w-full max-w-[520px] bg-white shadow-2xl flex flex-col p-6 overflow-y-auto gap-5`}
+        } z-[9999] w-[90vw] sm:w-[520px] shrink-0 bg-white shadow-2xl flex flex-col p-6 overflow-y-auto gap-5`}
       >
         <div className="flex flex-col gap-6">
           {/* Header */}
