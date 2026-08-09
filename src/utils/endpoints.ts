@@ -23,6 +23,8 @@ export const Endpoints = {
   admin: {
     products: "/admin/products",
     productById: (id: string) => `/admin/products/${id}`,
+    disputes: "/admin/disputes",
+    disputeResolve: (id: string) => `/admin/disputes/${id}/resolve`,
     storesPending: "/admin/stores/pending",
     storeById: (id: string) => `/admin/stores/${id}`,
     userById: (id: string) => `/users/${id}`,

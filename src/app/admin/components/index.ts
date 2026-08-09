@@ -29,6 +29,8 @@ export * from "./user-detail/UserDetailConfirmationModals";
 
 export * from "./disputes/DisputesShell";
 export * from "./disputes/DisputesSkeleton";
+export * from "./disputes/DisputeCardList";
+export * from "./disputes/DisputeTable";
 export * from "./disputes/TicketCardList";
 export * from "./disputes/TicketTable";
 export * from "./disputes/TicketDrawer";

@@ -51,6 +51,12 @@ export interface AdminDictionary {
   totalDisputes: string;
   openDisputes: string;
   resolvedDisputes: string;
+  disputesTabLabel: string;
+  disputeOpenLabel: string;
+  disputeResolvedLabel: string;
+  resolveDisputeBtn: string;
+  resolveDisputePrompt: string;
+  orderCol: string;
   deleteReview: string;
   dismissFlag: string;
   smartTitle: string;
@@ -325,6 +331,12 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     totalDisputes: "إجمالي النزاعات",
     openDisputes: "النزاعات المفتوحة",
     resolvedDisputes: "النزاعات التي تم حلها",
+    disputesTabLabel: "النزاعات",
+    disputeOpenLabel: "قيد المراجعة",
+    disputeResolvedLabel: "تم الحل",
+    resolveDisputeBtn: "حل النزاع",
+    resolveDisputePrompt: "اكتب ملاحظة الحل لهذا النزاع:",
+    orderCol: "رقم الطلب",
     deleteReview: "حذف التقييم",
     dismissFlag: "تجاهل البلاغ",
     smartTitle: "توصية التدقيق",
@@ -619,6 +631,12 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     totalDisputes: "Total Disputes",
     openDisputes: "Open Disputes",
     resolvedDisputes: "Resolved Disputes",
+    disputesTabLabel: "Disputes",
+    disputeOpenLabel: "Pending",
+    disputeResolvedLabel: "Resolved",
+    resolveDisputeBtn: "Resolve",
+    resolveDisputePrompt: "Enter a resolution note for this dispute:",
+    orderCol: "Order ID",
     deleteReview: "Delete Review",
     dismissFlag: "Dismiss Flag",
     smartTitle: "Audit Insight",
