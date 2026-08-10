@@ -14,6 +14,7 @@ interface TicketDrawerProps {
   ticket: SupportTicket | null;
   t: AdminDictionary;
   isRtl?: boolean;
+  isDispute?: boolean;
   replyMessage: string;
   onReplyChange: (msg: string) => void;
   onSendReply: () => void;
@@ -25,6 +26,7 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
   ticket,
   t,
   isRtl = false,
+  isDispute = false,
   replyMessage,
   onReplyChange,
   onSendReply,
@@ -57,7 +59,11 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
           <div className="flex items-center justify-between border-b border-surface-container pb-4">
             <div className="flex flex-col">
               <span className="text-[10px] uppercase font-bold text-outline tracking-wider">
-                {t.drawerTitle}
+                {isDispute
+                  ? isRtl
+                    ? "تفاصيل التظلم والنزاع"
+                    : "Dispute Details"
+                  : t.drawerTitle}
               </span>
               <h3 className="text-base font-extrabold text-on-surface mt-0.5">
                 {ticket.id}
@@ -200,7 +206,11 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
               onClick={() => onResolveTicket(ticket.id)}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm active:scale-95"
             >
-              {t.drawerResolve}
+              {isDispute
+                ? isRtl
+                  ? "اعتماد وتسوية النزاع"
+                  : "Resolve Dispute"
+                : t.drawerResolve}
             </button>
           )}
         </div>

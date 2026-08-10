@@ -104,9 +104,15 @@ export function DisputesShell({
         getSupportTickets(),
         getAdminReviews(),
       ]);
-      if (disputesRes.data) setDisputes(disputesRes.data);
-      if (ticketsRes.data) setTickets(ticketsRes.data);
-      if (reviewsRes.data) setReviews(reviewsRes.data);
+      if (disputesRes.data && disputesRes.data.length > 0) {
+        setDisputes(disputesRes.data);
+      }
+      if (ticketsRes.data && ticketsRes.data.length > 0) {
+        setTickets(ticketsRes.data);
+      }
+      if (reviewsRes.data && reviewsRes.data.length > 0) {
+        setReviews(reviewsRes.data);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -253,6 +259,15 @@ export function DisputesShell({
     setTickets((prev) =>
       prev.map((t) => (t.id === selectedTicket.id ? updatedSelectedTicket : t)),
     );
+
+    const isDispute = disputes.some((d) => d.id === selectedTicket.id);
+    if (isDispute) {
+      await resolveDispute(selectedTicket.id, msg);
+      setShowTicketDrawer(false);
+      setSelectedTicket(null);
+      await fetchDisputesData();
+      return;
+    }
 
     const updatedRes = await replyToSupportTicket(selectedTicket.id, msg);
     if (updatedRes.data && updatedRes.data.replies?.length) {
@@ -542,12 +557,13 @@ export function DisputesShell({
       </div>
 
 
-      {/* Ticket Detail Drawer */}
+      {/* Ticket / Dispute Detail Drawer */}
       {showTicketDrawer && selectedTicket && (
         <TicketDrawer
           ticket={selectedTicket}
           t={t}
           isRtl={isRtl}
+          isDispute={disputes.some((d) => d.id === selectedTicket.id)}
           replyMessage={replyMessage}
           onReplyChange={setReplyMessage}
           onSendReply={handleSendReply}
@@ -555,7 +571,14 @@ export function DisputesShell({
             setShowTicketDrawer(false);
             setSelectedTicket(null);
           }}
-          onResolveTicket={handleCloseTicket}
+          onResolveTicket={(id) => {
+            const isDispute = disputes.some((d) => d.id === id);
+            if (isDispute) {
+              setResolveDisputeModalId(id);
+            } else {
+              handleCloseTicket(id);
+            }
+          }}
         />
       )}
 

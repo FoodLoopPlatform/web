@@ -735,7 +735,7 @@ export function getSupportTicketById(id: string) {
   });
 }
 
-/** POST /admin/support-tickets/{id}/reply OR PATCH /admin/disputes/{id}/resolve */
+/** POST /admin/support-tickets/{id}/reply */
 export function replyToSupportTicket(id: string, message: string) {
   return withAuth(async (token) => {
     // 1. Try sending raw string body as required by OpenAPI spec
@@ -756,19 +756,6 @@ export function replyToSupportTicket(id: string, message: string) {
         ),
       );
     }
-    if (res.error) {
-      // 3. Fallback to dispute resolve endpoint if this ID is a dispute
-      const disputeRes = await unwrapEnvelope<RawBackendDispute>(
-        updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
-          Endpoints.admin.resolveDispute(id),
-          { adminNote: message },
-          { token },
-        ),
-      );
-      if (disputeRes.data) {
-        return { data: normalizeDisputeToTicket(disputeRes.data) };
-      }
-    }
     if (res.data) {
       return { data: normalizeSupportTicket(res.data) };
     }
@@ -776,25 +763,16 @@ export function replyToSupportTicket(id: string, message: string) {
   });
 }
 
-/** PATCH /admin/disputes/{id}/resolve OR /admin/support-tickets/{id}/close */
+/** PATCH /admin/support-tickets/{id}/close */
 export function closeSupportTicket(id: string, adminNote?: string) {
   return withAuth(async (token) => {
-    const noteText = adminNote || "Reviewed and confirmed by admin";
-    const disputeRes = await unwrapEnvelope<RawBackendDispute>(
-      updateOne<FoodLoopEnvelope<RawBackendDispute>, { adminNote: string }>(
-        Endpoints.admin.resolveDispute(id),
-        { adminNote: noteText },
-        { token },
-      ),
-    );
-    if (!disputeRes.error && disputeRes.data) {
-      return { data: normalizeDisputeToTicket(disputeRes.data) };
-    }
-
     return unwrapEnvelope<SupportTicket>(
-      updateOne<FoodLoopEnvelope<SupportTicket>, Record<string, never>>(
+      updateOne<
+        FoodLoopEnvelope<SupportTicket>,
+        { note?: string; adminNote?: string }
+      >(
         Endpoints.admin.closeSupportTicket(id),
-        {},
+        adminNote ? { note: adminNote, adminNote } : {},
         { token },
       ),
     );
@@ -944,11 +922,18 @@ export function getDisputes(params?: {
       getMany<FoodLoopEnvelope<unknown>>(url, { token }),
     );
 
+    const dataObj = (result.data || {}) as Record<string, unknown>;
     const rawList = Array.isArray(result.data)
       ? result.data
-      : (result.data as Record<string, unknown>)?.items ||
-        (result.data as Record<string, unknown>)?.data ||
-        (result.data as Record<string, unknown>)?.disputes;
+      : Array.isArray(dataObj.items)
+        ? dataObj.items
+        : Array.isArray(dataObj.data)
+          ? dataObj.data
+          : Array.isArray(dataObj.disputes)
+            ? dataObj.disputes
+            : Array.isArray(dataObj.results)
+              ? dataObj.results
+              : null;
 
     if (Array.isArray(rawList)) {
       return {
