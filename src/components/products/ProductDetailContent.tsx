@@ -157,11 +157,25 @@ export function ProductDetailContent({
         {/* Product Details Column */}
         <div className="md:col-span-7 flex flex-col justify-between gap-md">
           <div>
-            {/* Category & Status Badges */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <span className="bg-surface-container-high text-on-surface-variant font-bold text-xs px-3 py-1 rounded-full border border-outline-variant/40">
-                {product.categoryNameAr || product.categoryName || "تصنيف عام"}
-              </span>
+            {/* Category, Automation Mode & Status Badges */}
+            <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+              <div className="flex items-center gap-2">
+                <span className="bg-surface-container-high text-on-surface-variant font-bold text-xs px-3 py-1 rounded-full border border-outline-variant/40">
+                  {product.categoryNameAr ||
+                    product.categoryName ||
+                    "تصنيف عام"}
+                </span>
+                {product.automationMode && (
+                  <span className="bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full border border-primary/20">
+                    أتمتة:{" "}
+                    {product.automationMode === "Manual"
+                      ? "يدوي"
+                      : product.automationMode === "Autonomous"
+                        ? "تلقائي بالكامل"
+                        : "بمساعدة"}
+                  </span>
+                )}
+              </div>
               <span
                 className={`font-bold text-xs px-3.5 py-1 rounded-full border shadow-sm ${statusStyle.bg}`}
               >

@@ -1,4 +1,4 @@
-export type AutomationMode = "autonomous" | "assisted" | "manual";
+export type AutomationMode = "Autonomous" | "Assisted" | "Manual";
 
 export type PricingListing = {
   id: string;
@@ -32,7 +32,7 @@ export const pricingListings: PricingListing[] = [
     discountPercent: 15,
     cycleCountdownLabel: "خلال 2س 15د",
     cycleUrgent: false,
-    automationMode: "autonomous",
+    automationMode: "Autonomous",
   },
   {
     id: "2",
@@ -44,7 +44,7 @@ export const pricingListings: PricingListing[] = [
     discountPercent: 30,
     cycleCountdownLabel: "خلال 12د",
     cycleUrgent: true,
-    automationMode: "assisted",
+    automationMode: "Assisted",
   },
   {
     id: "3",
@@ -56,7 +56,7 @@ export const pricingListings: PricingListing[] = [
     discountPercent: 0,
     cycleCountdownLabel: "خلال 4س 40د",
     cycleUrgent: false,
-    automationMode: "manual",
+    automationMode: "Manual",
   },
   {
     id: "4",
@@ -68,7 +68,7 @@ export const pricingListings: PricingListing[] = [
     discountPercent: 15,
     cycleCountdownLabel: "خلال 1س 05د",
     cycleUrgent: false,
-    automationMode: "autonomous",
+    automationMode: "Autonomous",
   },
 ];
 
@@ -123,20 +123,20 @@ export type AutomationModeOption = {
 
 export const automationModeOptions: AutomationModeOption[] = [
   {
-    mode: "manual",
+    mode: "Manual",
     icon: "edit",
     title: "يدوي",
     description: "يقترح الذكاء الاصطناعي الخصومات، وأنت تطبقها يدويًا.",
   },
   {
-    mode: "assisted",
+    mode: "Assisted",
     icon: "check_circle",
     title: "بمساعدة",
     description:
       "يقترح الذكاء الاصطناعي التسعير اليومي، وتوافق أو ترفض بنقرة واحدة.",
   },
   {
-    mode: "autonomous",
+    mode: "Autonomous",
     icon: "bolt",
     title: "تلقائي بالكامل",
     description: "يحدّث الذكاء الاصطناعي الأسعار تلقائيًا ضمن حدود الأمان.",
@@ -144,8 +144,9 @@ export const automationModeOptions: AutomationModeOption[] = [
 ];
 
 export const automationSettings = {
-  selectedMode: "assisted" as AutomationMode,
+  selectedMode: "Assisted" as AutomationMode,
   expiryBufferDays: 3,
+  aiAutoDiscountPercent: 20,
   highRiskItemsCount: 8,
 };
 

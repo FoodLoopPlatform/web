@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -11,9 +12,20 @@ import {
   pricingTiers,
   type AutomationMode,
 } from "@/app/pricing/lib/mock-data";
+import {
+  getMyStoreAiSettings,
+  updateMyStoreAiSettings,
+} from "@/app/pricing/api/ai-settings-api";
+import { DiscountTierCards } from "./components/discount-tier-cards";
 import { withAuth } from "@/lib/auth/with-auth";
 
+// Which control last set the discount: drives which UI highlights as active.
+type DiscountSource = "tier" | "slider";
+
+type ToastState = { message: string; type: "success" | "error" } | null;
+
 function PricingAutomationSettingsPage() {
+  const router = useRouter();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedMode, setSelectedMode] = useState<AutomationMode>(
@@ -22,18 +34,87 @@ function PricingAutomationSettingsPage() {
   const [expiryBufferDays, setExpiryBufferDays] = useState(
     automationSettings.expiryBufferDays,
   );
+  const [aiAutoDiscountPercent, setAiAutoDiscountPercent] = useState(
+    automationSettings.aiAutoDiscountPercent,
+  );
+  const [discountSource, setDiscountSource] = useState<DiscountSource>(
+    pricingTiers.some(
+      (tier) =>
+        tier.discountPercent === automationSettings.aiAutoDiscountPercent,
+    )
+      ? "tier"
+      : "slider",
+  );
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
+  const [toast, setToast] = useState<ToastState>(null);
 
-  const handleSave = () => {
+  useEffect(() => {
+    let cancelled = false;
+    getMyStoreAiSettings().then((res) => {
+      if (cancelled || !res.data) return;
+      const settings = res.data;
+      // Fields may come back null/undefined until the backend fully
+      // implements this endpoint — fall back to the current value rather
+      // than setting state to undefined, which would flip these inputs
+      // from controlled to uncontrolled.
+      const nextExpiryBufferDays =
+        settings.aiAutoDiscountDaysBeforeExpiry ??
+        settings.expiryBufferDays ??
+        automationSettings.expiryBufferDays;
+      const nextAiAutoDiscountPercent =
+        settings.aiAutoDiscountPercent ??
+        automationSettings.aiAutoDiscountPercent;
+
+      setSelectedMode(
+        settings.automationMode ?? automationSettings.selectedMode,
+      );
+      setExpiryBufferDays(Math.max(3, nextExpiryBufferDays));
+      setAiAutoDiscountPercent(nextAiAutoDiscountPercent);
+      setDiscountSource(
+        pricingTiers.some(
+          (tier) => tier.discountPercent === nextAiAutoDiscountPercent,
+        )
+          ? "tier"
+          : "slider",
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSelectTier = (discountPercent: number) => {
+    setAiAutoDiscountPercent(discountPercent);
+    setDiscountSource("tier");
+  };
+
+  const handleSliderChange = (value: number) => {
+    setAiAutoDiscountPercent(value);
+    setDiscountSource("slider");
+  };
+
+  const handleSave = async () => {
     if (saveState !== "idle") return;
     setSaveState("saving");
-    // Mocked: no backend endpoint yet for automation settings persistence.
-    setTimeout(() => {
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 1800);
-    }, 700);
+    setToast(null);
+
+    const res = await updateMyStoreAiSettings({
+      automationMode: selectedMode,
+      aiAutoDiscountDaysBeforeExpiry: expiryBufferDays,
+      aiAutoDiscountPercent,
+    });
+
+    if (res.error) {
+      setToast({ message: res.error, type: "error" });
+      setSaveState("idle");
+      return;
+    }
+
+    setSaveState("saved");
+    setToast({ message: "تم حفظ إعدادات الأتمتة بنجاح", type: "success" });
+    setTimeout(() => router.push("/pricing"), 1200);
   };
 
   return (
@@ -139,42 +220,34 @@ function PricingAutomationSettingsPage() {
         <div className="px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-10">
           {/* Header Section */}
           <div className="flex items-end justify-between flex-wrap gap-4">
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/pricing"
-                  className="text-xs font-bold tracking-wide text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  التسعير
-                </Link>
-                <Icon
-                  name="chevron_left"
-                  className="h-3 w-3 text-on-surface-variant"
-                />
-                <span className="text-xs font-bold tracking-wide text-primary">
-                  الأتمتة
-                </span>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/pricing"
+                className="flex items-center justify-center hover:bg-surface-container-highest p-2 rounded-full transition-colors cursor-pointer shrink-0"
+              >
+                <Icon name="arrow_forward" className="h-5 w-5 text-primary" />
+              </Link>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/pricing"
+                    className="text-xs font-bold tracking-wide text-on-surface-variant hover:text-primary transition-colors"
+                  >
+                    التسعير
+                  </Link>
+                  <Icon
+                    name="chevron_left"
+                    className="h-3 w-3 text-on-surface-variant"
+                  />
+                  <span className="text-xs font-bold tracking-wide text-primary">
+                    الأتمتة
+                  </span>
+                </div>
+                <h1 className="font-sans text-3xl font-bold text-primary">
+                  أتمتة التسعير بالذكاء الاصطناعي
+                </h1>
               </div>
-              <h1 className="font-sans text-3xl font-bold text-primary">
-                أتمتة التسعير بالذكاء الاصطناعي
-              </h1>
             </div>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saveState !== "idle"}
-              className="flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer shrink-0 disabled:opacity-80 disabled:cursor-not-allowed"
-            >
-              {saveState === "saving" && (
-                <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-              )}
-              {saveState === "saved" && (
-                <Icon name="check_circle" className="h-4 w-4" fill />
-              )}
-              {saveState === "idle" && "حفظ إعدادات الأتمتة"}
-              {saveState === "saving" && "جارٍ الحفظ..."}
-              {saveState === "saved" && "تم الحفظ"}
-            </button>
           </div>
 
           {/* Automation Mode Selector */}
@@ -233,81 +306,12 @@ function PricingAutomationSettingsPage() {
           {/* AI Intelligence Section */}
           <section className="flex flex-col gap-10">
             {/* Tier Visualization */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {pricingTiers.map((tier) => {
-                if (tier.isOptimal) {
-                  return (
-                    <div
-                      key={tier.key}
-                      className="relative bg-primary-container border-2 border-primary-fixed rounded-xl p-6"
-                    >
-                      <span className="absolute -top-3 inset-x-0 mx-auto w-fit bg-primary text-white text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full">
-                        الأمثل
-                      </span>
-                      <div className="flex flex-col gap-1.5">
-                        <span className="text-xs font-bold tracking-wide text-primary-fixed">
-                          {tier.label}
-                        </span>
-                        <span className="font-sans text-2xl font-semibold text-primary-fixed">
-                          خصم <bdi>{tier.discountPercent}%</bdi>
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-1 pt-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-primary-fixed">
-                            معدل البيع
-                          </span>
-                          <span
-                            dir="ltr"
-                            className="font-data-mono text-xs text-primary-fixed"
-                          >
-                            {tier.sellThroughPercent}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-on-primary-container overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-primary-fixed"
-                            style={{ width: `${tier.sellThroughPercent}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-                return (
-                  <div
-                    key={tier.key}
-                    className="bg-white border border-outline-variant rounded-xl p-6 flex flex-col gap-1.5"
-                  >
-                    <span className="text-xs font-bold tracking-wide text-on-surface-variant">
-                      {tier.label}
-                    </span>
-                    <span className="font-sans text-2xl font-semibold text-primary">
-                      خصم <bdi>{tier.discountPercent}%</bdi>
-                    </span>
-                    <div className="flex flex-col gap-1 pt-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-on-surface">
-                          معدل البيع
-                        </span>
-                        <span
-                          dir="ltr"
-                          className="font-data-mono text-xs text-on-surface"
-                        >
-                          {tier.sellThroughPercent}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-primary"
-                          style={{ width: `${tier.sellThroughPercent}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <DiscountTierCards
+              tiers={pricingTiers}
+              aiAutoDiscountPercent={aiAutoDiscountPercent}
+              isTierActive={discountSource === "tier"}
+              onSelectTier={handleSelectTier}
+            />
 
             {/* Expiry Buffer Slider */}
             <div className="flex flex-col gap-4 pt-6 border-t border-outline-variant">
@@ -324,7 +328,7 @@ function PricingAutomationSettingsPage() {
               </div>
               <input
                 type="range"
-                min={0}
+                min={3}
                 max={14}
                 value={expiryBufferDays}
                 onChange={(event) =>
@@ -333,26 +337,90 @@ function PricingAutomationSettingsPage() {
                 className="w-full h-2 rounded-lg appearance-none bg-surface-container-high accent-primary cursor-pointer"
               />
             </div>
+
+            {/* AI Auto Discount Slider */}
+            <div
+              className={`flex flex-col gap-4 pt-6 border-t transition-colors ${
+                discountSource === "slider"
+                  ? "border-primary"
+                  : "border-outline-variant/40"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className={`text-body-md font-bold flex items-center gap-2 ${
+                    discountSource === "slider"
+                      ? "text-primary"
+                      : "text-on-surface-variant"
+                  }`}
+                >
+                  نسبة الخصم التلقائي بالذكاء الاصطناعي
+                  {discountSource === "slider" && (
+                    <span className="text-[10px] font-bold tracking-wide uppercase bg-primary text-white px-2 py-0.5 rounded-full">
+                      نشط
+                    </span>
+                  )}
+                </span>
+                <span
+                  dir="ltr"
+                  className={`font-data-mono text-body-md font-medium ${
+                    discountSource === "slider" ? "text-primary" : "text-link"
+                  }`}
+                >
+                  {aiAutoDiscountPercent}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={aiAutoDiscountPercent}
+                onChange={(event) =>
+                  handleSliderChange(Number(event.target.value))
+                }
+                className="w-full h-2 rounded-lg appearance-none bg-surface-container-high accent-primary cursor-pointer"
+              />
+            </div>
           </section>
 
-          {/* Action Buttons */}
+          {/* Save Action */}
           <div className="flex flex-col gap-4">
             <button
               type="button"
-              className="flex items-center justify-center gap-2 bg-link text-white py-6 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer"
+              onClick={handleSave}
+              disabled={saveState !== "idle"}
+              className="flex items-center justify-center gap-2 bg-primary text-white py-6 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-80 disabled:cursor-not-allowed"
             >
-              <Icon name="bolt" className="h-4 w-4" fill />
-              تطبيق على كل العناصر عالية الخطورة
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center border border-outline py-6 rounded-xl text-body-md font-bold text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
-            >
-              معاينة التغييرات لـ {automationSettings.highRiskItemsCount} عناصر
+              {saveState === "saving" && (
+                <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+              )}
+              {saveState === "saved" && (
+                <Icon name="check_circle" className="h-4 w-4" fill />
+              )}
+              {saveState === "idle" && "حفظ إعدادات الأتمتة"}
+              {saveState === "saving" && "جارٍ الحفظ..."}
+              {saveState === "saved" && "تم الحفظ"}
             </button>
           </div>
         </div>
       </main>
+
+      {toast && (
+        <div
+          className={`fixed bottom-8 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg transition-all duration-300 animate-in fade-in-50 slide-in-from-bottom-5 left-1/2 -translate-x-1/2 md:left-auto md:start-8 md:translate-x-0 ${
+            toast.type === "success"
+              ? "bg-primary text-on-primary"
+              : "bg-error text-on-error"
+          }`}
+        >
+          <Icon
+            name={toast.type === "success" ? "check_circle" : "info"}
+            className="h-5 w-5 shrink-0"
+            fill
+          />
+          <span className="text-body-md font-semibold">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }

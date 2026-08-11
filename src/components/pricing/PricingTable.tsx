@@ -11,26 +11,26 @@ import {
 
 const modeFilters: { key: AutomationMode | "all"; label: string }[] = [
   { key: "all", label: "جميع الأوضاع" },
-  { key: "autonomous", label: "تلقائي بالكامل" },
-  { key: "assisted", label: "بمساعدة" },
-  { key: "manual", label: "يدوي" },
+  { key: "Autonomous", label: "تلقائي بالكامل" },
+  { key: "Assisted", label: "بمساعدة" },
+  { key: "Manual", label: "يدوي" },
 ];
 
 const automationModeMeta: Record<
   AutomationMode,
   { label: string; className: string; dotClassName?: string }
 > = {
-  autonomous: {
+  Autonomous: {
     label: "تلقائي بالكامل",
     className: "bg-[#98f3b0] border border-[#006d38]/20 text-[#0b723c]",
     dotClassName: "bg-[#006d38]",
   },
-  assisted: {
+  Assisted: {
     label: "بمساعدة",
     className:
       "bg-[#e6e9e3] border border-outline-variant/30 text-on-surface-variant",
   },
-  manual: {
+  Manual: {
     label: "يدوي",
     className:
       "bg-[#e6e9e3] border border-outline-variant/30 text-on-surface-variant",
@@ -114,7 +114,15 @@ export function PricingTable() {
           </thead>
           <tbody>
             {filteredListings.map((listing) => {
-              const mode = automationModeMeta[listing.automationMode];
+              const mode =
+                automationModeMeta[listing.automationMode] ||
+                automationModeMeta[
+                  ((listing.automationMode as string)?.charAt(0).toUpperCase() +
+                    (listing.automationMode as string)?.slice(
+                      1,
+                    )) as AutomationMode
+                ] ||
+                automationModeMeta["Assisted"];
               const discountBadgeClassName =
                 listing.discountPercent > 0
                   ? "bg-[#ffddb7] border border-[#633d00]/20 text-[#653e00]"

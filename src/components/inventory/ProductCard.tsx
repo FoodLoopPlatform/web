@@ -12,6 +12,7 @@ export interface Product {
   quantity: number | null;
   price: number;
   status: string;
+  automationMode?: string | null;
   image?: string | null;
   images?: string[] | null;
 }
@@ -87,12 +88,21 @@ export function ProductCard({ product }: ProductCardProps) {
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           unoptimized
         />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
           <span
             className={`px-3 py-1 rounded-full text-[10px] font-bold shadow-sm ${statusStyle.bg}`}
           >
             {statusStyle.label}
           </span>
+          {product.automationMode && (
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-white/90 text-primary backdrop-blur-sm shadow-xs">
+              {product.automationMode === "Manual"
+                ? "يدوي"
+                : product.automationMode === "Autonomous"
+                  ? "تلقائي"
+                  : "بمساعدة"}
+            </span>
+          )}
         </div>
       </div>
 

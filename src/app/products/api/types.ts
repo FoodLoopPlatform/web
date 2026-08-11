@@ -1,3 +1,5 @@
+export type AutomationMode = "Manual" | "Assisted" | "Autonomous";
+
 export interface Category {
   id: string;
   name: string;
@@ -15,6 +17,7 @@ export interface CreateProductRequest {
   discountedPrice: number;
   quantityAvailable: number;
   expirationDate: string;
+  automationMode?: AutomationMode | null;
 }
 
 export interface UpdateProductRequest {
@@ -28,6 +31,7 @@ export interface UpdateProductRequest {
   quantityAvailable?: number | null;
   expirationDate?: string | null;
   status?: string | null;
+  automationMode?: AutomationMode | null;
 }
 
 export interface MerchantProduct {
@@ -45,6 +49,7 @@ export interface MerchantProduct {
   quantityAvailable: number;
   expirationDate: string;
   status?: string;
+  automationMode?: AutomationMode | null;
   images?: string[];
   createdAt?: string;
   updatedAt?: string;

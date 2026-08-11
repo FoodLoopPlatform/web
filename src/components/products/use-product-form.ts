@@ -12,6 +12,7 @@ import type {
   CreateProductRequest,
   UpdateProductRequest,
   MerchantProduct,
+  AutomationMode,
 } from "@/app/products/api/types";
 import { extractProductImages } from "@/utils/image-utils";
 
@@ -79,6 +80,9 @@ export function useProductForm({
     initialProduct?.expirationDate
       ? initialProduct.expirationDate.split("T")[0]
       : "",
+  );
+  const [automationMode, setAutomationMode] = useState<AutomationMode>(
+    (initialProduct?.automationMode as AutomationMode) || "Assisted",
   );
 
   const [isScanning, setIsScanning] = useState(false);
@@ -211,6 +215,7 @@ export function useProductForm({
           discountedPrice: discPrice,
           quantityAvailable: qty,
           expirationDate: expDate,
+          automationMode,
         };
         const res = await updateMerchantProduct(productId, updateBody);
 
@@ -234,6 +239,7 @@ export function useProductForm({
           discountedPrice: discPrice,
           quantityAvailable: qty,
           expirationDate: expDate,
+          automationMode,
         };
         const res = await createMerchantProduct(createBody);
 
@@ -314,6 +320,8 @@ export function useProductForm({
     setQuantity,
     expiryDate,
     setExpiryDate,
+    automationMode,
+    setAutomationMode,
     isScanning,
     setIsScanning,
     scanSuccess,
