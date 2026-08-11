@@ -195,9 +195,10 @@ export function useProductForm({
       ? parseFloat(discountedPrice)
       : origPrice * 0.5;
     const qty = quantity ? parseInt(quantity, 10) : 1;
-    const expDate =
+    const rawExpDate =
       expiryDate ||
       new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
+    const expDate = new Date(rawExpDate).toISOString();
 
     setIsSubmitting(true);
 
@@ -215,7 +216,6 @@ export function useProductForm({
           discountedPrice: discPrice,
           quantityAvailable: qty,
           expirationDate: expDate,
-          automationMode,
         };
         const res = await updateMerchantProduct(productId, updateBody);
 
@@ -239,7 +239,6 @@ export function useProductForm({
           discountedPrice: discPrice,
           quantityAvailable: qty,
           expirationDate: expDate,
-          automationMode,
         };
         const res = await createMerchantProduct(createBody);
 

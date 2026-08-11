@@ -1,4 +1,6 @@
 export type AutomationMode = "Manual" | "Assisted" | "Autonomous";
+export type ExpiryVerificationState =
+  "Manual" | "AiVerified" | "AiLowConfidence";
 
 export interface Category {
   id: string;
@@ -18,6 +20,7 @@ export interface CreateProductRequest {
   quantityAvailable: number;
   expirationDate: string;
   automationMode?: AutomationMode | null;
+  expiryVerificationState?: ExpiryVerificationState | string | null;
 }
 
 export interface UpdateProductRequest {
@@ -32,6 +35,7 @@ export interface UpdateProductRequest {
   expirationDate?: string | null;
   status?: string | null;
   automationMode?: AutomationMode | null;
+  expiryVerificationState?: ExpiryVerificationState | string | null;
 }
 
 export interface MerchantProduct {
@@ -50,6 +54,7 @@ export interface MerchantProduct {
   expirationDate: string;
   status?: string;
   automationMode?: AutomationMode | null;
+  expiryVerificationState?: ExpiryVerificationState | string | null;
   images?: string[];
   createdAt?: string;
   updatedAt?: string;

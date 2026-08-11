@@ -8,7 +8,6 @@ import { ImageUpload } from "@/components/products/ImageUpload";
 import { ClassificationSelect } from "@/components/products/ClassificationSelect";
 import { ProductInfoForm } from "@/components/products/ProductInfoForm";
 import { ExpiryDateSelector } from "@/components/products/ExpiryDateSelector";
-import { AutomationModeSelector } from "@/components/products/AutomationModeSelector";
 import { useProductForm } from "./use-product-form";
 import type { MerchantProduct } from "@/app/products/api/types";
 
@@ -185,11 +184,6 @@ export function ProductForm({
                   setDiscountedPrice={formState.setDiscountedPrice}
                   quantity={formState.quantity}
                   setQuantity={formState.setQuantity}
-                />
-
-                <AutomationModeSelector
-                  automationMode={formState.automationMode}
-                  setAutomationMode={formState.setAutomationMode}
                 />
 
                 <ExpiryDateSelector
