@@ -10,6 +10,15 @@ export type AuthSlice = {
   clearSession: () => void;
 };
 
+/**
+ * Synchronizes session tokens and user state to document cookies.
+ *
+ * Why this is necessary:
+ * Client session state lives in Zustand (persisted to localStorage). However, Next.js Server
+ * Middleware runs on the server before page rendering and cannot access browser localStorage.
+ * Writing `accessToken` and `foodloop-store` cookies allows server middleware to inspect
+ * authentication status and user roles on page navigation (e.g., gating /admin routes).
+ */
 function syncAuthCookies(session: AuthResult | null) {
   if (typeof document === "undefined") return;
 
