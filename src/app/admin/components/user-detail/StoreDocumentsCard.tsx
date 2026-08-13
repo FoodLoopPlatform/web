@@ -12,15 +12,7 @@ import {
   ExternalLinkIcon,
   FileIcon,
 } from "@/components/icons";
-
-interface StoreDocumentsCardProps {
-  documents?: StoreDocument[];
-  isRtl?: boolean;
-  status?: "ACTIVE" | "SUSPENDED" | "PENDING";
-  onApprove?: () => Promise<void> | void;
-  onReject?: () => Promise<void> | void;
-  isPendingVerification?: boolean;
-}
+import { StoreDocumentsCardProps } from "../../types/user-detail.types";
 
 export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
   documents = [],

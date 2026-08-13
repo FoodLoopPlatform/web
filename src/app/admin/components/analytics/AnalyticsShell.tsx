@@ -10,10 +10,8 @@ import {
 import { adminDictionary } from "../../constants/dictionary";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { AnalyticsSkeleton } from "./AnalyticsSkeleton";
-
-interface AnalyticsShellProps {
-  initialAnalytics?: AnalyticsSummary | null;
-}
+import { AnalyticsTopEntitiesList } from "./AnalyticsTopEntitiesList";
+import { AnalyticsShellProps } from "../../types/analytics.types";
 
 export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
   const { lang } = useAppLang();

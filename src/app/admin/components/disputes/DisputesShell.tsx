@@ -34,17 +34,11 @@ import { TicketDrawer } from "./TicketDrawer";
 import { DisputesSkeleton } from "./DisputesSkeleton";
 import { Pagination } from "../common/Pagination";
 import { ConfirmationModal } from "../common/ConfirmationModal";
+import { DisputesShellProps, DisputeTab } from "../../types/disputes.types";
 
-type DisputeTab = "Disputes" | "Tickets" | "Reviews";
 type PriorityFilter = "ALL" | "High" | "Medium" | "Low";
 
 const PAGE_SIZE = 5;
-
-interface DisputesShellProps {
-  initialDisputes?: Dispute[];
-  initialTickets?: SupportTicket[];
-  initialReviews?: Review[];
-}
 
 export function DisputesShell({
   initialDisputes = [],

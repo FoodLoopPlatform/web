@@ -36,16 +36,10 @@ import {
   exportAdminCSV,
   getSmartRecommendation,
 } from "../../utils/admin-helpers";
+import { UserManagementShellProps } from "../../types/user-management.types";
 
 type ActorTab = "Consumers" | "Stores" | "Charities";
 type StatusFilter = "ALL" | "ACTIVE" | "PENDING" | "SUSPENDED";
-
-interface UserManagementShellProps {
-  initialAnalytics?: AnalyticsSummary | null;
-  initialConsumers?: Consumer[];
-  initialStores?: Store[];
-  initialCharities?: Charity[];
-}
 
 export function UserManagementShell({
   initialAnalytics = null,
