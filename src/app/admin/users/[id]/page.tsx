@@ -4,7 +4,6 @@ import {
   getUserDetailServer,
   getUserActivityEntriesServer,
   getAdminReviewsServer,
-  getAdminNoteServer,
 } from "../../api/server-admin-api";
 
 interface PageProps {
@@ -14,11 +13,10 @@ interface PageProps {
 export default async function UserDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [userRes, actRes, revRes, noteRes] = await Promise.all([
+  const [userRes, actRes, revRes] = await Promise.all([
     getUserDetailServer(id),
     getUserActivityEntriesServer(id),
     getAdminReviewsServer({ storeId: id, pageSize: 50 }),
-    getAdminNoteServer(id),
   ]);
 
   return (
@@ -28,7 +26,6 @@ export default async function UserDetailPage({ params }: PageProps) {
         initialUser={userRes.data ?? null}
         initialActivities={actRes.data ?? []}
         initialReviews={revRes.data ?? []}
-        initialAdminNote={noteRes.data ?? ""}
       />
     </Suspense>
   );

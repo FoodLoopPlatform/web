@@ -805,26 +805,3 @@ export function getUserActivityEntriesServer(
     };
   });
 }
-
-export function getAdminNoteServer(
-  userId: string,
-): Promise<ApiResponse<string>> {
-  return withServerAuth<string>(async (token) => {
-    const result = await unwrapEnvelope<{ note: string }>(
-      getMany<FoodLoopEnvelope<{ note: string }>>(
-        Endpoints.admin.userNote(userId),
-        { token },
-      ),
-    );
-    if (result.data?.note) {
-      return { data: result.data.note };
-    }
-    if (result.status === 404) {
-      return { data: "" };
-    }
-    return {
-      error: result.error || "Failed to load admin note",
-      status: result.status,
-    };
-  });
-}

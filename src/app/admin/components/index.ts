@@ -24,7 +24,6 @@ export * from "./user-detail/StoreReviewsCard";
 export * from "./user-detail/PlatformActionsPanel";
 export * from "./user-detail/UserActivityLog";
 export * from "./user-detail/ActivityLogEntry";
-export * from "./user-detail/AdministrativeNotes";
 export * from "./user-detail/UserDetailConfirmationModals";
 
 export * from "./disputes/DisputesShell";

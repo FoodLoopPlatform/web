@@ -346,46 +346,6 @@ export function getUserActivityEntries(
   });
 }
 
-export function getAdminNote(userId: string): Promise<ApiResponse<string>> {
-  return withAuth<string>(async (token) => {
-    const result = await unwrapEnvelope<{ note: string }>(
-      getMany<FoodLoopEnvelope<{ note: string }>>(
-        Endpoints.admin.userNote(userId),
-        { token },
-      ),
-    );
-    if (result.data?.note) {
-      return { data: result.data.note };
-    }
-    if (result.status === 404) {
-      return { data: "" };
-    }
-    return {
-      error: result.error || "Failed to load admin note",
-      status: result.status,
-    };
-  });
-}
-
-export function saveAdminNote(
-  userId: string,
-  note: string,
-): Promise<ApiResponse<{ success: boolean }>> {
-  return withAuth<{ success: boolean }>(async (token) => {
-    const result = await unwrapEnvelope<void>(
-      createOne<FoodLoopEnvelope<void>, { note: string }>(
-        Endpoints.admin.userNote(userId),
-        { note },
-        { token },
-      ),
-    );
-    if (result.error) {
-      return { error: result.error, status: result.status };
-    }
-    return { data: { success: true } };
-  });
-}
-
 export function banUserPermanently(
   userId: string,
 ): Promise<ApiResponse<{ success: boolean }>> {

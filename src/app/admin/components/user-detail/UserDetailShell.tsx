@@ -5,8 +5,6 @@ import { useAppLang } from "@/store/use-app-lang";
 import {
   getUserDetail,
   banUserPermanently,
-  getAdminNote,
-  saveAdminNote,
   UserDetail,
   UserActivityEntry,
   getUserActivityEntries,
@@ -25,7 +23,6 @@ import { UserProfileCard } from "./UserProfileCard";
 import { StoreDocumentsCard } from "./StoreDocumentsCard";
 import { StoreReviewsCard } from "./StoreReviewsCard";
 import { PlatformActionsPanel } from "./PlatformActionsPanel";
-import { AdministrativeNotes } from "./AdministrativeNotes";
 import { UserActivityLog } from "./UserActivityLog";
 import { UserDetailConfirmationModals } from "./UserDetailConfirmationModals";
 import { UserDetailSkeleton } from "./UserDetailSkeleton";
@@ -35,7 +32,6 @@ interface UserDetailShellProps {
   initialUser?: UserDetail | null;
   initialActivities?: UserActivityEntry[];
   initialReviews?: Review[];
-  initialAdminNote?: string;
 }
 
 export function UserDetailShell({
@@ -43,7 +39,6 @@ export function UserDetailShell({
   initialUser = null,
   initialActivities = [],
   initialReviews = [],
-  initialAdminNote = "",
 }: UserDetailShellProps) {
   const { lang } = useAppLang();
   const isRtl = lang === "ar";
@@ -52,7 +47,6 @@ export function UserDetailShell({
   const [activities, setActivities] =
     useState<UserActivityEntry[]>(initialActivities);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [adminNote, setAdminNote] = useState<string>(initialAdminNote);
   const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
 
   React.useEffect(() => {
@@ -63,14 +57,12 @@ export function UserDetailShell({
       getUserDetail(id),
       getUserActivityEntries(id),
       getAdminReviews({ storeId: id, pageSize: 50 }),
-      getAdminNote(id),
     ])
-      .then(([userRes, actRes, revRes, noteRes]) => {
+      .then(([userRes, actRes, revRes]) => {
         if (isSubscribed) {
           if (userRes.data) setUser(userRes.data);
           if (actRes.data) setActivities(actRes.data);
           if (revRes.data) setReviews(revRes.data);
-          if (noteRes.data !== undefined) setAdminNote(noteRes.data);
         }
       })
       .finally(() => {
@@ -293,15 +285,6 @@ export function UserDetailShell({
             onReactivate={() =>
               setConfirmModal({ isOpen: true, action: "reactivate" })
             }
-          />
-
-          <AdministrativeNotes
-            initialNote={adminNote}
-            isRtl={isRtl}
-            onSave={async (newNote) => {
-              await saveAdminNote(user.id, newNote);
-              setAdminNote(newNote);
-            }}
           />
         </div>
       </div>
