@@ -35,6 +35,7 @@ interface UserDetailShellProps {
   initialUser?: UserDetail | null;
   initialActivities?: UserActivityEntry[];
   initialReviews?: Review[];
+  initialAdminNote?: string;
 }
 
 export function UserDetailShell({
@@ -42,6 +43,7 @@ export function UserDetailShell({
   initialUser = null,
   initialActivities = [],
   initialReviews = [],
+  initialAdminNote = "",
 }: UserDetailShellProps) {
   const { lang } = useAppLang();
   const isRtl = lang === "ar";
@@ -50,13 +52,15 @@ export function UserDetailShell({
   const [activities, setActivities] =
     useState<UserActivityEntry[]>(initialActivities);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [adminNote, setAdminNote] = useState<string>("");
+  const [adminNote, setAdminNote] = useState<string>(initialAdminNote);
   const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
 
   React.useEffect(() => {
+    if (initialUser) return;
+
     let isSubscribed = true;
     Promise.all([
-      !initialUser ? getUserDetail(id) : Promise.resolve({ data: initialUser }),
+      getUserDetail(id),
       getUserActivityEntries(id),
       getAdminReviews({ storeId: id, pageSize: 50 }),
       getAdminNote(id),

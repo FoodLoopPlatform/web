@@ -53,6 +53,7 @@ export * from "./analytics/AnalyticsSkeleton";
 export * from "./analytics/AnalyticsCharts";
 
 export * from "./audit-log/AuditLogClientContainer";
+export * from "./audit-log/AuditLogSkeleton";
 export * from "./audit-log/AuditLogFilters";
 export * from "./audit-log/AuditLogTable";
 export * from "./audit-log/AuditLogsWidget";
