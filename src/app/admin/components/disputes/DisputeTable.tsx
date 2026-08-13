@@ -106,7 +106,10 @@ export const DisputeTable: React.FC<DisputeTableProps> = ({
                 )}
               </td>
 
-              <td className="px-3 py-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+              <td
+                className="px-3 py-3 whitespace-nowrap"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-center justify-center gap-2">
                   <button
                     onClick={() => onOpenDispute(dispute.id)}

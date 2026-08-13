@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
 import { useAppLang } from "@/store/use-app-lang";
-import { isAdminUser, STORE_HOME_ROUTE } from "@/utils/roles";
+import { isAdminUser } from "@/utils/roles";
 import {
   UserIcon,
   AlertCircleIcon,
@@ -65,19 +65,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       setMobileSidebarOpen(false);
     }
   }
-
-  // Check auth once rehydrated on the client side. A signed-in store/merchant
-  // account gets bounced to its own home rather than /login — the admin and
-  // merchant portals are separate surfaces, each role only ever sees its own.
-  useEffect(() => {
-    if (hasHydrated) {
-      if (!accessToken) {
-        router.push("/login");
-      } else if (!isAdminUser(user)) {
-        router.push(STORE_HOME_ROUTE);
-      }
-    }
-  }, [hasHydrated, user, accessToken, router]);
 
   const handleLogout = () => {
     clearSession();

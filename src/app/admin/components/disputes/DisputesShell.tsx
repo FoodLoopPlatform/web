@@ -81,7 +81,9 @@ export function DisputesShell({
   }
 
   // Dispute Resolution Modal State
-  const [resolveDisputeModalId, setResolveDisputeModalId] = useState<string | null>(null);
+  const [resolveDisputeModalId, setResolveDisputeModalId] = useState<
+    string | null
+  >(null);
 
   // Ticket Detail Drawer
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
@@ -133,27 +135,30 @@ export function DisputesShell({
     fetchDisputesData,
   ]);
 
-  const disputeToTicket = useCallback((dispute: Dispute): SupportTicket => ({
-    id: dispute.id,
-    userType: dispute.raisedByType || "Consumer",
-    userName: dispute.raisedByName,
-    userEmail: dispute.raisedByName,
-    subject: dispute.orderId ? `طلب رقم: ${dispute.orderId}` : dispute.reason,
-    description: dispute.reason,
-    status: dispute.isResolved ? "Closed" : "Pending",
-    priority: "High",
-    createdAt: dispute.createdAt,
-    replies: dispute.adminNote
-      ? [
-          {
-            id: `rep_${dispute.id}`,
-            sender: "Admin",
-            message: dispute.adminNote,
-            createdAt: dispute.resolvedAt || dispute.createdAt,
-          },
-        ]
-      : [],
-  }), []);
+  const disputeToTicket = useCallback(
+    (dispute: Dispute): SupportTicket => ({
+      id: dispute.id,
+      userType: dispute.raisedByType || "Consumer",
+      userName: dispute.raisedByName,
+      userEmail: dispute.raisedByName,
+      subject: dispute.orderId ? `طلب رقم: ${dispute.orderId}` : dispute.reason,
+      description: dispute.reason,
+      status: dispute.isResolved ? "Closed" : "Pending",
+      priority: "High",
+      createdAt: dispute.createdAt,
+      replies: dispute.adminNote
+        ? [
+            {
+              id: `rep_${dispute.id}`,
+              sender: "Admin",
+              message: dispute.adminNote,
+              createdAt: dispute.resolvedAt || dispute.createdAt,
+            },
+          ]
+        : [],
+    }),
+    [],
+  );
 
   const handleOpenDispute = (id: string) => {
     const target = disputes.find((d) => d.id === id);
@@ -172,7 +177,9 @@ export function DisputesShell({
     const id = resolveDisputeModalId;
     const noteText =
       (reasonNote || "").trim() ||
-      (isRtl ? "تمت تسوية النزاع وتوثيق الحل من قِبل الإدارة" : "Resolved by admin.");
+      (isRtl
+        ? "تمت تسوية النزاع وتوثيق الحل من قِبل الإدارة"
+        : "Resolved by admin.");
 
     setResolveDisputeModalId(null);
     setShowTicketDrawer(false);
@@ -555,7 +562,6 @@ export function DisputesShell({
           <AuditLogsWidget title={t.auditLogsTitle} logs={[]} isRtl={isRtl} />
         </div>
       </div>
-
 
       {/* Ticket / Dispute Detail Drawer */}
       {showTicketDrawer && selectedTicket && (
