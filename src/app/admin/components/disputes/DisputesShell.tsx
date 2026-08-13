@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   getSupportTickets,
@@ -51,6 +52,7 @@ export function DisputesShell({
   initialReviews = [],
 }: DisputesShellProps = {}) {
   const { lang } = useAppLang();
+  const router = useRouter();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -555,7 +557,7 @@ export function DisputesShell({
             }
             actionLabel={isRtl ? "مراجعة القواعد" : "Review Rules"}
             onActionClick={() => {
-              window.location.href = "/admin/settings";
+              router.push("/admin/settings");
             }}
             isRtl={isRtl}
           />

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { StoreDocument } from "../../types/admin.types";
 import { Endpoints } from "@/utils/endpoints";
 import {
@@ -399,10 +400,12 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
                 />
               ) : (
                 <div className="relative flex items-center justify-center max-w-full max-h-[70vh]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={resolveUrl(previewDoc.documentUrl)}
                     alt={getDocTitle(previewDoc.verificationType)}
+                    width={800}
+                    height={600}
+                    unoptimized
                     className="max-h-[70vh] max-w-full object-contain rounded-xl shadow-lg border border-surface-container bg-white"
                   />
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   getAnalyticsSummary,
@@ -225,9 +226,9 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
                     rateAr: "88% نسبة الاسترداد",
                     rateEn: "88% recovery",
                   },
-                ].map((store, idx) => (
+                ].map((store) => (
                   <div
-                    key={idx}
+                    key={store.nameEn}
                     className={`py-2.5 flex justify-between items-center text-xs ${
                       lang === "ar" ? "flex-row" : "flex-row-reverse"
                     }`}
@@ -291,9 +292,9 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
                     bagsAr: "95 صندوق طعام",
                     bagsEn: "95 boxes",
                   },
-                ].map((charity, idx) => (
+                ].map((charity) => (
                   <div
-                    key={idx}
+                    key={charity.nameEn}
                     className={`py-2.5 flex justify-between items-center text-xs ${
                       lang === "ar" ? "flex-row" : "flex-row-reverse"
                     }`}
@@ -355,16 +356,14 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                window.location.href = "/admin/settings";
-              }}
-              className={`mt-6 bg-white hover:bg-surface text-primary-container font-bold text-xs py-2.5 px-4 rounded-xl transition-all cursor-pointer active:scale-95 z-10 ${
+            <Link
+              href="/admin/settings"
+              className={`mt-6 bg-white hover:bg-surface text-primary-container font-bold text-xs py-2.5 px-4 rounded-xl transition-all cursor-pointer active:scale-95 z-10 inline-block text-center ${
                 lang === "ar" ? "self-start" : "self-end"
               }`}
             >
               {t.adjustSettings}
-            </button>
+            </Link>
             <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5 border border-white/5 pointer-events-none" />
           </div>
 

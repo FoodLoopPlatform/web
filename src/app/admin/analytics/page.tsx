@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { AnalyticsShell } from "../components/analytics/AnalyticsShell";
-import { AnalyticsSkeleton } from "../components/analytics/AnalyticsSkeleton";
+import { AnalyticsShell, AnalyticsSkeleton } from "../components";
 import { getAnalyticsSummaryServer } from "../api/server-admin-api";
 
 export default async function AnalyticsPage() {

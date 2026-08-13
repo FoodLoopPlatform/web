@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { UserManagementShell } from "./components/user-management/UserManagementShell";
-import { UserManagementSkeleton } from "./components/user-management/UserManagementSkeleton";
+import { UserManagementShell, UserManagementSkeleton } from "./components";
 import {
   getAnalyticsSummaryServer,
   getAdminConsumersServer,

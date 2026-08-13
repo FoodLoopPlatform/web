@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { DisputesShell } from "../components/disputes/DisputesShell";
-import { DisputesSkeleton } from "../components/disputes/DisputesSkeleton";
+import { DisputesShell, DisputesSkeleton } from "../components";
 import {
   getDisputesServer,
   getSupportTicketsServer,

@@ -27,17 +27,28 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
   isExporting = false,
 }) => {
   const [searchInput, setSearchInput] = useState(filters.search || "");
+  const onFilterChangeRef = React.useRef(onFilterChange);
+  const filtersRef = React.useRef(filters);
+
+  useEffect(() => {
+    onFilterChangeRef.current = onFilterChange;
+    filtersRef.current = filters;
+  }, [onFilterChange, filters]);
 
   // Debounce search input to avoid firing requests on every keypress
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (searchInput !== (filters.search || "")) {
-        onFilterChange({ ...filters, search: searchInput, page: 1 });
+      if (searchInput !== (filtersRef.current.search || "")) {
+        onFilterChangeRef.current({
+          ...filtersRef.current,
+          search: searchInput,
+          page: 1,
+        });
       }
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [searchInput, filters, onFilterChange]);
+  }, [searchInput]);
 
   const handleActionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as "ALL" | AuditActionType;

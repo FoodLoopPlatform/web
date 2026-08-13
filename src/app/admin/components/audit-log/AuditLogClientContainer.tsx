@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import {
@@ -73,10 +73,10 @@ export function AuditLogClientContainer({
     };
   }, [filters]);
 
-  const handleFilterChange = (updated: AuditLogFilterParams) => {
+  const handleFilterChange = useCallback((updated: AuditLogFilterParams) => {
     setIsLoading(true);
     setFilters(updated);
-  };
+  }, []);
 
   const handleResetFilters = () => {
     setIsLoading(true);

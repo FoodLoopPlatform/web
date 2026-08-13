@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   updateUserStatus,
@@ -53,6 +54,7 @@ export function UserManagementShell({
   initialCharities = [],
 }: UserManagementShellProps = {}) {
   const { lang } = useAppLang();
+  const router = useRouter();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -388,7 +390,7 @@ export function UserManagementShell({
               if (recommendation.actionLink === "PENDING") {
                 setStatusFilter("PENDING");
               } else {
-                window.location.href = recommendation.actionLink;
+                router.push(recommendation.actionLink);
               }
             }}
             isRtl={isRtl}

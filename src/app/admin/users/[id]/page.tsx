@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { UserDetailShell } from "../../components/user-detail/UserDetailShell";
-import { UserDetailSkeleton } from "../../components/user-detail/UserDetailSkeleton";
+import { UserDetailShell, UserDetailSkeleton } from "../../components";
 import {
   getUserDetailServer,
   getUserActivityEntriesServer,

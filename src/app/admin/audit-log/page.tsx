@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { AuditLogClientContainer } from "../components/audit-log/AuditLogClientContainer";
-import { AuditLogSkeleton } from "../components/audit-log/AuditLogSkeleton";
+import { AuditLogClientContainer, AuditLogSkeleton } from "../components";
 import { getAuditLogsServer } from "../api/server-admin-api";
 
 export default async function AuditLogPage() {

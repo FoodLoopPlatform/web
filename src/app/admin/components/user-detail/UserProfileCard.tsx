@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { UserDetail } from "../../types/admin.types";
 import { statusBadgeTokens } from "../../constants/status-tokens";
 import { StatsCard } from "../common/StatsCard";
@@ -195,10 +196,12 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       <div className="flex items-start gap-4">
         <div className="relative shrink-0">
           {user.avatar && !imgError ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <Image
               src={user.avatar}
               alt={user.name}
+              width={56}
+              height={56}
+              unoptimized
               onError={() => setImgError(true)}
               className="w-14 h-14 rounded-2xl object-cover border border-outline-variant/60 shadow-2xs bg-surface-container"
             />
@@ -290,8 +293,8 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
       {/* Role-specific stat cards */}
       <div className="grid grid-cols-3 gap-3 border-t border-surface-container pt-4">
-        {stats.map((s, i) => (
-          <div key={i} className="flex flex-col gap-1">
+        {stats.map((s) => (
+          <div key={s.label} className="flex flex-col gap-1">
             <StatsCard
               label={s.label}
               value={s.value}
