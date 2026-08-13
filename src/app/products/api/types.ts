@@ -38,6 +38,12 @@ export interface UpdateProductRequest {
   expiryVerificationState?: ExpiryVerificationState | string | null;
 }
 
+export interface ProductImage {
+  id: string;
+  imageUrl: string;
+  displayOrder?: number;
+}
+
 export interface MerchantProduct {
   id: string;
   storeId?: string;
@@ -55,7 +61,7 @@ export interface MerchantProduct {
   status?: string;
   automationMode?: AutomationMode | null;
   expiryVerificationState?: ExpiryVerificationState | string | null;
-  images?: string[];
+  images?: ProductImage[] | string[];
   createdAt?: string;
   updatedAt?: string;
 }

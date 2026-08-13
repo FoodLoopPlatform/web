@@ -17,6 +17,8 @@ export const Endpoints = {
     products: "/stores/me/products",
     productById: (id: string) => `/stores/me/products/${id}`,
     productImages: (id: string) => `/stores/me/products/${id}/images`,
+    productImageById: (id: string, imageId: string) =>
+      `/stores/me/products/${id}/images/${imageId}`,
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",

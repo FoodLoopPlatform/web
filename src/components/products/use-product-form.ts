@@ -6,6 +6,7 @@ import {
   createMerchantProduct,
   updateMerchantProduct,
   uploadProductImage,
+  deleteProductImage,
 } from "@/app/products/api/products-api";
 import type {
   Category,
@@ -14,13 +15,14 @@ import type {
   MerchantProduct,
   AutomationMode,
 } from "@/app/products/api/types";
-import { extractProductImages } from "@/utils/image-utils";
+import { extractProductImageRecords } from "@/utils/image-utils";
 
 export interface ImageItem {
   id: string;
   file?: File;
   previewUrl: string;
   isExisting?: boolean;
+  imageId?: string | null;
 }
 
 export interface UseProductFormProps {
@@ -34,21 +36,21 @@ export function useProductForm({
   initialProduct,
   productId,
 }: UseProductFormProps) {
-  const [expiryTab, setExpiryTab] = useState<"manual" | "scan">("manual");
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   const [images, setImages] = useState<ImageItem[]>(() => {
-    const extracted = extractProductImages(initialProduct);
+    const extracted = extractProductImageRecords(initialProduct);
     if (extracted.length > 0) {
-      return extracted.map((url, idx) => ({
+      return extracted.map((img, idx) => ({
         id: `existing-${idx}-${Date.now()}`,
-        previewUrl: url,
+        previewUrl: img.url,
         isExisting: true,
+        imageId: img.id,
       }));
     }
     return [];
   });
+  const [deletingImageIds, setDeletingImageIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -85,8 +87,6 @@ export function useProductForm({
     (initialProduct?.automationMode as AutomationMode) || "Assisted",
   );
 
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanSuccess, setScanSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgressStatus, setUploadProgressStatus] = useState<
     string | null
@@ -150,26 +150,38 @@ export function useProductForm({
     });
   };
 
-  const handleRemoveImage = (index: number) => {
-    setImages((prev) => {
-      const itemToRemove = prev[index];
-      if (itemToRemove?.file && itemToRemove.previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(itemToRemove.previewUrl);
-      }
-      return prev.filter((_, i) => i !== index);
-    });
-  };
+  const handleRemoveImage = async (index: number) => {
+    const itemToRemove = images[index];
+    if (!itemToRemove) return;
 
-  const handleSimulateScan = () => {
-    setIsScanning(true);
-    setScanSuccess(false);
-    setTimeout(() => {
-      setIsScanning(false);
-      setScanSuccess(true);
-      const threeDaysAhead = new Date();
-      threeDaysAhead.setDate(threeDaysAhead.getDate() + 3);
-      setExpiryDate(threeDaysAhead.toISOString().split("T")[0]);
-    }, 2000);
+    // Existing (already-persisted) images must be deleted on the backend too.
+    if (itemToRemove.isExisting && itemToRemove.imageId && productId) {
+      setDeletingImageIds((prev) => new Set(prev).add(itemToRemove.imageId!));
+      const res = await deleteProductImage(productId, itemToRemove.imageId);
+      setDeletingImageIds((prev) => {
+        const next = new Set(prev);
+        next.delete(itemToRemove.imageId!);
+        return next;
+      });
+
+      if (!res.data) {
+        setToast({
+          message: res.error || "تعذر حذف الصورة من السيرفر",
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    setImages((prev) => {
+      const removeIdx = prev.findIndex((img) => img.id === itemToRemove.id);
+      if (removeIdx === -1) return prev;
+      const target = prev[removeIdx];
+      if (target.file && target.previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      return prev.filter((_, i) => i !== removeIdx);
+    });
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -195,10 +207,10 @@ export function useProductForm({
       ? parseFloat(discountedPrice)
       : origPrice * 0.5;
     const qty = quantity ? parseInt(quantity, 10) : 1;
-    const rawExpDate =
+    // Backend expects a date-only string (yyyy-MM-dd), not a full ISO datetime.
+    const expDate =
       expiryDate ||
       new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
-    const expDate = new Date(rawExpDate).toISOString();
 
     setIsSubmitting(true);
 
@@ -296,13 +308,8 @@ export function useProductForm({
   };
 
   return {
-    expiryTab,
-    setExpiryTab,
-    mobileSidebarOpen,
-    setMobileSidebarOpen,
-    sidebarCollapsed,
-    setSidebarCollapsed,
     images,
+    deletingImageIds,
     categories,
     isLoadingCategories,
     selectedCategory,
@@ -321,10 +328,6 @@ export function useProductForm({
     setExpiryDate,
     automationMode,
     setAutomationMode,
-    isScanning,
-    setIsScanning,
-    scanSuccess,
-    setScanSuccess,
     isSubmitting,
     uploadProgressStatus,
     submitError,
@@ -332,7 +335,6 @@ export function useProductForm({
     handleFilesAdded,
     handleMoveImage,
     handleRemoveImage,
-    handleSimulateScan,
     handleSubmit,
   };
 }

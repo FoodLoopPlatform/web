@@ -126,60 +126,85 @@ export async function getMerchantProductById(id: string) {
 }
 
 /**
- * Update an existing merchant product via PATCH /stores/me/products/{id}
+ * Update an existing merchant product via PATCH /stores/me/products/{id}.
+ *
+ * The live API expects multipart/form-data with PascalCase field names
+ * (CategoryId, Title, Description, OriginalPrice, DiscountedPrice,
+ * QuantityAvailable, ExpirationDate, Status) rather than a JSON body —
+ * sending JSON causes the request to be rejected by the backend.
  */
 export async function updateMerchantProduct(
   id: string,
   payload: UpdateProductRequest,
 ) {
+  const formData = new FormData();
+  if (payload.categoryId != null)
+    formData.append("CategoryId", payload.categoryId);
+  if (payload.title != null) formData.append("Title", payload.title);
+  if (payload.description != null)
+    formData.append("Description", payload.description);
+  if (payload.originalPrice != null)
+    formData.append("OriginalPrice", String(payload.originalPrice));
+  if (payload.discountedPrice != null)
+    formData.append("DiscountedPrice", String(payload.discountedPrice));
+  if (payload.quantityAvailable != null)
+    formData.append("QuantityAvailable", String(payload.quantityAvailable));
+  if (payload.expirationDate != null)
+    formData.append("ExpirationDate", payload.expirationDate);
+  if (payload.status != null) formData.append("Status", payload.status);
+
   try {
     const res = await withAuth((token) =>
       unwrapEnvelope<MerchantProduct>(
-        updateOne<FoodLoopEnvelope<MerchantProduct>, UpdateProductRequest>(
+        updateOne<FoodLoopEnvelope<MerchantProduct>, FormData>(
           Endpoints.stores.productById(id),
-          payload,
+          formData,
           { token },
         ),
       ),
     );
 
-    if (res.data) {
-      return res;
+    return res;
+  } catch (err: unknown) {
+    // Network-level failure (e.g. offline): fall back to the in-memory
+    // mock dataset so the demo experience keeps working.
+    const mockItem = getMockProductById(id);
+    if (mockItem) {
+      if (payload.title) mockItem.title = payload.title;
+      if (payload.titleAr) mockItem.titleAr = payload.titleAr;
+      if (payload.description !== undefined)
+        mockItem.description = payload.description;
+      if (payload.descriptionAr !== undefined)
+        mockItem.descriptionAr = payload.descriptionAr;
+      if (payload.originalPrice !== undefined && payload.originalPrice !== null)
+        mockItem.originalPrice = payload.originalPrice;
+      if (
+        payload.discountedPrice !== undefined &&
+        payload.discountedPrice !== null
+      )
+        mockItem.discountedPrice = payload.discountedPrice;
+      if (
+        payload.quantityAvailable !== undefined &&
+        payload.quantityAvailable !== null
+      )
+        mockItem.quantityAvailable = payload.quantityAvailable;
+      if (
+        payload.expirationDate !== undefined &&
+        payload.expirationDate !== null
+      )
+        mockItem.expirationDate = payload.expirationDate;
+      if (payload.expiryVerificationState !== undefined)
+        mockItem.expiryVerificationState = payload.expiryVerificationState;
+
+      return { data: mockItem };
     }
-  } catch {
-    // Server API failed or returned unsupported media type
+
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر التواصل مع السيرفر لتحديث المنتج";
+    return { error: message };
   }
-
-  // Graceful fallback: update in-memory mock product
-  const mockItem = getMockProductById(id);
-  if (mockItem) {
-    if (payload.title) mockItem.title = payload.title;
-    if (payload.titleAr) mockItem.titleAr = payload.titleAr;
-    if (payload.description !== undefined)
-      mockItem.description = payload.description;
-    if (payload.descriptionAr !== undefined)
-      mockItem.descriptionAr = payload.descriptionAr;
-    if (payload.originalPrice !== undefined && payload.originalPrice !== null)
-      mockItem.originalPrice = payload.originalPrice;
-    if (
-      payload.discountedPrice !== undefined &&
-      payload.discountedPrice !== null
-    )
-      mockItem.discountedPrice = payload.discountedPrice;
-    if (
-      payload.quantityAvailable !== undefined &&
-      payload.quantityAvailable !== null
-    )
-      mockItem.quantityAvailable = payload.quantityAvailable;
-    if (payload.expirationDate !== undefined && payload.expirationDate !== null)
-      mockItem.expirationDate = payload.expirationDate;
-    if (payload.expiryVerificationState !== undefined)
-      mockItem.expiryVerificationState = payload.expiryVerificationState;
-
-    return { data: mockItem };
-  }
-
-  return { data: { id, ...payload } as unknown as MerchantProduct };
 }
 
 /**
@@ -236,6 +261,35 @@ export function uploadProductImage(id: string, file: File) {
       ),
     ),
   );
+}
+
+/**
+ * Delete a product image via DELETE /stores/me/products/{id}/images/{imageId}
+ */
+export async function deleteProductImage(id: string, imageId: string) {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<boolean>(
+        deleteOne<FoodLoopEnvelope<boolean>>(
+          Endpoints.stores.productImageById(id, imageId),
+          undefined,
+          { token },
+        ),
+      ),
+    );
+
+    if (res.status && res.status >= 200 && res.status < 300) {
+      return { data: true };
+    }
+
+    return { error: res.error || "تعذر حذف صورة المنتج", status: res.status };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر التواصل مع السيرفر لحذف الصورة";
+    return { error: message };
+  }
 }
 
 /**
