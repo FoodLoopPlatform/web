@@ -1,5 +1,12 @@
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+if (!baseUrl) {
+  throw new Error(
+    "Configuration Error: NEXT_PUBLIC_BASE_URL environment variable is missing.",
+  );
+}
+
 export const Endpoints = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net",
+  baseUrl,
 
   auth: {
     register: "/auth/register",

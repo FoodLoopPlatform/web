@@ -203,8 +203,7 @@ function normalizeStore(raw: RawEntity): Store {
       ? locationParts.join(", ")
       : raw.location || "Cairo, Egypt";
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net";
+  const baseUrl = Endpoints.baseUrl;
   const docs = Array.isArray(raw.documents)
     ? raw.documents.map((d: RawDoc) => ({
         id: d.id,
@@ -270,8 +269,7 @@ function normalizeCharity(raw: RawEntity): Charity {
       ? locationParts.join(", ")
       : raw.location || "Cairo, Egypt";
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net";
+  const baseUrl = Endpoints.baseUrl;
   const docs = Array.isArray(raw.documents)
     ? raw.documents.map((d: RawDoc) => ({
         id: d.id,
@@ -426,8 +424,6 @@ export function verifyCharity(
   );
 }
 
-import { updateMockUserStatus } from "./user-detail-api";
-
 /** PATCH /admin/users/{id}/status or /users/{id} */
 export function updateUserStatus(
   id: string,
@@ -436,7 +432,6 @@ export function updateUserStatus(
 ) {
   const backendStatus = status === "SUSPENDED" ? "Suspended" : "Active";
   return withAuth(async (token) => {
-    updateMockUserStatus(id, status);
     const res = await unwrapEnvelope<{ id: string; status: string }>(
       updateOne<
         FoodLoopEnvelope<{ id: string; status: string }>,
@@ -968,85 +963,65 @@ export function getModerationQueue(params?: {
   pageSize?: number;
 }) {
   return withAuth(async (token) => {
-    try {
-      const pendingQuery = new URLSearchParams();
-      pendingQuery.set("pageNumber", String(params?.pageNumber ?? 1));
-      pendingQuery.set("pageSize", String(params?.pageSize ?? 50));
-      if (params?.minConfidence !== undefined) {
-        pendingQuery.set(
-          "confidenceThreshold",
-          String(params.minConfidence / 100),
+    const pendingQuery = new URLSearchParams();
+    pendingQuery.set("pageNumber", String(params?.pageNumber ?? 1));
+    pendingQuery.set("pageSize", String(params?.pageSize ?? 50));
+    if (params?.minConfidence !== undefined) {
+      pendingQuery.set(
+        "confidenceThreshold",
+        String(params.minConfidence / 100),
+      );
+    }
+
+    const aiRes = await unwrapEnvelope<Record<string, unknown>[]>(
+      getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
+        `${Endpoints.admin.productsPendingAi}?${pendingQuery.toString()}`,
+        { token },
+      ),
+    );
+
+    if (aiRes.data && Array.isArray(aiRes.data)) {
+      let items = aiRes.data.map(normalizeProductToModerationItem);
+      if (params?.flagType && params.flagType !== "ALL") {
+        items = items.filter((item) =>
+          item.flags.includes(
+            params.flagType as ModerationItem["flags"][number],
+          ),
         );
       }
-
-      const aiRes = await unwrapEnvelope<Record<string, unknown>[]>(
-        getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
-          `${Endpoints.admin.productsPendingAi}?${pendingQuery.toString()}`,
-          { token },
-        ),
-      );
-
-      if (aiRes.data && Array.isArray(aiRes.data) && aiRes.data.length > 0) {
-        let items = aiRes.data.map(normalizeProductToModerationItem);
-        if (params?.flagType && params.flagType !== "ALL") {
-          items = items.filter((item) =>
-            item.flags.includes(
-              params.flagType as ModerationItem["flags"][number],
-            ),
-          );
-        }
-        if (params?.search && params.search.trim()) {
-          const q = params.search.toLowerCase().trim();
-          items = items.filter(
-            (item) =>
-              item.productNameAr.toLowerCase().includes(q) ||
-              item.productNameEn.toLowerCase().includes(q) ||
-              item.storeNameAr.toLowerCase().includes(q) ||
-              item.storeNameEn.toLowerCase().includes(q),
-          );
-        }
-        return { data: items };
+      if (params?.search && params.search.trim()) {
+        const q = params.search.toLowerCase().trim();
+        items = items.filter(
+          (item) =>
+            item.productNameAr.toLowerCase().includes(q) ||
+            item.productNameEn.toLowerCase().includes(q) ||
+            item.storeNameAr.toLowerCase().includes(q) ||
+            item.storeNameEn.toLowerCase().includes(q),
+        );
       }
-    } catch {
-      // Fallback to in-memory mock store
+      return { data: items };
     }
 
-    // Fallback to in-memory mock store if API returns empty array or error
-    let filtered = [...mockModerationStore];
-
-    if (params?.flagType && params.flagType !== "ALL") {
-      filtered = filtered.filter((item) =>
-        item.flags.includes(params.flagType as ModerationItem["flags"][number]),
-      );
-    }
-
-    if (params?.search && params.search.trim()) {
-      const q = params.search.toLowerCase().trim();
-      filtered = filtered.filter(
-        (item) =>
-          item.productNameAr.toLowerCase().includes(q) ||
-          item.productNameEn.toLowerCase().includes(q) ||
-          item.storeNameAr.toLowerCase().includes(q) ||
-          item.storeNameEn.toLowerCase().includes(q),
-      );
-    }
-
-    return { data: filtered };
+    return {
+      error: aiRes.error || "Failed to fetch moderation queue",
+      status: aiRes.status,
+    };
   });
 }
 
 /** POST /admin/products/{id}/approve */
 export function approveModerationItem(id: string) {
   return withAuth(async (token) => {
-    await unwrapEnvelope<void>(
+    const res = await unwrapEnvelope<void>(
       createOne<FoodLoopEnvelope<void>, Record<string, never>>(
         Endpoints.admin.approveProduct(id),
         {},
         { token },
       ),
     );
-    // Optimistic / mock update
-    filterMockModerationItem(id);
+    if (res.error) {
+      return { error: res.error, status: res.status };
+    }
     return { data: undefined };
   });
 }
@@ -1055,15 +1030,16 @@ export function approveModerationItem(id: string) {
 export function rejectModerationItem(id: string, reason?: string) {
   return withAuth(async (token) => {
     const noteText = reason || "Rejected by admin";
-    await unwrapEnvelope<void>(
+    const res = await unwrapEnvelope<void>(
       updateOne<FoodLoopEnvelope<void>, { note: string }>(
         Endpoints.admin.rejectProduct(id),
         { note: noteText },
         { token },
       ),
     );
-    // Optimistic / mock update
-    filterMockModerationItem(id);
+    if (res.error) {
+      return { error: res.error, status: res.status };
+    }
     return { data: undefined };
   });
 }
@@ -1072,20 +1048,20 @@ export function rejectModerationItem(id: string, reason?: string) {
 export function requestChangesModerationItem(id: string, notes?: string) {
   return withAuth(async (token) => {
     const noteText = notes || "Requested changes by admin";
-    await unwrapEnvelope<void>(
+    const res = await unwrapEnvelope<void>(
       updateOne<FoodLoopEnvelope<void>, { note: string }>(
         Endpoints.admin.requestChangesProduct(id),
         { note: noteText },
         { token },
       ),
     );
-    // Optimistic / mock update
-    filterMockModerationItem(id);
+    if (res.error) {
+      return { error: res.error, status: res.status };
+    }
     return { data: undefined };
   });
 }
 
-/** Reset mock queue for testing / refresh CTA */
 export function resetModerationQueue() {
-  return { data: resetMockModerationStore() };
+  return getModerationQueue();
 }

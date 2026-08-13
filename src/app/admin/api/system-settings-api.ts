@@ -10,67 +10,55 @@ import {
   initialGuidelineDocuments,
   initialPlatformAdmins,
 } from "../mocks/system-settings.mock";
+import { withAuth } from "@/utils/api-client";
+import type { ApiResponse } from "@/utils/server";
 
-export interface ApiResponse<T> {
-  data: T | null;
-  error: string | null;
-}
-
-export async function getAutomationDefaults(): Promise<
+export function getAutomationDefaults(): Promise<
   ApiResponse<GlobalAutomationDefaults>
 > {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: { ...initialAutomationDefaults }, error: null });
-    }, 150);
+  return withAuth(async () => {
+    return { data: { ...initialAutomationDefaults } };
   });
 }
 
-export async function updateAutomationDefaults(
+export function updateAutomationDefaults(
   defaults: GlobalAutomationDefaults,
 ): Promise<ApiResponse<GlobalAutomationDefaults>> {
-  const clampedDefaults = {
-    ...defaults,
-    maxDiscountPerCycle: Math.min(
-      15,
-      Math.max(1, defaults.maxDiscountPerCycle),
-    ),
-  };
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: clampedDefaults, error: null });
-    }, 200);
+  return withAuth(async () => {
+    const clampedDefaults = {
+      ...defaults,
+      maxDiscountPerCycle: Math.min(
+        15,
+        Math.max(1, defaults.maxDiscountPerCycle),
+      ),
+    };
+    return { data: clampedDefaults };
   });
 }
 
-export async function getGuidelineDocuments(): Promise<
+export function getGuidelineDocuments(): Promise<
   ApiResponse<GuidelineDocument[]>
 > {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: [...initialGuidelineDocuments], error: null });
-    }, 150);
+  return withAuth(async () => {
+    return { data: [...initialGuidelineDocuments] };
   });
 }
 
-export async function uploadGuidelineDocument(
+export function uploadGuidelineDocument(
   doc: Omit<GuidelineDocument, "id" | "lastUpdated" | "status">,
 ): Promise<ApiResponse<GuidelineDocument>> {
-  const newDoc: GuidelineDocument = {
-    ...doc,
-    id: `DOC-${Date.now().toString().slice(-4)}`,
-    lastUpdated: new Date().toISOString().split("T")[0],
-    status: "Draft",
-  };
-
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: newDoc, error: null });
-    }, 300);
+  return withAuth(async () => {
+    const newDoc: GuidelineDocument = {
+      ...doc,
+      id: `DOC-${Date.now().toString().slice(-4)}`,
+      lastUpdated: new Date().toISOString().split("T")[0],
+      status: "Draft",
+    };
+    return { data: newDoc };
   });
 }
 
-export async function toggleDocumentStatus(
+export function toggleDocumentStatus(
   id: string,
   newStatus: "Draft" | "Published",
 ): Promise<
@@ -80,34 +68,27 @@ export async function toggleDocumentStatus(
     lastRagIndexedAt?: string;
   }>
 > {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          id,
-          status: newStatus,
-          lastRagIndexedAt:
-            newStatus === "Published"
-              ? new Date().toISOString().replace("T", " ").slice(0, 16)
-              : undefined,
-        },
-        error: null,
-      });
-    }, 200);
+  return withAuth(async () => {
+    return {
+      data: {
+        id,
+        status: newStatus,
+        lastRagIndexedAt:
+          newStatus === "Published"
+            ? new Date().toISOString().replace("T", " ").slice(0, 16)
+            : undefined,
+      },
+    };
   });
 }
 
-export async function getPlatformAdmins(): Promise<
-  ApiResponse<PlatformAdmin[]>
-> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: [...initialPlatformAdmins], error: null });
-    }, 150);
+export function getPlatformAdmins(): Promise<ApiResponse<PlatformAdmin[]>> {
+  return withAuth(async () => {
+    return { data: [...initialPlatformAdmins] };
   });
 }
 
-export async function updateAdminPermissions(
+export function updateAdminPermissions(
   id: string,
   permissions: PlatformAdmin["permissions"],
   roleTitle: string,
@@ -118,29 +99,23 @@ export async function updateAdminPermissions(
     roleTitle: string;
   }>
 > {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: { id, permissions, roleTitle }, error: null });
-    }, 200);
+  return withAuth(async () => {
+    return { data: { id, permissions, roleTitle } };
   });
 }
 
-export async function updateSecuritySettings(
+export function updateSecuritySettings(
   settings: SecuritySettings,
 ): Promise<ApiResponse<SecuritySettings>> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: settings, error: null });
-    }, 200);
+  return withAuth(async () => {
+    return { data: settings };
   });
 }
 
-export async function updateAiObservabilitySettings(
+export function updateAiObservabilitySettings(
   settings: AiObservabilitySettings,
 ): Promise<ApiResponse<AiObservabilitySettings>> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: settings, error: null });
-    }, 200);
+  return withAuth(async () => {
+    return { data: settings };
   });
 }

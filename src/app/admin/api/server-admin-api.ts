@@ -2,13 +2,6 @@ import { getMany, type ApiResponse } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withServerAuth } from "@/utils/server-api-client";
-import { fetchMockAuditLogs } from "../mocks/audit-log.mock";
-import { mockModerationStore } from "../mocks/moderation.mock";
-import {
-  MOCK_NOTES,
-  MOCK_USER_DETAILS,
-  MOCK_ACTIVITY,
-} from "../mocks/user-detail.mock";
 
 import type {
   Consumer,
@@ -68,8 +61,7 @@ function normalizeStore(raw: RawEntity): Store {
       ? locationParts.join(", ")
       : (raw.location as string) || "Cairo, Egypt";
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net";
+  const baseUrl = Endpoints.baseUrl;
   const docs = Array.isArray(raw.documents)
     ? (raw.documents as RawDoc[]).map((d: RawDoc) => ({
         id: d.id,
@@ -137,8 +129,7 @@ function normalizeCharity(raw: RawEntity): Charity {
       ? locationParts.join(", ")
       : String(raw.location || "Cairo, Egypt");
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://foodloop.runasp.net";
+  const baseUrl = Endpoints.baseUrl;
   const docs = Array.isArray(raw.documents)
     ? (raw.documents as RawDoc[]).map((d: RawDoc) => ({
         id: d.id,
@@ -600,153 +591,190 @@ export function getModerationQueueServer(params?: {
   pageSize?: number;
 }) {
   return withServerAuth(async (token) => {
-    try {
-      const pendingQuery = new URLSearchParams();
-      pendingQuery.set("pageNumber", String(params?.pageNumber ?? 1));
-      pendingQuery.set("pageSize", String(params?.pageSize ?? 50));
-      if (params?.minConfidence !== undefined) {
-        pendingQuery.set(
-          "confidenceThreshold",
-          String(params.minConfidence / 100),
+    const pendingQuery = new URLSearchParams();
+    pendingQuery.set("pageNumber", String(params?.pageNumber ?? 1));
+    pendingQuery.set("pageSize", String(params?.pageSize ?? 50));
+    if (params?.minConfidence !== undefined) {
+      pendingQuery.set(
+        "confidenceThreshold",
+        String(params.minConfidence / 100),
+      );
+    }
+
+    const aiRes = await unwrapEnvelope<Record<string, unknown>[]>(
+      getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
+        `${Endpoints.admin.productsPendingAi}?${pendingQuery.toString()}`,
+        { token },
+      ),
+    );
+
+    if (aiRes.data && Array.isArray(aiRes.data)) {
+      let items = aiRes.data.map(normalizeProductToModerationItem);
+      if (params?.flagType && params.flagType !== "ALL") {
+        items = items.filter((item) =>
+          item.flags.includes(
+            params.flagType as ModerationItem["flags"][number],
+          ),
         );
       }
-
-      const aiRes = await unwrapEnvelope<Record<string, unknown>[]>(
-        getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
-          `${Endpoints.admin.productsPendingAi}?${pendingQuery.toString()}`,
-          { token },
-        ),
-      );
-
-      if (aiRes.data && Array.isArray(aiRes.data) && aiRes.data.length > 0) {
-        let items = aiRes.data.map(normalizeProductToModerationItem);
-        if (params?.flagType && params.flagType !== "ALL") {
-          items = items.filter((item) =>
-            item.flags.includes(
-              params.flagType as ModerationItem["flags"][number],
-            ),
-          );
-        }
-        if (params?.search && params.search.trim()) {
-          const q = params.search.toLowerCase().trim();
-          items = items.filter(
-            (item) =>
-              item.productNameAr.toLowerCase().includes(q) ||
-              item.productNameEn.toLowerCase().includes(q) ||
-              item.storeNameAr.toLowerCase().includes(q) ||
-              item.storeNameEn.toLowerCase().includes(q),
-          );
-        }
-        return { data: items };
+      if (params?.search && params.search.trim()) {
+        const q = params.search.toLowerCase().trim();
+        items = items.filter(
+          (item) =>
+            item.productNameAr.toLowerCase().includes(q) ||
+            item.productNameEn.toLowerCase().includes(q) ||
+            item.storeNameAr.toLowerCase().includes(q) ||
+            item.storeNameEn.toLowerCase().includes(q),
+        );
       }
-    } catch {
-      // Fallback to mock
+      return { data: items };
     }
 
-    let filtered = [...mockModerationStore];
-    if (params?.flagType && params.flagType !== "ALL") {
-      filtered = filtered.filter((item) =>
-        item.flags.includes(params.flagType as ModerationItem["flags"][number]),
-      );
-    }
-    if (params?.search && params.search.trim()) {
-      const q = params.search.toLowerCase().trim();
-      filtered = filtered.filter(
-        (item) =>
-          item.productNameAr.toLowerCase().includes(q) ||
-          item.productNameEn.toLowerCase().includes(q) ||
-          item.storeNameAr.toLowerCase().includes(q) ||
-          item.storeNameEn.toLowerCase().includes(q),
-      );
-    }
-
-    return { data: filtered };
+    return {
+      error: aiRes.error || "Failed to load moderation queue",
+      status: aiRes.status,
+    };
   });
 }
 
 export async function getAuditLogsServer(
   params: AuditLogFilterParams = {},
 ): Promise<AuditLogFetchResult> {
-  return fetchMockAuditLogs(params);
+  return withServerAuth(async (token) => {
+    const query = new URLSearchParams();
+    if (params.page) query.set("page", String(params.page));
+    if (params.pageSize) query.set("pageSize", String(params.pageSize));
+
+    const res = await unwrapEnvelope<AuditLogFetchResult>(
+      getMany<FoodLoopEnvelope<AuditLogFetchResult>>(
+        `${Endpoints.admin.userActivityLog("all")}?${query.toString()}`,
+        { token },
+      ),
+    );
+
+    if (res.data) return { data: res.data };
+    return {
+      data: {
+        items: [],
+        total: 0,
+        page: params.page ?? 1,
+        pageSize: params.pageSize ?? 5,
+        totalPages: 0,
+        stats: {
+          activeSessions: 0,
+          aiDecisions24h: 0,
+          flaggedEvents: 0,
+          systemHealthStatus: "Unavailable",
+        },
+      },
+    };
+  }).then((res) => res.data!);
 }
 
 export function getUserDetailServer(
   id: string,
 ): Promise<ApiResponse<UserDetail>> {
   return withServerAuth<UserDetail>(async (token) => {
-    try {
-      const userRes = await unwrapEnvelope<RawEntity>(
-        getMany<FoodLoopEnvelope<RawEntity>>(Endpoints.admin.userById(id), {
+    const userRes = await unwrapEnvelope<RawEntity>(
+      getMany<FoodLoopEnvelope<RawEntity>>(Endpoints.admin.userById(id), {
+        token,
+      }),
+    );
+
+    if (userRes.data) {
+      const u = userRes.data;
+      let st: "ACTIVE" | "SUSPENDED" | "PENDING" = "ACTIVE";
+      const rawSt = String(u.status || "ACTIVE").toUpperCase();
+      if (rawSt === "SUSPENDED" || rawSt === "BANNED") st = "SUSPENDED";
+      else if (rawSt === "PENDING" || rawSt === "UNVERIFIED") st = "PENDING";
+      else st = "ACTIVE";
+
+      let role: "Consumer" | "Store" | "Charity" = "Consumer";
+      const rawRole = String(u.role || u.userType || "").toLowerCase();
+      if (rawRole.includes("store") || rawRole.includes("merchant")) {
+        role = "Store";
+      } else if (rawRole.includes("charity")) {
+        role = "Charity";
+      } else {
+        role = "Consumer";
+      }
+
+      const rawDocs = Array.isArray(u.documents)
+        ? (u.documents as RawDoc[])
+        : [];
+      const baseUrl = Endpoints.baseUrl;
+      const normalizedDocs = rawDocs.map((d) => ({
+        id: String(d.id || `doc-${Math.random()}`),
+        verificationType: String(d.verificationType || "Document"),
+        documentUrl: d.documentUrl
+          ? String(d.documentUrl).startsWith("http")
+            ? String(d.documentUrl)
+            : `${baseUrl}${String(d.documentUrl).startsWith("/") ? "" : "/"}${d.documentUrl}`
+          : "",
+        status: String(d.status || "Pending"),
+        reviewedAt: d.reviewedAt ? String(d.reviewedAt) : undefined,
+      }));
+
+      const userDetail: UserDetail = {
+        id: String(u.id || id),
+        name: String(u.name ?? u.fullName ?? u.ownerName ?? "User"),
+        email: String(u.email ?? u.ownerEmail ?? ""),
+        phone: String(u.phone ?? u.phoneNumber ?? u.ownerPhone ?? "N/A"),
+        location: String(u.location ?? "Egypt"),
+        joinedDate: u.createdAt
+          ? new Date(String(u.createdAt)).toLocaleDateString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric",
+            })
+          : String(u.joinedDate || "Jan 2024"),
+        lastActive: u.updatedAt
+          ? "Recently"
+          : String(u.lastActive || "Recently"),
+        status: st,
+        role,
+        documents: normalizedDocs,
+        stats: {
+          totalOrders: 0,
+          savedAmount: "EGP 0",
+          activeDisputes: 0,
+        },
+      };
+      return { data: userDetail };
+    }
+
+    if (userRes.status === 404) {
+      const storeRes = await unwrapEnvelope<RawEntity>(
+        getMany<FoodLoopEnvelope<RawEntity>>(Endpoints.admin.storeById(id), {
           token,
         }),
       );
-      if (userRes.data) {
-        const u = userRes.data;
-        let st: "ACTIVE" | "SUSPENDED" | "PENDING" = "ACTIVE";
-        const rawSt = String(u.status || "ACTIVE").toUpperCase();
-        if (rawSt === "SUSPENDED" || rawSt === "BANNED") st = "SUSPENDED";
-        else if (rawSt === "PENDING" || rawSt === "UNVERIFIED") st = "PENDING";
-        else st = "ACTIVE";
-
-        let role: "Consumer" | "Store" | "Charity" = "Consumer";
-        const rawRole = String(u.role || u.userType || "").toLowerCase();
-        if (rawRole.includes("store") || rawRole.includes("merchant")) {
-          role = "Store";
-        } else if (rawRole.includes("charity")) {
-          role = "Charity";
-        } else {
-          role = "Consumer";
-        }
-
-        const rawDocs = Array.isArray(u.documents)
-          ? (u.documents as RawDoc[])
-          : [];
-        const baseUrl = Endpoints.baseUrl;
-        const normalizedDocs = rawDocs.map((d) => ({
-          id: String(d.id || `doc-${Math.random()}`),
-          verificationType: String(d.verificationType || "Document"),
-          documentUrl: d.documentUrl
-            ? String(d.documentUrl).startsWith("http")
-              ? String(d.documentUrl)
-              : `${baseUrl}${String(d.documentUrl).startsWith("/") ? "" : "/"}${d.documentUrl}`
-            : "",
-          status: String(d.status || "Pending"),
-          reviewedAt: d.reviewedAt ? String(d.reviewedAt) : undefined,
-        }));
-
+      if (storeRes.data) {
+        const store = storeRes.data;
         const userDetail: UserDetail = {
-          id: String(u.id || id),
-          name: String(u.name ?? u.fullName ?? u.ownerName ?? "User"),
-          email: String(u.email ?? u.ownerEmail ?? ""),
-          phone: String(u.phone ?? u.phoneNumber ?? u.ownerPhone ?? "N/A"),
-          location: String(u.location ?? "Egypt"),
-          joinedDate: u.createdAt
-            ? new Date(String(u.createdAt)).toLocaleDateString("en-US", {
-                month: "short",
-                day: "2-digit",
-                year: "numeric",
-              })
-            : String(u.joinedDate || "Jan 2024"),
-          lastActive: u.updatedAt
-            ? "Recently"
-            : String(u.lastActive || "Recently"),
-          status: st,
-          role,
-          documents: normalizedDocs,
+          id: String(store.id || id),
+          name: String(store.name || store.ownerName || "Store"),
+          email: String(store.email || store.ownerEmail || ""),
+          phone: String(store.phone || store.ownerPhone || "N/A"),
+          location: String(store.location || "Egypt"),
+          joinedDate: String(store.joinedDate || "Jan 2024"),
+          lastActive: String(store.lastActive || "Recently"),
+          status: (store.status as UserDetail["status"]) || "ACTIVE",
+          role: "Store",
           stats: {
-            totalOrders: 12,
-            savedAmount: "EGP 450",
+            totalOrders: 0,
+            savedAmount: "EGP 0",
             activeDisputes: 0,
           },
         };
         return { data: userDetail };
       }
-    } catch {
-      // Fallback
     }
 
-    const found = MOCK_USER_DETAILS[id] ?? null;
-    return { data: found ?? undefined };
+    return {
+      error: userRes.error || "User not found",
+      status: userRes.status || 404,
+    };
   });
 }
 
@@ -754,38 +782,27 @@ export function getUserActivityEntriesServer(
   id: string,
 ): Promise<ApiResponse<UserActivityEntry[]>> {
   return withServerAuth<UserActivityEntry[]>(async (token) => {
-    try {
-      const result = await unwrapEnvelope<RawEntity[]>(
-        getMany<FoodLoopEnvelope<RawEntity[]>>(
-          Endpoints.admin.userActivityLog(id),
-          { token },
-        ),
-      );
-      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-        return {
-          data: result.data.map((raw, idx) => ({
-            id: String(raw.id || `act-${idx}`),
-            type: "created",
-            title: String(raw.title || "Activity"),
-            description: String(raw.description || ""),
-            timestamp: String(raw.timestamp || "Recently"),
-          })),
-        };
-      }
-    } catch {
-      // Fallback
+    const result = await unwrapEnvelope<RawEntity[]>(
+      getMany<FoodLoopEnvelope<RawEntity[]>>(
+        Endpoints.admin.userActivityLog(id),
+        { token },
+      ),
+    );
+    if (result.data && Array.isArray(result.data)) {
+      return {
+        data: result.data.map((raw, idx) => ({
+          id: String(raw.id || `act-${idx}`),
+          type: "created",
+          title: String(raw.title || "Activity"),
+          description: String(raw.description || ""),
+          timestamp: String(raw.timestamp || "Recently"),
+        })),
+      };
     }
-
-    const mockLocal = MOCK_ACTIVITY[id] || [
-      {
-        id: "X1",
-        type: "created" as const,
-        title: "Account Created",
-        description: "User registered on the FoodLoop platform.",
-        timestamp: "2025-10-01 08:00",
-      },
-    ];
-    return { data: mockLocal };
+    return {
+      error: result.error || "Failed to load user activity log",
+      status: result.status,
+    };
   });
 }
 
@@ -793,20 +810,21 @@ export function getAdminNoteServer(
   userId: string,
 ): Promise<ApiResponse<string>> {
   return withServerAuth<string>(async (token) => {
-    try {
-      const result = await unwrapEnvelope<{ note: string }>(
-        getMany<FoodLoopEnvelope<{ note: string }>>(
-          Endpoints.admin.userNote(userId),
-          { token },
-        ),
-      );
-      if (result.data?.note) {
-        return { data: result.data.note };
-      }
-    } catch {
-      // Fallback
+    const result = await unwrapEnvelope<{ note: string }>(
+      getMany<FoodLoopEnvelope<{ note: string }>>(
+        Endpoints.admin.userNote(userId),
+        { token },
+      ),
+    );
+    if (result.data?.note) {
+      return { data: result.data.note };
     }
-
-    return { data: MOCK_NOTES[userId] ?? "" };
+    if (result.status === 404) {
+      return { data: "" };
+    }
+    return {
+      error: result.error || "Failed to load admin note",
+      status: result.status,
+    };
   });
 }

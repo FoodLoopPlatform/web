@@ -128,7 +128,9 @@ export function UserDetailShell({
       } else {
         await updateUserStatus(user.id, "SUSPENDED", reason);
       }
-      setUser((prev) => (prev ? { ...prev, status: "SUSPENDED" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "SUSPENDED" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);
@@ -156,7 +158,9 @@ export function UserDetailShell({
       } else {
         await updateUserStatus(user.id, "ACTIVE", reason);
       }
-      setUser((prev) => (prev ? { ...prev, status: "ACTIVE" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "ACTIVE" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);
@@ -180,7 +184,9 @@ export function UserDetailShell({
     if (!user) return;
     try {
       await banUserPermanently(user.id);
-      setUser((prev) => (prev ? { ...prev, status: "SUSPENDED" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "SUSPENDED" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);
