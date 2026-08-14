@@ -56,6 +56,11 @@ export function MerchantSidebar({
       icon: "shopping_cart",
     },
     {
+      label: "النزاعات",
+      href: "/disputes",
+      icon: "warning",
+    },
+    {
       label: "الإعدادات",
       href: "/settings",
       icon: "settings",

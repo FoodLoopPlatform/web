@@ -32,6 +32,8 @@ export const Endpoints = {
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",
+    disputes: "/stores/me/disputes",
+    disputeById: (id: string) => `/stores/me/disputes/${id}`,
   },
 
   admin: {

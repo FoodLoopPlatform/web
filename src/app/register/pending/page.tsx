@@ -3,7 +3,6 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { InfoCircleIcon } from "@/components/icons/info-circle-icon";
-import { HeadsetIcon } from "@/components/icons/headset-icon";
 import { LeafIcon } from "@/components/icons/leaf-icon";
 import { RegisterProgress } from "../components/register-progress";
 
