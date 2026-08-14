@@ -205,6 +205,18 @@ export const createOne = <T, B = unknown>(
   });
 };
 
+export const putOne = <T, B = unknown>(
+  url: string,
+  body: B,
+  options?: FetchOptions,
+) => {
+  return apiFetch<T>(url, {
+    method: "PUT",
+    body: body instanceof FormData ? body : JSON.stringify(body),
+    ...options,
+  });
+};
+
 export const updateOne = <T, B = unknown>(
   url: string,
   body: B,

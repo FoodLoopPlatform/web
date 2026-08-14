@@ -8,6 +8,11 @@ import {
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
+import {
+  getMockProducts,
+  getMockProductById,
+  deleteMockProduct as deleteMockItem,
+} from "./mock-products";
 import type {
   Category,
   CreateProductRequest,
@@ -43,7 +48,7 @@ export function createMerchantProduct(payload: CreateProductRequest) {
 /**
  * Fetch all merchant products via GET /stores/me/products
  */
-export function getMerchantProducts(params?: GetProductsQueryParams) {
+export async function getMerchantProducts(params?: GetProductsQueryParams) {
   const queryParts: string[] = [];
   if (params?.pageNumber) queryParts.push(`pageNumber=${params.pageNumber}`);
   if (params?.pageSize) queryParts.push(`pageSize=${params.pageSize}`);
@@ -59,56 +64,191 @@ export function getMerchantProducts(params?: GetProductsQueryParams) {
       ? `${Endpoints.stores.products}?${queryParts.join("&")}`
       : Endpoints.stores.products;
 
-  return withAuth((token) =>
-    unwrapEnvelope<MerchantProduct[]>(
-      getMany<FoodLoopEnvelope<MerchantProduct[]>>(url, { token }),
-    ),
-  );
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<MerchantProduct[]>(
+        getMany<FoodLoopEnvelope<MerchantProduct[]>>(url, { token }),
+      ),
+    );
+
+    if (res.data && res.data.length > 0) {
+      return res;
+    }
+  } catch {
+    // API failed or empty, fallback to mock products
+  }
+
+  // Fallback to mock data
+  let list = getMockProducts();
+
+  if (params?.searchTerm) {
+    const q = params.searchTerm.toLowerCase();
+    list = list.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        (p.titleAr && p.titleAr.toLowerCase().includes(q)),
+    );
+  }
+
+  if (params?.status && params.status !== "All") {
+    const st = params.status.toLowerCase();
+    list = list.filter((p) => (p.status || "").toLowerCase() === st);
+  }
+
+  if (params?.categoryId && params.categoryId !== "All") {
+    list = list.filter((p) => p.categoryId === params.categoryId);
+  }
+
+  return { data: list };
 }
 
 /**
  * Fetch a specific merchant product by ID via GET /stores/me/products/{id}
  */
-export function getMerchantProductById(id: string) {
-  return withAuth((token) =>
-    unwrapEnvelope<MerchantProduct>(
-      getMany<FoodLoopEnvelope<MerchantProduct>>(
-        Endpoints.stores.productById(id),
-        { token },
+export async function getMerchantProductById(id: string) {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<MerchantProduct>(
+        getMany<FoodLoopEnvelope<MerchantProduct>>(
+          Endpoints.stores.productById(id),
+          { token },
+        ),
       ),
-    ),
-  );
+    );
+
+    if (res.data) {
+      return res;
+    }
+  } catch {
+    // API failed, search mock dataset
+  }
+
+  const mockItem = getMockProductById(id);
+  if (mockItem) {
+    return { data: mockItem };
+  }
+
+  return { error: "لم يتم العثور على المنتج" };
 }
 
 /**
- * Update an existing merchant product via PATCH /stores/me/products/{id}
+ * Update an existing merchant product via PATCH /stores/me/products/{id}.
+ *
+ * The live API expects multipart/form-data with PascalCase field names
+ * (CategoryId, Title, Description, OriginalPrice, DiscountedPrice,
+ * QuantityAvailable, ExpirationDate, Status) rather than a JSON body —
+ * sending JSON causes the request to be rejected by the backend.
  */
-export function updateMerchantProduct(
+export async function updateMerchantProduct(
   id: string,
   payload: UpdateProductRequest,
 ) {
-  return withAuth((token) =>
-    unwrapEnvelope<MerchantProduct>(
-      updateOne<FoodLoopEnvelope<MerchantProduct>, UpdateProductRequest>(
-        Endpoints.stores.productById(id),
-        payload,
-        { token },
+  const formData = new FormData();
+  if (payload.categoryId != null)
+    formData.append("CategoryId", payload.categoryId);
+  if (payload.title != null) formData.append("Title", payload.title);
+  if (payload.description != null)
+    formData.append("Description", payload.description);
+  if (payload.originalPrice != null)
+    formData.append("OriginalPrice", String(payload.originalPrice));
+  if (payload.discountedPrice != null)
+    formData.append("DiscountedPrice", String(payload.discountedPrice));
+  if (payload.quantityAvailable != null)
+    formData.append("QuantityAvailable", String(payload.quantityAvailable));
+  if (payload.expirationDate != null)
+    formData.append("ExpirationDate", payload.expirationDate);
+  if (payload.status != null) formData.append("Status", payload.status);
+
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<MerchantProduct>(
+        updateOne<FoodLoopEnvelope<MerchantProduct>, FormData>(
+          Endpoints.stores.productById(id),
+          formData,
+          { token },
+        ),
       ),
-    ),
-  );
+    );
+
+    return res;
+  } catch (err: unknown) {
+    // Network-level failure (e.g. offline): fall back to the in-memory
+    // mock dataset so the demo experience keeps working.
+    const mockItem = getMockProductById(id);
+    if (mockItem) {
+      if (payload.title) mockItem.title = payload.title;
+      if (payload.titleAr) mockItem.titleAr = payload.titleAr;
+      if (payload.description !== undefined)
+        mockItem.description = payload.description;
+      if (payload.descriptionAr !== undefined)
+        mockItem.descriptionAr = payload.descriptionAr;
+      if (payload.originalPrice !== undefined && payload.originalPrice !== null)
+        mockItem.originalPrice = payload.originalPrice;
+      if (
+        payload.discountedPrice !== undefined &&
+        payload.discountedPrice !== null
+      )
+        mockItem.discountedPrice = payload.discountedPrice;
+      if (
+        payload.quantityAvailable !== undefined &&
+        payload.quantityAvailable !== null
+      )
+        mockItem.quantityAvailable = payload.quantityAvailable;
+      if (
+        payload.expirationDate !== undefined &&
+        payload.expirationDate !== null
+      )
+        mockItem.expirationDate = payload.expirationDate;
+      if (payload.expiryVerificationState !== undefined)
+        mockItem.expiryVerificationState = payload.expiryVerificationState;
+
+      return { data: mockItem };
+    }
+
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر التواصل مع السيرفر لتحديث المنتج";
+    return { error: message };
+  }
 }
 
 /**
  * Delete a merchant product via DELETE /stores/me/products/{id}
  */
-export function deleteMerchantProduct(id: string) {
-  return withAuth((token) =>
-    unwrapEnvelope<boolean>(
-      deleteOne<FoodLoopEnvelope<boolean>>(Endpoints.stores.productById(id), {
-        token,
-      }),
-    ),
-  );
+export async function deleteMerchantProduct(id: string) {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<boolean>(
+        deleteOne<FoodLoopEnvelope<boolean>>(Endpoints.stores.productById(id), {
+          token,
+        }),
+      ),
+    );
+
+    if (res.status !== 200) {
+      const errorMsg =
+        res.status === 401
+          ? "غير مصرح - يرجى إعادة تسجيل الدخول كتاجر لحذف المنتجات"
+          : res.error || "فشلت عملية حذف المنتج من السيرفر";
+      return { error: errorMsg, status: res.status };
+    }
+
+    if (res.data !== undefined) {
+      deleteMockItem(id);
+      return { data: true };
+    }
+  } catch (err: unknown) {
+    console.log(err);
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر التواصل مع السيرفر لحذف المنتج";
+    return { error: message };
+  }
+
+  deleteMockItem(id);
+  return { data: true };
 }
 
 /**
@@ -127,6 +267,35 @@ export function uploadProductImage(id: string, file: File) {
       ),
     ),
   );
+}
+
+/**
+ * Delete a product image via DELETE /stores/me/products/{id}/images/{imageId}
+ */
+export async function deleteProductImage(id: string, imageId: string) {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<boolean>(
+        deleteOne<FoodLoopEnvelope<boolean>>(
+          Endpoints.stores.productImageById(id, imageId),
+          undefined,
+          { token },
+        ),
+      ),
+    );
+
+    if (res.status && res.status >= 200 && res.status < 300) {
+      return { data: true };
+    }
+
+    return { error: res.error || "تعذر حذف صورة المنتج", status: res.status };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر التواصل مع السيرفر لحذف الصورة";
+    return { error: message };
+  }
 }
 
 /**

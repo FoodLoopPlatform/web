@@ -24,6 +24,20 @@ export type LoginPayload = {
   password: string;
 };
 
+export type ForgotPasswordPayload = {
+  email: string;
+};
+
+export type ResetPasswordPayload = {
+  email: string;
+  token: string;
+  newPassword: string;
+};
+
+export type ResendVerificationPayload = {
+  email: string;
+};
+
 /** Maps the register form's business-type values to the API's BusinessCategory enum. */
 export const businessCategoryMap: Record<string, BusinessCategory | undefined> =
   {

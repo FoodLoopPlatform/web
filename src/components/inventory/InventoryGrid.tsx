@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { ProductCard, Product } from "@/components/inventory/ProductCard";
@@ -14,7 +14,12 @@ interface InventoryGridProps {
 
 export function InventoryGrid({ productsPromise }: InventoryGridProps) {
   const res = use(productsPromise);
-  const products = res.data ?? [];
+  const initialProducts = res.data ?? [];
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+
+  const products = initialProducts.filter(
+    (item) => !deletedIds.includes(item.id),
+  );
 
   if (products.length === 0) {
     return (
@@ -55,11 +60,20 @@ export function InventoryGrid({ productsPromise }: InventoryGridProps) {
           quantity: item.quantityAvailable,
           price: item.discountedPrice ?? item.originalPrice,
           status: item.status || "Published",
+          automationMode: item.automationMode,
+          expiryVerificationState: item.expiryVerificationState,
+          expirationDate: item.expirationDate,
           images: extractedImages,
           image: extractedImages.length > 0 ? extractedImages[0] : undefined,
         };
 
-        return <ProductCard key={product.id} product={product} />;
+        return (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onDelete={(id) => setDeletedIds((prev) => [...prev, id])}
+          />
+        );
       })}
 
       {/* Add New Product Card */}

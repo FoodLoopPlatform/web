@@ -3,7 +3,6 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { InfoCircleIcon } from "@/components/icons/info-circle-icon";
-import { HeadsetIcon } from "@/components/icons/headset-icon";
 import { LeafIcon } from "@/components/icons/leaf-icon";
 import { RegisterProgress } from "../components/register-progress";
 
@@ -58,19 +57,6 @@ export default function VerificationPendingPage() {
                 24-48 ساعة
               </Text>
             </div>
-          </div>
-
-          <div className="flex w-full flex-col items-center gap-4 border-t border-outline-variant pt-4">
-            <Text variant="body-md" className="text-on-surface-variant">
-              هل لديك أسئلة حول طلبك؟
-            </Text>
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 text-body-md font-medium text-link opacity-80 transition-opacity hover:opacity-100"
-            >
-              <HeadsetIcon className="h-5 w-5" />
-              تواصل مع الدعم
-            </a>
           </div>
         </Card.Body>
       </Card.Root>

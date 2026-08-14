@@ -29,21 +29,28 @@ export function resolveImageUrl(url: string | null | undefined): string | null {
   return `${baseUrl}${path}`;
 }
 
+export interface ExtractedProductImage {
+  id: string | null;
+  url: string;
+}
+
 /**
- * Helper utility to safely extract image URLs from product response objects.
- * Handles various backend response formats:
+ * Helper utility to safely extract image records (id + resolved URL) from
+ * product response objects. Handles various backend response formats:
  * - images: string[]
- * - images: { url?: string; path?: string; imageUrl?: string }[]
+ * - images: { id?: string; url?: string; path?: string; imageUrl?: string }[]
  * - productImages: string[] or object[]
  * - imageUrls: string[]
  * - image: string
  * - imageUrl: string
  */
-export function extractProductImages(product: unknown): string[] {
+export function extractProductImageRecords(
+  product: unknown,
+): ExtractedProductImage[] {
   if (!product || typeof product !== "object") return [];
   const obj = product as Record<string, unknown>;
 
-  const rawUrls: string[] = [];
+  const raw: { id: string | null; url: string }[] = [];
 
   const rawList =
     obj.images || obj.productImages || obj.imageUrls || obj.imagesList;
@@ -51,7 +58,7 @@ export function extractProductImages(product: unknown): string[] {
   if (Array.isArray(rawList)) {
     for (const item of rawList) {
       if (typeof item === "string") {
-        rawUrls.push(item);
+        raw.push({ id: null, url: item });
       } else if (item && typeof item === "object") {
         const itemObj = item as Record<string, unknown>;
         const itemUrl =
@@ -60,28 +67,40 @@ export function extractProductImages(product: unknown): string[] {
           itemObj.imageUrl ||
           itemObj.src ||
           itemObj.image;
+        const itemId = itemObj.id;
         if (typeof itemUrl === "string") {
-          rawUrls.push(itemUrl);
+          raw.push({
+            id: typeof itemId === "string" ? itemId : null,
+            url: itemUrl,
+          });
         }
       }
     }
   }
 
-  if (rawUrls.length === 0) {
+  if (raw.length === 0) {
     const single =
       obj.image || obj.imageUrl || obj.thumbnail || obj.thumbnailUrl;
     if (typeof single === "string") {
-      rawUrls.push(single);
+      raw.push({ id: null, url: single });
     }
   }
 
-  const resolvedUrls: string[] = [];
-  for (const raw of rawUrls) {
-    const resolved = resolveImageUrl(raw);
-    if (resolved) {
-      resolvedUrls.push(resolved);
+  const resolved: ExtractedProductImage[] = [];
+  for (const item of raw) {
+    const resolvedUrl = resolveImageUrl(item.url);
+    if (resolvedUrl) {
+      resolved.push({ id: item.id, url: resolvedUrl });
     }
   }
 
-  return resolvedUrls;
+  return resolved;
+}
+
+/**
+ * Helper utility to safely extract image URLs from product response objects.
+ * See {@link extractProductImageRecords} for the full record (id + url).
+ */
+export function extractProductImages(product: unknown): string[] {
+  return extractProductImageRecords(product).map((item) => item.url);
 }

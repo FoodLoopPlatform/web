@@ -13,6 +13,9 @@ export const Endpoints = {
     login: "/auth/login",
     refresh: "/auth/refresh",
     logout: "/auth/logout",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
+    resendVerification: "/auth/resend-verification",
   },
 
   categories: "/categories",
@@ -24,9 +27,13 @@ export const Endpoints = {
     products: "/stores/me/products",
     productById: (id: string) => `/stores/me/products/${id}`,
     productImages: (id: string) => `/stores/me/products/${id}/images`,
+    productImageById: (id: string, imageId: string) =>
+      `/stores/me/products/${id}/images/${imageId}`,
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",
+    disputes: "/stores/me/disputes",
+    disputeById: (id: string) => `/stores/me/disputes/${id}`,
   },
 
   admin: {

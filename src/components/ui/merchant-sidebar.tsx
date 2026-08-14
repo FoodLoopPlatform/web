@@ -56,9 +56,9 @@ export function MerchantSidebar({
       icon: "shopping_cart",
     },
     {
-      label: "الخدمات اللوجستية",
-      href: "#",
-      icon: "local_shipping",
+      label: "النزاعات",
+      href: "/disputes",
+      icon: "warning",
     },
     {
       label: "الإعدادات",

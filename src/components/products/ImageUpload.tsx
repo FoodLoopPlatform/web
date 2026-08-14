@@ -18,6 +18,7 @@ interface ImageUploadProps {
   onFilesAdded: (files: FileList | File[]) => void;
   onMoveImage: (fromIndex: number, toIndex: number) => void;
   onRemoveImage: (index: number) => void;
+  deletingImageIds?: Set<string>;
   disabled?: boolean;
 }
 
@@ -26,6 +27,7 @@ export function ImageUpload({
   onFilesAdded,
   onMoveImage,
   onRemoveImage,
+  deletingImageIds,
   disabled = false,
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -117,6 +119,9 @@ export function ImageUpload({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {images.map((img, index) => {
               const isMain = index === 0;
+              const isDeleting = Boolean(
+                img.imageId && deletingImageIds?.has(img.imageId),
+              );
               const imgSrc =
                 resolveImageUrl(img.previewUrl) ||
                 "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
@@ -162,11 +167,15 @@ export function ImageUpload({
                             e.stopPropagation();
                             onRemoveImage(index);
                           }}
-                          disabled={disabled}
+                          disabled={disabled || isDeleting}
                           title="حذف الصورة"
-                          className="p-1.5 rounded-lg bg-error text-white hover:bg-error/80 transition-all cursor-pointer shadow"
+                          className="p-1.5 rounded-lg bg-error text-white hover:bg-error/80 transition-all cursor-pointer shadow disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {isDeleting ? (
+                            <span className="block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
 
