@@ -5,6 +5,8 @@ export * from "./common/SearchToolbar";
 export * from "./common/Pagination";
 export * from "./common/SmartInsightCard";
 export * from "./common/ConfirmationModal";
+export * from "./common/AdminNoteCard";
+export * from "./common/SendNoteModal";
 
 export * from "./user-management/UserManagementShell";
 export * from "./user-management/UserManagementSkeleton";

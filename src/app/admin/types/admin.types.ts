@@ -543,3 +543,16 @@ export interface AiObservabilitySettings {
   monthlyApiCostCapEgp: number;
   sentryStatus: "Healthy" | "Degraded" | "Offline";
 }
+
+export interface AdminNoteItem {
+  id: string;
+  recipientId: string;
+  recipientName: string;
+  recipientRole: "Consumer" | "Charity" | "Store";
+  title: string;
+  content: string;
+  category: "INFO" | "WARNING" | "URGENT" | "INTERNAL";
+  isInternal: boolean;
+  createdAt: string;
+  createdBy: string;
+}

@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useAppLang } from "@/store/use-app-lang";
 import {
-  getUserDetail,
   banUserPermanently,
   UserDetail,
   UserActivityEntry,
@@ -14,7 +13,6 @@ import {
   verifyStore,
   verifyCharity,
   deleteReview,
-  getAdminReviews,
   Review,
 } from "../../api/admin-api";
 
@@ -23,6 +21,7 @@ import { UserProfileCard } from "./UserProfileCard";
 import { StoreDocumentsCard } from "./StoreDocumentsCard";
 import { StoreReviewsCard } from "./StoreReviewsCard";
 import { PlatformActionsPanel } from "./PlatformActionsPanel";
+import { SendNoteModal } from "../common/SendNoteModal";
 import { UserActivityLog } from "./UserActivityLog";
 import { UserDetailConfirmationModals } from "./UserDetailConfirmationModals";
 import { UserDetailSkeleton } from "./UserDetailSkeleton";
@@ -47,32 +46,7 @@ export function UserDetailShell({
   const [activities, setActivities] =
     useState<UserActivityEntry[]>(initialActivities);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
-
-  React.useEffect(() => {
-    if (initialUser) return;
-
-    let isSubscribed = true;
-    Promise.all([
-      getUserDetail(id),
-      getUserActivityEntries(id),
-      getAdminReviews({ storeId: id, pageSize: 50 }),
-    ])
-      .then(([userRes, actRes, revRes]) => {
-        if (isSubscribed) {
-          if (userRes.data) setUser(userRes.data);
-          if (actRes.data) setActivities(actRes.data);
-          if (revRes.data) setReviews(revRes.data);
-        }
-      })
-      .finally(() => {
-        if (isSubscribed) setIsLoading(false);
-      });
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [id, initialUser]);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
 
   // Confirmation modal states
   const [confirmModal, setConfirmModal] = useState<{
@@ -218,7 +192,7 @@ export function UserDetailShell({
     document.body.removeChild(link);
   };
 
-  if (isLoading || !user) return <UserDetailSkeleton />;
+  if (!user) return <UserDetailSkeleton />;
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
@@ -285,6 +259,7 @@ export function UserDetailShell({
             onReactivate={() =>
               setConfirmModal({ isOpen: true, action: "reactivate" })
             }
+            onSendNote={() => setIsNoteModalOpen(true)}
           />
         </div>
       </div>
@@ -295,6 +270,22 @@ export function UserDetailShell({
         isLoading={false}
         isRtl={isRtl}
         onExport={handleExportLogs}
+      />
+
+      {/* Popup Note Modal */}
+      <SendNoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        targetId={user.id}
+        targetName={user.name}
+        targetRole={user.role}
+        isRtl={isRtl}
+        onNoteSent={() => {
+          showToast(
+            isRtl ? "تم إرسال وحفظ الملاحظة بنجاح" : "Note saved successfully",
+          );
+          setIsNoteModalOpen(false);
+        }}
       />
 
       {/* Action Confirmation Modals with Reason/Notes */}
