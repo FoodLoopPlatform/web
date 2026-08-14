@@ -9,7 +9,6 @@ import { CheckIcon } from "@/components/icons";
 import {
   GlobalAutomationDefaults,
   GuidelineDocument,
-  AiObservabilitySettings,
   DocumentCategory,
 } from "../../types/admin.types";
 
@@ -17,25 +16,21 @@ import {
   updateAutomationDefaults,
   uploadGuidelineDocument,
   toggleDocumentStatus,
-  updateAiObservabilitySettings,
 } from "../../api/system-settings-api";
 
 import { AutomationDefaultsSection } from "./AutomationDefaultsSection";
 import { GuidelineDocumentsSection } from "./GuidelineDocumentsSection";
-import { AiObservabilitySection } from "./AiObservabilitySection";
 
-type SettingsTab = "automation" | "guidelines" | "observability";
+type SettingsTab = "automation" | "guidelines";
 
 interface SystemSettingsClientContainerProps {
   initialDefaults: GlobalAutomationDefaults;
   initialDocuments: GuidelineDocument[];
-  initialAiObservabilitySettings: AiObservabilitySettings;
 }
 
 export function SystemSettingsClientContainer({
   initialDefaults,
   initialDocuments,
-  initialAiObservabilitySettings,
 }: SystemSettingsClientContainerProps) {
   const { lang } = useAppLang();
   const t = adminDictionary[lang];
@@ -49,8 +44,6 @@ export function SystemSettingsClientContainer({
     useState<GlobalAutomationDefaults>(initialDefaults);
   const [documents, setDocuments] =
     useState<GuidelineDocument[]>(initialDocuments);
-  const [observabilitySettings, setObservabilitySettings] =
-    useState<AiObservabilitySettings>(initialAiObservabilitySettings);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -105,7 +98,7 @@ export function SystemSettingsClientContainer({
       showToast(
         nextStatus === "Published"
           ? isRtl
-            ? "تم نشر المستند وإضافته لفهرس الذكاء الاصطناعي (RAG)."
+            ? "تم نشر المستند وإضافته للفهرس الذكاء الاصطناعي (RAG)."
             : "Document published and indexed into RAG pipeline."
           : isRtl
             ? "تم تحويل المستند لمسودة وإيقاف الفهرسة."
@@ -114,24 +107,9 @@ export function SystemSettingsClientContainer({
     }
   };
 
-  const handleUpdateAiObservability = async (
-    updated: AiObservabilitySettings,
-  ) => {
-    const res = await updateAiObservabilitySettings(updated);
-    if (res.data) {
-      setObservabilitySettings(res.data);
-      showToast(
-        isRtl
-          ? "تم تحديث إعدادات التخزين المؤقت والمراقبة بنجاح."
-          : "AI caching and observability settings saved.",
-      );
-    }
-  };
-
   const tabOptions = [
     { id: "automation", label: t.tabGlobalAutomation },
     { id: "guidelines", label: t.tabGuidelineDocs, badge: documents.length },
-    { id: "observability", label: t.tabAiObservability },
   ];
 
   return (
@@ -178,15 +156,6 @@ export function SystemSettingsClientContainer({
           isRtl={isRtl}
           onUploadDocument={handleUploadDocument}
           onToggleStatus={handleToggleDocStatus}
-        />
-      )}
-
-      {activeTab === "observability" && (
-        <AiObservabilitySection
-          observabilitySettings={observabilitySettings}
-          t={t}
-          isRtl={isRtl}
-          onSave={handleUpdateAiObservability}
         />
       )}
     </div>

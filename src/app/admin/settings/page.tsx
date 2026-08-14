@@ -3,13 +3,12 @@ import { SystemSettingsClientContainer } from "./components/SystemSettingsClient
 import {
   initialAutomationDefaults,
   initialGuidelineDocuments,
-  initialAiObservabilitySettings,
 } from "../mocks/system-settings.mock";
 
 export const metadata: Metadata = {
   title: "System Settings | FoodLoop Admin Portal",
   description:
-    "Manage FoodLoop platform-wide automation limits, RAG guideline documents, and AI observability.",
+    "Manage FoodLoop platform-wide automation limits and RAG guideline documents.",
 };
 
 export default function SystemSettingsPage() {
@@ -17,7 +16,6 @@ export default function SystemSettingsPage() {
     <SystemSettingsClientContainer
       initialDefaults={initialAutomationDefaults}
       initialDocuments={initialGuidelineDocuments}
-      initialAiObservabilitySettings={initialAiObservabilitySettings}
     />
   );
 }

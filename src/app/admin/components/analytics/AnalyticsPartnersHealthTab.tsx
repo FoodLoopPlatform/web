@@ -1,7 +1,8 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import {
-  AnalyticsSummary,
   AnalyticsSummaryTopStore,
   AnalyticsSummaryTopCharity,
 } from "../../types/admin.types";
@@ -10,21 +11,26 @@ import { StoreIcon, UserIcon } from "@/components/icons";
 interface AnalyticsPartnersHealthTabProps {
   topStores: AnalyticsSummaryTopStore[];
   topCharities: AnalyticsSummaryTopCharity[];
-  systemAudit: NonNullable<AnalyticsSummary["systemAudit"]>;
-  isRtl: boolean;
+  systemAudit: {
+    activeSessionsCount: number;
+    aiDecisions24hCount: number;
+    reportedIncidentsCount: number;
+    systemHealth: string;
+  };
+  isRtl?: boolean;
 }
 
 export function AnalyticsPartnersHealthTab({
   topStores,
   topCharities,
   systemAudit,
-  isRtl,
+  isRtl = false,
 }: AnalyticsPartnersHealthTabProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
       <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Top Stores */}
-        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-3">
+        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-xs flex flex-col gap-3">
           <div className="flex items-center justify-between border-b border-surface-container pb-3">
             <div className="flex items-center gap-2">
               <StoreIcon className="w-4 h-4 text-primary" />
@@ -38,7 +44,7 @@ export function AnalyticsPartnersHealthTab({
           </div>
 
           <div className="divide-y divide-surface-container">
-            {topStores.map((store: AnalyticsSummaryTopStore, idx: number) => (
+            {topStores.map((store, idx) => (
               <div
                 key={store.storeId}
                 className="py-2.5 flex items-center justify-between gap-3 text-xs"
@@ -88,7 +94,7 @@ export function AnalyticsPartnersHealthTab({
         </div>
 
         {/* Top Charities */}
-        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-3">
+        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-xs flex flex-col gap-3">
           <div className="flex items-center justify-between border-b border-surface-container pb-3">
             <div className="flex items-center gap-2">
               <UserIcon className="w-4 h-4 text-primary" />
@@ -102,62 +108,60 @@ export function AnalyticsPartnersHealthTab({
           </div>
 
           <div className="divide-y divide-surface-container">
-            {topCharities.map(
-              (charity: AnalyticsSummaryTopCharity, idx: number) => (
-                <div
-                  key={charity.charityId}
-                  className="py-2.5 flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-4 text-center text-xs font-bold text-outline">
-                      #{idx + 1}
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-surface border border-card-border overflow-hidden relative shrink-0 flex items-center justify-center">
-                      {charity.logoUrl ? (
-                        <Image
-                          src={charity.logoUrl}
-                          alt={charity.charityName}
-                          width={32}
-                          height={32}
-                          unoptimized
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xs font-bold text-primary">
-                          {charity.charityName.slice(0, 2).toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-bold text-on-surface truncate">
-                        {charity.charityName}
+            {topCharities.map((charity, idx) => (
+              <div
+                key={charity.charityId}
+                className="py-2.5 flex items-center justify-between gap-3 text-xs"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-4 text-center text-xs font-bold text-outline">
+                    #{idx + 1}
+                  </span>
+                  <div className="w-8 h-8 rounded-full bg-surface border border-card-border overflow-hidden relative shrink-0 flex items-center justify-center">
+                    {charity.logoUrl ? (
+                      <Image
+                        src={charity.logoUrl}
+                        alt={charity.charityName}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-primary">
+                        {charity.charityName.slice(0, 2).toUpperCase()}
                       </span>
-                      <span className="text-[10px] text-outline">
-                        {charity.supportBoxesCount}{" "}
-                        {isRtl ? "صندوق دعم" : "boxes"}
-                      </span>
-                    </div>
+                    )}
                   </div>
-
-                  <div className="flex flex-col items-end shrink-0 text-right">
-                    <span className="font-extrabold text-teal-800 text-xs">
-                      {charity.donatedFoodKg} {isRtl ? "كجم" : "kg"}
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-bold text-on-surface truncate">
+                      {charity.charityName}
                     </span>
-                    <span className="text-[10px] text-outline font-bold">
-                      {charity.totalDonationsCount}{" "}
-                      {isRtl ? "تبرعات" : "donations"}
+                    <span className="text-[10px] text-outline">
+                      {charity.supportBoxesCount}{" "}
+                      {isRtl ? "صندوق دعم" : "boxes"}
                     </span>
                   </div>
                 </div>
-              ),
-            )}
+
+                <div className="flex flex-col items-end shrink-0 text-right">
+                  <span className="font-extrabold text-teal-800 text-xs">
+                    {charity.donatedFoodKg} {isRtl ? "كجم" : "kg"}
+                  </span>
+                  <span className="text-[10px] text-outline font-bold">
+                    {charity.totalDonationsCount}{" "}
+                    {isRtl ? "تبرعات" : "donations"}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* System Audit & Observability */}
       <div className="flex flex-col gap-6">
-        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-sm flex flex-col gap-4">
+        <div className="bg-white rounded-2xl border border-card-border p-6 shadow-xs flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-surface-container pb-3">
             <h3 className="text-sm font-extrabold text-primary font-sans">
               {isRtl ? "مراقبة صحة وأداء النظام" : "System Observability"}

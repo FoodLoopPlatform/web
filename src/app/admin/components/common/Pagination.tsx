@@ -24,9 +24,12 @@ export const Pagination: React.FC<PaginationProps> = ({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
-  // Generate page numbers array
+  // Generate page numbers array (strictly 2 pages before and 2 pages after current page)
+  const startPage = Math.max(1, currentPage - 2);
+  const endPage = Math.min(totalPages, currentPage + 2);
+
   const pages: number[] = [];
-  for (let i = 1; i <= totalPages; i++) {
+  for (let i = startPage; i <= endPage; i++) {
     pages.push(i);
   }
 
