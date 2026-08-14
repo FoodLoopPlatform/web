@@ -1,13 +1,13 @@
-"use client";
-
 import { Suspense } from "react";
-import { ModerationShell } from "../components";
-import { ModerationSkeleton } from "../components";
+import { ModerationShell, ModerationSkeleton } from "../components";
+import { getModerationQueueServer } from "../api/server-admin-api";
 
-export default function ModerationQueuePage() {
+export default async function ModerationQueuePage() {
+  const modRes = await getModerationQueueServer();
+
   return (
     <Suspense fallback={<ModerationSkeleton />}>
-      <ModerationShell />
+      <ModerationShell initialItems={modRes.data ?? []} />
     </Suspense>
   );
 }

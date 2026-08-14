@@ -27,17 +27,28 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
   isExporting = false,
 }) => {
   const [searchInput, setSearchInput] = useState(filters.search || "");
+  const onFilterChangeRef = React.useRef(onFilterChange);
+  const filtersRef = React.useRef(filters);
+
+  useEffect(() => {
+    onFilterChangeRef.current = onFilterChange;
+    filtersRef.current = filters;
+  }, [onFilterChange, filters]);
 
   // Debounce search input to avoid firing requests on every keypress
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (searchInput !== (filters.search || "")) {
-        onFilterChange({ ...filters, search: searchInput, page: 1 });
+      if (searchInput !== (filtersRef.current.search || "")) {
+        onFilterChangeRef.current({
+          ...filtersRef.current,
+          search: searchInput,
+          page: 1,
+        });
       }
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [searchInput, filters, onFilterChange]);
+  }, [searchInput]);
 
   const handleActionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as "ALL" | AuditActionType;
@@ -111,6 +122,12 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
               } py-2.5 bg-surface-container-low rounded-full border border-card-border text-xs font-bold text-on-surface hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-2xs cursor-pointer`}
             >
               <option value="ALL">{t.allActions}</option>
+              <option value="UserStatusUpdated">
+                {isRtl ? "تحديث حالة حساب" : "User Status Updated"}
+              </option>
+              <option value="StoreVerified">
+                {isRtl ? "توثيق/مراجعة مؤسسة" : "Store/Org Verified"}
+              </option>
               <option value="Pricing Change">{t.pricingChange}</option>
               <option value="Listing Moderation">{t.listingModeration}</option>
               <option value="Donation Decision">{t.donationDecision}</option>

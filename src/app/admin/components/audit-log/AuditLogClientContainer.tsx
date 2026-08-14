@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import React, { useState, useEffect, useCallback } from "react";
+import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import {
   AuditLogFilterParams,
@@ -24,7 +24,7 @@ interface AuditLogClientContainerProps {
 export function AuditLogClientContainer({
   initialData,
 }: AuditLogClientContainerProps) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -73,10 +73,10 @@ export function AuditLogClientContainer({
     };
   }, [filters]);
 
-  const handleFilterChange = (updated: AuditLogFilterParams) => {
+  const handleFilterChange = useCallback((updated: AuditLogFilterParams) => {
     setIsLoading(true);
     setFilters(updated);
-  };
+  }, []);
 
   const handleResetFilters = () => {
     setIsLoading(true);
@@ -112,7 +112,7 @@ export function AuditLogClientContainer({
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12">
       {/* Header Bar */}
       <div className={isRtl ? "text-right" : "text-left"}>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight font-brand serif-ish">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight font-sans">
           {t.auditDashboardTitle}
         </h1>
         <p className="text-xs sm:text-sm text-outline mt-1 font-medium">
@@ -140,11 +140,7 @@ export function AuditLogClientContainer({
         </div>
       ) : hasNoResults ? (
         /* No Results State */
-        <AuditEmptyState
-          t={t}
-          isRtl={isRtl}
-          onResetFilters={handleResetFilters}
-        />
+        <AuditEmptyState t={t} onResetFilters={handleResetFilters} />
       ) : (
         /* Activity History Table & Pagination */
         <div className="flex flex-col gap-4">

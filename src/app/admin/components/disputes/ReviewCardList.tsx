@@ -58,14 +58,16 @@ export const ReviewCardList: React.FC<ReviewCardListProps> = ({
                 {arText(review.comment, isRtl)}
               </p>
             </div>
-            <div>
-              <span className="text-[9px] uppercase tracking-wider text-outline block">
-                {t.flagReasonCol}
-              </span>
-              <span className="inline-block text-[10px] text-red-600 bg-red-50/50 border border-red-100 rounded px-2 py-0.5 mt-0.5 font-bold">
-                {arText(review.flagReason, isRtl)}
-              </span>
-            </div>
+            {review.flagReason && (
+              <div>
+                <span className="text-[9px] uppercase tracking-wider text-outline block">
+                  {t.flagReasonCol}
+                </span>
+                <span className="inline-block text-[10px] text-red-600 bg-red-50/50 border border-red-100 rounded px-2 py-0.5 mt-0.5 font-bold">
+                  {arText(review.flagReason, isRtl)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

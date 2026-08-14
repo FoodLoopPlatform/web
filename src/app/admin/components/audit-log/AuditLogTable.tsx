@@ -61,7 +61,11 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
                 >
                   {/* Action Type */}
                   <td className="px-5 py-4 whitespace-nowrap">
-                    <AuditActionBadge actionType={item.actionType} t={t} />
+                    <AuditActionBadge
+                      actionType={item.actionType}
+                      t={t}
+                      isRtl={isRtl}
+                    />
                   </td>
 
                   {/* Actor */}

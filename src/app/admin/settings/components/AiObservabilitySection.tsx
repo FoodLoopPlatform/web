@@ -40,7 +40,7 @@ export const AiObservabilitySection: React.FC<AiObservabilitySectionProps> = ({
             <SlidersIcon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-extrabold text-primary font-brand">
+            <h3 className="text-base font-extrabold text-primary font-sans">
               {t.tabAiObservability}
             </h3>
             <p className="text-xs text-outline font-medium">

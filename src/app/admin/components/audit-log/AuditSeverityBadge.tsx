@@ -11,31 +11,26 @@ export const AuditSeverityBadge: React.FC<AuditSeverityBadgeProps> = ({
   severity,
   t,
 }) => {
-  let label = "";
+  let label = t.severityMed || "متوسط";
   let variantClasses =
-    "bg-surface-container-high text-on-surface-variant border-outline-variant/60";
+    "bg-amber-100 text-amber-950 border-amber-300 font-extrabold";
 
-  switch (severity) {
-    case "Low":
-      label = t.severityLow;
-      variantClasses =
-        "bg-secondary-container/80 text-on-secondary-container border-secondary-fixed-dim/40";
-      break;
-    case "Med":
-      label = t.severityMed;
-      variantClasses =
-        "bg-tertiary-container/80 text-on-tertiary-container border-tertiary-fixed-dim/40";
-      break;
-    case "High":
-      label = t.severityHigh;
-      variantClasses =
-        "bg-error-container/80 text-on-error-container border-error/40";
-      break;
+  if (severity === "Low") {
+    label = t.severityLow || "منخفض";
+    variantClasses =
+      "bg-slate-100 text-slate-900 border-slate-300 font-extrabold";
+  } else if (severity === "High") {
+    label = t.severityHigh || "عالي";
+    variantClasses = "bg-rose-100 text-rose-950 border-rose-300 font-extrabold";
+  } else {
+    label = t.severityMed || "متوسط";
+    variantClasses =
+      "bg-amber-100 text-amber-950 border-amber-300 font-extrabold";
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono border uppercase tracking-wider ${variantClasses}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] border shadow-2xs whitespace-nowrap leading-none ${variantClasses}`}
     >
       {label}
     </span>

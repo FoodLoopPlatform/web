@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import {
   getUserDetail,
   banUserPermanently,
@@ -40,7 +40,7 @@ export function UserDetailShell({
   initialActivities = [],
   initialReviews = [],
 }: UserDetailShellProps) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const isRtl = lang === "ar";
 
   const [user, setUser] = useState<UserDetail | null>(initialUser);
@@ -50,28 +50,28 @@ export function UserDetailShell({
   const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
 
   React.useEffect(() => {
-    if (!initialUser) {
-      let isSubscribed = true;
-      Promise.all([
-        getUserDetail(id),
-        getUserActivityEntries(id),
-        getAdminReviews(),
-      ])
-        .then(([userRes, actRes, revRes]) => {
-          if (isSubscribed) {
-            if (userRes.data) setUser(userRes.data);
-            if (actRes.data) setActivities(actRes.data);
-            if (revRes.data) setReviews(revRes.data);
-          }
-        })
-        .finally(() => {
-          if (isSubscribed) setIsLoading(false);
-        });
+    if (initialUser) return;
 
-      return () => {
-        isSubscribed = false;
-      };
-    }
+    let isSubscribed = true;
+    Promise.all([
+      getUserDetail(id),
+      getUserActivityEntries(id),
+      getAdminReviews({ storeId: id, pageSize: 50 }),
+    ])
+      .then(([userRes, actRes, revRes]) => {
+        if (isSubscribed) {
+          if (userRes.data) setUser(userRes.data);
+          if (actRes.data) setActivities(actRes.data);
+          if (revRes.data) setReviews(revRes.data);
+        }
+      })
+      .finally(() => {
+        if (isSubscribed) setIsLoading(false);
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
   }, [id, initialUser]);
 
   // Confirmation modal states
@@ -91,7 +91,15 @@ export function UserDetailShell({
   // Handler for deleting a store review
   const handleDeleteReview = async (reviewId: string) => {
     try {
-      await deleteReview(reviewId);
+      const res = await deleteReview(reviewId);
+      if (res?.error) {
+        showToast(
+          isRtl
+            ? `حدث خطأ أثناء حذف التقييم: ${res.error}`
+            : `Failed to delete review: ${res.error}`,
+        );
+        return;
+      }
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
       showToast(isRtl ? "تم حذف التقييم بنجاح" : "Review deleted successfully");
     } catch {
@@ -112,7 +120,9 @@ export function UserDetailShell({
       } else {
         await updateUserStatus(user.id, "SUSPENDED", reason);
       }
-      setUser((prev) => (prev ? { ...prev, status: "SUSPENDED" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "SUSPENDED" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);
@@ -140,7 +150,9 @@ export function UserDetailShell({
       } else {
         await updateUserStatus(user.id, "ACTIVE", reason);
       }
-      setUser((prev) => (prev ? { ...prev, status: "ACTIVE" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "ACTIVE" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);
@@ -164,7 +176,9 @@ export function UserDetailShell({
     if (!user) return;
     try {
       await banUserPermanently(user.id);
-      setUser((prev) => (prev ? { ...prev, status: "SUSPENDED" } : null));
+      setUser((prev: UserDetail | null) =>
+        prev ? { ...prev, status: "SUSPENDED" } : null,
+      );
 
       // Refetch latest activity log from endpoint
       const freshLogs = await getUserActivityEntries(user.id);

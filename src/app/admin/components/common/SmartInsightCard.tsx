@@ -31,7 +31,7 @@ export const SmartInsightCard: React.FC<SmartInsightCardProps> = ({
           <SparklesIcon className="w-5 h-5 text-primary-fixed" />
         </div>
         <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-extrabold tracking-tight font-brand text-primary-fixed">
+          <h4 className="text-sm font-extrabold tracking-tight font-sans text-primary-fixed">
             {title}
           </h4>
           <h3 className="text-base font-bold leading-snug mt-1">{heading}</h3>

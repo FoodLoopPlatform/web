@@ -1,10 +1,11 @@
 import { Endpoints } from "./endpoints";
+import { useAppLang, type SupportedLanguage } from "@/store/use-app-lang";
 
 export type ApiResponse<T> =
   | { data: T; error?: never; status?: number }
   | { data?: never; error: string; status?: number };
 
-type FetchOptions = {
+export type FetchOptions = {
   token?: string;
   headers?: HeadersInit;
   cache?: RequestCache;
@@ -12,10 +13,84 @@ type FetchOptions = {
   tags?: string[];
   retries?: number;
   signal?: AbortSignal;
+  lang?: SupportedLanguage | string;
 };
 
-const buildHeaders = (token?: string, isFormData?: boolean): HeadersInit => {
-  const headers: HeadersInit = {};
+export const DEFAULT_LANGUAGE: SupportedLanguage = "ar";
+const SUPPORTED_LANGUAGES = new Set<string>(["ar", "en"]);
+const STORAGE_KEYS = [
+  "foodloop-language",
+  "lang",
+  "language",
+  "locale",
+] as const;
+
+/**
+ * Type guard to validate whether a given value is a supported ISO language code.
+ */
+function isValidSupportedLang(val?: string | null): val is SupportedLanguage {
+  if (!val) return false;
+  const normalized = val.toLowerCase().slice(0, 2);
+  return SUPPORTED_LANGUAGES.has(normalized);
+}
+
+/**
+ * Resolves the target Accept-Language header using a prioritized strategy pattern:
+ * 1. Explicit request override
+ * 2. Active Zustand client state (useAppLang)
+ * 3. Client LocalStorage entries
+ * 4. Document DOM lang attribute
+ * 5. Browser Navigator language preference
+ * 6. Default Fallback ("ar")
+ */
+export function getAcceptLanguage(preferredLang?: string): SupportedLanguage {
+  if (isValidSupportedLang(preferredLang)) {
+    return preferredLang.toLowerCase().slice(0, 2) as SupportedLanguage;
+  }
+
+  if (typeof window === "undefined") {
+    return DEFAULT_LANGUAGE;
+  }
+
+  try {
+    // Strategy 1: Active Zustand store state
+    const storeLang = useAppLang.getState?.()?.lang;
+    if (isValidSupportedLang(storeLang)) return storeLang;
+
+    // Strategy 2: Client LocalStorage keys
+    for (const key of STORAGE_KEYS) {
+      const val = localStorage.getItem(key);
+      if (isValidSupportedLang(val)) {
+        return val.toLowerCase().slice(0, 2) as SupportedLanguage;
+      }
+    }
+
+    // Strategy 3: HTML Root Document lang attribute
+    const docLang = document.documentElement.lang;
+    if (isValidSupportedLang(docLang)) {
+      return docLang.toLowerCase().slice(0, 2) as SupportedLanguage;
+    }
+
+    // Strategy 4: Navigator language (e.g. "ar-EG" -> "ar")
+    const navLang = navigator.language;
+    if (isValidSupportedLang(navLang)) {
+      return navLang.toLowerCase().slice(0, 2) as SupportedLanguage;
+    }
+  } catch {
+    // Protection against restricted storage / sandboxed contexts
+  }
+
+  return DEFAULT_LANGUAGE;
+}
+
+const buildHeaders = (
+  token?: string,
+  isFormData?: boolean,
+  langOption?: string,
+): HeadersInit => {
+  const headers: Record<string, string> = {
+    "Accept-Language": getAcceptLanguage(langOption),
+  };
 
   if (!isFormData) {
     headers["Content-Type"] = "application/json";
@@ -32,7 +107,15 @@ async function apiFetch<T>(
   url: string,
   options: RequestInit & FetchOptions = {},
 ): Promise<ApiResponse<T>> {
-  const { token, cache, revalidate, tags, retries = 0, ...rest } = options;
+  const {
+    token,
+    cache,
+    revalidate,
+    tags,
+    retries = 0,
+    lang,
+    ...rest
+  } = options;
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -42,10 +125,16 @@ async function apiFetch<T>(
           ? url
           : Endpoints.baseUrl + url;
 
+      const defaultHeaders = buildHeaders(
+        token,
+        rest.body instanceof FormData,
+        lang,
+      );
+
       const res = await fetch(fetchUrl, {
         ...rest,
         headers: {
-          ...buildHeaders(token, rest.body instanceof FormData),
+          ...defaultHeaders,
           ...(rest.headers || {}),
         },
         credentials: "include",

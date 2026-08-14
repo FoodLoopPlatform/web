@@ -1,4 +1,10 @@
-import { getMany, createOne, updateOne, deleteOne } from "@/utils/server";
+import {
+  getMany,
+  createOne,
+  updateOne,
+  deleteOne,
+  getAcceptLanguage,
+} from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
@@ -306,11 +312,18 @@ export function bulkUploadProducts(file: File) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Accept-Language": getAcceptLanguage(),
         },
         body: formData,
       },
     );
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = { message: text || "Invalid response" };
+    }
     return data;
   });
 }

@@ -76,10 +76,14 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
               <td className="px-3 py-3 text-xs text-on-surface-variant max-w-[240px] leading-relaxed">
                 {arText(review.comment, isRtl)}
               </td>
-              <td className="px-2 py-3 whitespace-nowrap text-[10px] text-red-600 font-bold">
-                <span className="bg-red-50/50 border border-red-100 rounded px-2 py-0.5 inline-block">
-                  {arText(review.flagReason, isRtl)}
-                </span>
+              <td className="px-2 py-3 whitespace-nowrap text-[10px]">
+                {review.flagReason ? (
+                  <span className="bg-red-50/50 border border-red-100 rounded px-2 py-0.5 inline-block text-red-600 font-bold">
+                    {arText(review.flagReason, isRtl)}
+                  </span>
+                ) : (
+                  <span className="text-outline text-xs">—</span>
+                )}
               </td>
               <td className="px-3 py-3 whitespace-nowrap">
                 <div className="flex items-center justify-center gap-2">

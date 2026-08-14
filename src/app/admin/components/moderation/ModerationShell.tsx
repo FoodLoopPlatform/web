@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import {
   getModerationQueue,
@@ -17,13 +18,14 @@ import { ModerationListingCard } from "./ModerationListingCard";
 import { ModerationEmptyState } from "./ModerationEmptyState";
 import { ModerationFilterModal } from "./ModerationFilterModal";
 import { ConfirmationModal } from "../common/ConfirmationModal";
+import { Pagination } from "../common/Pagination";
 
 interface ModerationShellProps {
   initialItems?: ModerationItem[];
 }
 
 export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -40,6 +42,15 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
     "ALL" | "low" | "medium" | "high"
   >("ALL");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination on filter change
+  const modFilterKey = `${searchQuery}-${selectedFlagType}-${confidenceRange}`;
+  const [prevModFilterKey, setPrevModFilterKey] = useState(modFilterKey);
+  if (prevModFilterKey !== modFilterKey) {
+    setPrevModFilterKey(modFilterKey);
+    setCurrentPage(1);
+  }
 
   // Skip initial effect execution if initialItems were pre-fetched
   const isFirstRender = useRef(true);
@@ -306,18 +317,29 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
         />
       ) : (
         /* Active State - Compact Multi-Column Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
-          {items.map((item) => (
-            <ModerationListingCard
-              key={item.id}
-              item={item}
-              t={t}
-              isRtl={isRtl}
-              onApprove={handleOpenApproveModal}
-              onReject={handleOpenRejectModal}
-              onRequestChanges={handleOpenRequestChangesModal}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
+            {items.slice((currentPage - 1) * 5, currentPage * 5).map((item) => (
+              <ModerationListingCard
+                key={item.id}
+                item={item}
+                t={t}
+                isRtl={isRtl}
+                onApprove={handleOpenApproveModal}
+                onReject={handleOpenRejectModal}
+                onRequestChanges={handleOpenRequestChangesModal}
+              />
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(items.length / 5) || 1}
+            totalItems={items.length}
+            pageSize={5}
+            onPageChange={setCurrentPage}
+            isRtl={isRtl}
+          />
         </div>
       )}
 

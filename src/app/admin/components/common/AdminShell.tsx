@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
-import { useAdminLang } from "@/store/use-admin-lang";
-import { isAdminUser, STORE_HOME_ROUTE } from "@/utils/roles";
+import { useAppLang } from "@/store/use-app-lang";
+import { isAdminUser } from "@/utils/roles";
 import {
   UserIcon,
   AlertCircleIcon,
@@ -30,14 +30,14 @@ interface NavItem {
 const dict = {
   ar: {
     platformAdmin: "إدارة المنصة",
-    createReport: "+ إنشاء تقرير",
+    createReport: "إنشاء تقرير",
     support: "الدعم والمساعدة",
     logout: "تسجيل الخروج",
     mainController: "المراقب الرئيسي",
   },
   en: {
     platformAdmin: "Platform Operations",
-    createReport: "+ Create Report",
+    createReport: "Create Report",
     support: "Support & Help",
     logout: "Log Out",
     mainController: "Main Controller",
@@ -50,7 +50,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hasHydrated = useHasHydrated();
 
-  const { lang, setLang } = useAdminLang();
+  const { lang, setLang } = useAppLang();
 
   const user = useAppStore((state) => state.user);
   const accessToken = useAppStore((state) => state.accessToken);
@@ -65,19 +65,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       setMobileSidebarOpen(false);
     }
   }
-
-  // Check auth once rehydrated on the client side. A signed-in store/merchant
-  // account gets bounced to its own home rather than /login — the admin and
-  // merchant portals are separate surfaces, each role only ever sees its own.
-  useEffect(() => {
-    if (hasHydrated) {
-      if (!accessToken) {
-        router.push("/login");
-      } else if (!isAdminUser(user)) {
-        router.push(STORE_HOME_ROUTE);
-      }
-    }
-  }, [hasHydrated, user, accessToken, router]);
 
   const handleLogout = () => {
     clearSession();
@@ -309,7 +296,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto relative">
           {children}
         </main>
       </div>
