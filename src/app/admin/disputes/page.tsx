@@ -1,13 +1,25 @@
-"use client";
-
 import { Suspense } from "react";
-import { DisputesShell } from "../components";
-import { DisputesSkeleton } from "../components";
+import { DisputesShell, DisputesSkeleton } from "../components";
+import {
+  getDisputesServer,
+  getSupportTicketsServer,
+  getAdminReviewsServer,
+} from "../api/server-admin-api";
 
-export default function DisputesPage() {
+export default async function DisputesPage() {
+  const [disputesRes, ticketsRes, reviewsRes] = await Promise.all([
+    getDisputesServer(),
+    getSupportTicketsServer(),
+    getAdminReviewsServer(),
+  ]);
+
   return (
     <Suspense fallback={<DisputesSkeleton />}>
-      <DisputesShell />
+      <DisputesShell
+        initialDisputes={disputesRes.data ?? []}
+        initialTickets={ticketsRes.data ?? []}
+        initialReviews={reviewsRes.data ?? []}
+      />
     </Suspense>
   );
 }

@@ -148,6 +148,21 @@ export interface RawBackendTicket {
   replies?: TicketReply[];
 }
 
+/** Raw shape returned by GET /admin/disputes */
+export interface RawBackendDispute {
+  id: string;
+  productId: string;
+  productTitle?: string;
+  reportedBy?: string;
+  reporterName?: string;
+  reason?: string;
+  details?: string;
+  isResolved: boolean;
+  adminNote?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+}
+
 /**
  * A genuine dispute record from GET /admin/disputes — a distinct backend
  * resource from SupportTicket (`/support-tickets`, `/admin/support-tickets`),
@@ -197,8 +212,66 @@ export interface ActivityLog {
   details?: string;
 }
 
+export interface AnalyticsSummaryTopStore {
+  storeId: string;
+  storeName: string;
+  logoUrl?: string;
+  rescuedBagsCount: number;
+  foodSavedKg: number;
+  totalSalesValue: number;
+}
+
+export interface AnalyticsSummaryTopCharity {
+  charityId: string;
+  charityName: string;
+  logoUrl?: string;
+  donatedFoodKg: number;
+  supportBoxesCount: number;
+  totalDonationsCount: number;
+}
+
+export interface AnalyticsSummaryCategory {
+  categoryId: string;
+  name: string;
+  nameAr: string;
+  rescuedItemsCount: number;
+  foodSavedKg: number;
+  totalFinancialValue: number;
+  percentageOfTotal: number;
+}
+
+export interface AnalyticsSummaryMonthlyTrend {
+  month: string;
+  year: number;
+  wastePreventedKg: number;
+  financialSavings: number;
+  ordersCount: number;
+}
+
+export interface AnalyticsSummaryAiOpportunity {
+  title: string;
+  description: string;
+  categoryName: string;
+  wastePercentage: number;
+  actionHint: string;
+}
+
+export interface AnalyticsSummarySystemAudit {
+  activeSessionsCount: number;
+  aiDecisions24hCount: number;
+  reportedIncidentsCount: number;
+  systemHealth: string;
+}
+
 export interface AnalyticsSummary {
-  /** Nested groups from the real backend response */
+  foodWastePreventedKg?: number;
+  co2EmissionsSavedKg?: number;
+  financialValueRecovered?: number;
+  disputeRatePercentage?: number;
+  totalRevenue?: number;
+  totalFoodSavings?: number;
+
+  /** Nested groups from backend */
   users?: {
     total: number;
     customers: number;
@@ -206,24 +279,18 @@ export interface AnalyticsSummary {
     charities: number;
     admins: number;
   };
-  stores?: {
-    total: number;
-    unverified: number;
-    pending: number;
-    verified: number;
-    rejected: number;
-  };
   organizations?: {
+    total?: number;
+    unverified?: number;
     pending?: number;
+    verified?: number;
+    rejected?: number;
   };
   products?: {
     total?: number;
-  };
-  listings?: {
-    total: number;
-    active: number;
-    soldOut: number;
-    expired: number;
+    active?: number;
+    soldOut?: number;
+    expired?: number;
   };
   orders?: {
     total: number;
@@ -231,8 +298,13 @@ export interface AnalyticsSummary {
     completed: number;
     cancelled: number;
   };
-  totalRevenue?: number;
-  totalFoodSavings?: number;
+
+  topStores?: AnalyticsSummaryTopStore[];
+  topCharities?: AnalyticsSummaryTopCharity[];
+  categoryBreakdown?: AnalyticsSummaryCategory[];
+  monthlyTrends?: AnalyticsSummaryMonthlyTrend[];
+  aiOpportunity?: AnalyticsSummaryAiOpportunity;
+  systemAudit?: AnalyticsSummarySystemAudit;
 
   /** Flattened UI-friendly fields derived from backend */
   totalConsumers?: number;
@@ -350,10 +422,23 @@ export interface FilterOption<T extends string = string> {
   label: string;
 }
 
-// ─── Audit Log Domain Types ────────────────────────────────────────────────
+export interface RawActivityLog {
+  id: string;
+  userId?: string | null;
+  userName?: string | null;
+  actorType?: string | null;
+  organizationId?: string | null;
+  organizationName?: string | null;
+  eventType?: string | null;
+  title?: string | null;
+  description?: string | null;
+  severity?: string | null;
+  ipAddress?: string | null;
+  occurredAt?: string | null;
+}
 
 export type AuditActionType =
-  "Pricing Change" | "Listing Moderation" | "Donation Decision";
+  "Pricing Change" | "Listing Moderation" | "Donation Decision" | string;
 
 export type AuditSeverity = "Low" | "Med" | "High";
 
@@ -457,4 +542,17 @@ export interface AiObservabilitySettings {
   sentryErrorRateThresholdPercent: number;
   monthlyApiCostCapEgp: number;
   sentryStatus: "Healthy" | "Degraded" | "Offline";
+}
+
+export interface AdminNoteItem {
+  id: string;
+  recipientId: string;
+  recipientName: string;
+  recipientRole: "Consumer" | "Charity" | "Store";
+  title: string;
+  content: string;
+  category: "INFO" | "WARNING" | "URGENT" | "INTERNAL";
+  isInternal: boolean;
+  createdAt: string;
+  createdBy: string;
 }

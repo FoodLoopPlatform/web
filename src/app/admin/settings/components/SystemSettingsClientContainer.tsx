@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAdminLang } from "@/store/use-admin-lang";
+import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import { TabSwitcher } from "../../components";
 import { CheckIcon } from "@/components/icons";
@@ -9,45 +9,30 @@ import { CheckIcon } from "@/components/icons";
 import {
   GlobalAutomationDefaults,
   GuidelineDocument,
-  PlatformAdmin,
-  SecuritySettings,
-  AiObservabilitySettings,
   DocumentCategory,
-  AdminPermission,
 } from "../../types/admin.types";
 
 import {
   updateAutomationDefaults,
   uploadGuidelineDocument,
   toggleDocumentStatus,
-  updateAdminPermissions,
-  updateSecuritySettings,
-  updateAiObservabilitySettings,
 } from "../../api/system-settings-api";
 
 import { AutomationDefaultsSection } from "./AutomationDefaultsSection";
 import { GuidelineDocumentsSection } from "./GuidelineDocumentsSection";
-import { SecurityRbacSection } from "./SecurityRbacSection";
-import { AiObservabilitySection } from "./AiObservabilitySection";
 
-type SettingsTab = "automation" | "guidelines" | "roles" | "observability";
+type SettingsTab = "automation" | "guidelines";
 
 interface SystemSettingsClientContainerProps {
   initialDefaults: GlobalAutomationDefaults;
   initialDocuments: GuidelineDocument[];
-  initialAdmins: PlatformAdmin[];
-  initialSecuritySettings: SecuritySettings;
-  initialAiObservabilitySettings: AiObservabilitySettings;
 }
 
 export function SystemSettingsClientContainer({
   initialDefaults,
   initialDocuments,
-  initialAdmins,
-  initialSecuritySettings,
-  initialAiObservabilitySettings,
 }: SystemSettingsClientContainerProps) {
-  const { lang } = useAdminLang();
+  const { lang } = useAppLang();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -59,12 +44,6 @@ export function SystemSettingsClientContainer({
     useState<GlobalAutomationDefaults>(initialDefaults);
   const [documents, setDocuments] =
     useState<GuidelineDocument[]>(initialDocuments);
-  const [admins, setAdmins] = useState<PlatformAdmin[]>(initialAdmins);
-  const [securitySettings, setSecuritySettings] = useState<SecuritySettings>(
-    initialSecuritySettings,
-  );
-  const [observabilitySettings, setObservabilitySettings] =
-    useState<AiObservabilitySettings>(initialAiObservabilitySettings);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -119,7 +98,7 @@ export function SystemSettingsClientContainer({
       showToast(
         nextStatus === "Published"
           ? isRtl
-            ? "تم نشر المستند وإضافته لفهرس الذكاء الاصطناعي (RAG)."
+            ? "تم نشر المستند وإضافته للفهرس الذكاء الاصطناعي (RAG)."
             : "Document published and indexed into RAG pipeline."
           : isRtl
             ? "تم تحويل المستند لمسودة وإيقاف الفهرسة."
@@ -128,59 +107,9 @@ export function SystemSettingsClientContainer({
     }
   };
 
-  const handleUpdateAdmin = async (
-    id: string,
-    permissions: AdminPermission[],
-    roleTitle: string,
-  ) => {
-    const res = await updateAdminPermissions(id, permissions, roleTitle);
-    if (res.data) {
-      setAdmins((prev) =>
-        prev.map((adm) =>
-          adm.id === id
-            ? { ...adm, permissions, roleTitle: res.data!.roleTitle }
-            : adm,
-        ),
-      );
-      showToast(
-        isRtl
-          ? "تم تعديل صلاحيات الحساب الإداري بنجاح."
-          : "Admin permissions updated successfully.",
-      );
-    }
-  };
-
-  const handleUpdateSecuritySettings = async (updated: SecuritySettings) => {
-    const res = await updateSecuritySettings(updated);
-    if (res.data) {
-      setSecuritySettings(res.data);
-      showToast(
-        isRtl
-          ? "تم تحديل سياسات الأمان وتخزين سجلات المراجعة."
-          : "Security and Audit Log retention settings updated.",
-      );
-    }
-  };
-
-  const handleUpdateAiObservability = async (
-    updated: AiObservabilitySettings,
-  ) => {
-    const res = await updateAiObservabilitySettings(updated);
-    if (res.data) {
-      setObservabilitySettings(res.data);
-      showToast(
-        isRtl
-          ? "تم تحديث إعدادات التخزين المؤقت والمراقبة بنجاح."
-          : "AI caching and observability settings saved.",
-      );
-    }
-  };
-
   const tabOptions = [
     { id: "automation", label: t.tabGlobalAutomation },
     { id: "guidelines", label: t.tabGuidelineDocs, badge: documents.length },
-    { id: "roles", label: t.tabSecurityRbac, badge: admins.length },
-    { id: "observability", label: t.tabAiObservability },
   ];
 
   return (
@@ -195,7 +124,7 @@ export function SystemSettingsClientContainer({
 
       {/* Page Header */}
       <div className={isRtl ? "text-right" : "text-left"}>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary font-brand tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary font-sans tracking-tight">
           {t.settingsTitle}
         </h1>
         <p className="text-xs sm:text-sm text-outline mt-1 font-medium">
@@ -227,26 +156,6 @@ export function SystemSettingsClientContainer({
           isRtl={isRtl}
           onUploadDocument={handleUploadDocument}
           onToggleStatus={handleToggleDocStatus}
-        />
-      )}
-
-      {activeTab === "roles" && (
-        <SecurityRbacSection
-          admins={admins}
-          securitySettings={securitySettings}
-          t={t}
-          isRtl={isRtl}
-          onUpdateAdmin={handleUpdateAdmin}
-          onUpdateSecuritySettings={handleUpdateSecuritySettings}
-        />
-      )}
-
-      {activeTab === "observability" && (
-        <AiObservabilitySection
-          observabilitySettings={observabilitySettings}
-          t={t}
-          isRtl={isRtl}
-          onSave={handleUpdateAiObservability}
         />
       )}
     </div>

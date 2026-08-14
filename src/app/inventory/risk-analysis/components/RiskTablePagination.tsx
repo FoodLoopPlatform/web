@@ -19,7 +19,13 @@ export function RiskTablePagination({
 
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalItems);
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const startPage = Math.max(1, page - 2);
+  const endPage = Math.min(totalPages, page + 2);
+
+  const pages: number[] = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
 
   return (
     <div className="bg-surface border-t border-outline-variant flex items-center justify-between px-4 py-3 flex-wrap gap-3">

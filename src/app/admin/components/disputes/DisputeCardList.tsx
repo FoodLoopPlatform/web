@@ -9,6 +9,7 @@ interface DisputeCardListProps {
   disputes: Dispute[];
   t: AdminDictionary;
   isRtl?: boolean;
+  onOpenDispute: (id: string) => void;
   onResolveDispute: (id: string) => void;
 }
 
@@ -16,6 +17,7 @@ export const DisputeCardList: React.FC<DisputeCardListProps> = ({
   disputes,
   t,
   isRtl = false,
+  onOpenDispute,
   onResolveDispute,
 }) => {
   if (disputes.length === 0) {
@@ -31,8 +33,9 @@ export const DisputeCardList: React.FC<DisputeCardListProps> = ({
       {disputes.map((dispute) => (
         <div
           key={dispute.id}
-          className={`p-4 flex flex-col gap-3 transition-colors ${
-            dispute.isResolved ? "opacity-60" : ""
+          onClick={() => onOpenDispute(dispute.id)}
+          className={`p-4 flex flex-col gap-3 transition-colors cursor-pointer hover:bg-surface/50 ${
+            dispute.isResolved ? "opacity-75" : ""
           }`}
         >
           {/* Header */}
@@ -49,10 +52,12 @@ export const DisputeCardList: React.FC<DisputeCardListProps> = ({
               className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold whitespace-nowrap ${
                 dispute.isResolved
                   ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  : "bg-amber-100 text-amber-800"
               }`}
             >
-              {dispute.isResolved ? t.disputeResolvedLabel : t.disputeOpenLabel}
+              {dispute.isResolved
+                ? t.disputeResolvedLabel || (isRtl ? "تم حله" : "Resolved")
+                : t.disputeOpenLabel || (isRtl ? "قيد المراجعة" : "Open")}
             </span>
           </div>
 
@@ -89,23 +94,26 @@ export const DisputeCardList: React.FC<DisputeCardListProps> = ({
           </div>
 
           {/* Actions */}
-          {!dispute.isResolved ? (
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-container/50">
+          <div
+            className="flex items-center justify-between gap-2 pt-2 border-t border-surface-container/50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => onOpenDispute(dispute.id)}
+              className="px-3 py-1.5 text-xs font-bold bg-surface-container text-primary-container hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer"
+            >
+              {isRtl ? "مراجعة والتفاصيل" : "Review & Details"}
+            </button>
+            {!dispute.isResolved && (
               <button
                 onClick={() => onResolveDispute(dispute.id)}
-                className="flex items-center gap-1 px-3 py-1.5 hover:bg-green-50 text-green-600 rounded-lg transition-colors cursor-pointer text-xs"
+                className="flex items-center gap-1 px-3 py-1.5 hover:bg-green-50 text-green-600 rounded-lg transition-colors cursor-pointer text-xs font-bold"
               >
                 <CheckIcon className="w-4 h-4" />
                 <span>{t.resolveDisputeBtn}</span>
               </button>
-            </div>
-          ) : (
-            dispute.adminNote && (
-              <p className="text-[11px] text-outline italic pt-2 border-t border-surface-container/50">
-                {dispute.adminNote}
-              </p>
-            )
-          )}
+            )}
+          </div>
         </div>
       ))}
     </div>

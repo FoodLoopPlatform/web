@@ -1,12 +1,20 @@
-"use client";
-
 import { Suspense } from "react";
-import { AuditLogClientContainer } from "../components";
+import { AuditLogClientContainer, AuditLogSkeleton } from "../components";
+import { getAuditLogsServer } from "../api/server-admin-api";
 
-export default function AuditLogPage() {
+export default async function AuditLogPage() {
+  const initialData = await getAuditLogsServer({
+    search: "",
+    actionType: "ALL",
+    dateRange: "ALL",
+    severity: "ALL",
+    page: 1,
+    pageSize: 5,
+  });
+
   return (
-    <Suspense fallback={null}>
-      <AuditLogClientContainer />
+    <Suspense fallback={<AuditLogSkeleton />}>
+      <AuditLogClientContainer initialData={initialData} />
     </Suspense>
   );
 }

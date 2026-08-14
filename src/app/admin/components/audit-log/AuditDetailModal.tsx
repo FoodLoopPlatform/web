@@ -45,7 +45,7 @@ export const AuditDetailModal: React.FC<AuditDetailModalProps> = ({
             <span className="font-mono text-xs font-black text-primary bg-primary-fixed/40 px-3 py-1.5 rounded-xl border border-primary-fixed-dim/40">
               {item.id}
             </span>
-            <h3 className="text-lg sm:text-xl font-extrabold text-on-surface font-brand">
+            <h3 className="text-lg sm:text-xl font-extrabold text-on-surface font-sans">
               {t.viewAuditDetailsModalTitle}
             </h3>
           </div>
@@ -66,7 +66,11 @@ export const AuditDetailModal: React.FC<AuditDetailModalProps> = ({
               <span className="text-[11px] font-bold uppercase tracking-wider text-outline block mb-1.5">
                 {t.actionTypeLabel}
               </span>
-              <AuditActionBadge actionType={item.actionType} t={t} />
+              <AuditActionBadge
+                actionType={item.actionType}
+                t={t}
+                isRtl={isRtl}
+              />
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-outline block mb-1.5">

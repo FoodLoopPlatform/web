@@ -35,9 +35,11 @@ export function getStoredProfile(): ProfileSaveInput & {
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(defaultProfile));
     return defaultProfile;
   }
-  // Merge over defaults so records saved before a field (e.g. operatingHours)
-  // existed don't come back missing it.
-  return { ...defaultProfile, ...JSON.parse(stored) };
+  try {
+    return { ...defaultProfile, ...JSON.parse(stored) };
+  } catch {
+    return defaultProfile;
+  }
 }
 
 export function setStoredProfile(
