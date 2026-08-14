@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React from "react";
 
 interface IconProps {
@@ -429,6 +430,24 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
             fill={fill ? "currentColor" : "none"}
           />
           <path d="M19 14l.7 1.9L21.5 16.5l-1.8.7L19 19l-.7-1.8-1.8-.7 1.8-.7L19 14z" />
+        </svg>
+      );
+
+    case "storefront":
+      return (
+        <svg {...svgProps}>
+          <path d="M3 9l1-5h16l1 5" />
+          <path d="M3 11v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8" />
+          <path d="M3 11a2 2 0 0 1 4 0 2 2 0 0 1 4 0 2 2 0 0 1 4 0 2 2 0 0 1 4 0" />
+        </svg>
+      );
+
+    case "shopping_bag":
+      return (
+        <svg {...svgProps}>
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
         </svg>
       );
 
