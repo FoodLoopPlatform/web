@@ -103,6 +103,13 @@ export function LoginForm() {
             onChange={(e) => updateField("password", e.target.value)}
           />
 
+          <Link
+            href="/forgot-password"
+            className="self-end text-body-md text-link"
+          >
+            نسيت كلمة المرور؟
+          </Link>
+
           <Button
             type="submit"
             variant="primary"

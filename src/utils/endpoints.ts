@@ -6,6 +6,9 @@ export const Endpoints = {
     login: "/auth/login",
     refresh: "/auth/refresh",
     logout: "/auth/logout",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
+    resendVerification: "/auth/resend-verification",
   },
 
   categories: "/categories",

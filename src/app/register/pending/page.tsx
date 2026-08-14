@@ -59,19 +59,6 @@ export default function VerificationPendingPage() {
               </Text>
             </div>
           </div>
-
-          <div className="flex w-full flex-col items-center gap-4 border-t border-outline-variant pt-4">
-            <Text variant="body-md" className="text-on-surface-variant">
-              هل لديك أسئلة حول طلبك؟
-            </Text>
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 text-body-md font-medium text-link opacity-80 transition-opacity hover:opacity-100"
-            >
-              <HeadsetIcon className="h-5 w-5" />
-              تواصل مع الدعم
-            </a>
-          </div>
         </Card.Body>
       </Card.Root>
 

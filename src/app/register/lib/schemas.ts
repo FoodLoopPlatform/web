@@ -70,6 +70,35 @@ export type CharityDocumentUploadInput = z.infer<
   typeof charityDocumentUploadSchema
 >;
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("يرجى إدخال بريد إلكتروني صالح"),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordFieldSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, "يجب ألا تقل كلمة المرور عن 8 أحرف")
+    .max(100, "يجب ألا تزيد كلمة المرور عن 100 حرف")
+    .regex(
+      /[a-z]/,
+      "يجب أن تحتوي كلمة المرور على حرف إنجليزي صغير واحد على الأقل",
+    )
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"),
+  confirmPassword: z.string().min(1, "يرجى تأكيد كلمة المرور"),
+});
+
+export const resetPasswordSchema = resetPasswordFieldSchema.refine(
+  (data) => data.newPassword === data.confirmPassword,
+  {
+    message: "كلمتا المرور غير متطابقتين",
+    path: ["confirmPassword"],
+  },
+);
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 /** Backend `Type` value (POST /charities/me/documents) for each charity document field. */
 export const charityDocumentTypeMap: Record<
   keyof CharityDocumentUploadInput,
