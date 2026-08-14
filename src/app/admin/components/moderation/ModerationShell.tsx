@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import {
@@ -26,6 +27,7 @@ interface ModerationShellProps {
 
 export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
   const { lang } = useAppLang();
+  const searchParams = useSearchParams();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -36,7 +38,9 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("search") || searchParams.get("q") || "",
+  );
   const [selectedFlagType, setSelectedFlagType] = useState<string>("ALL");
   const [confidenceRange, setConfidenceRange] = useState<
     "ALL" | "low" | "medium" | "high"

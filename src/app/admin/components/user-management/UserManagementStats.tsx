@@ -15,7 +15,7 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
   isRtl,
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
       <StatsCard
         label={t.totalUsers}
         value={
@@ -23,7 +23,8 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
             ? analytics.totalConsumers.toLocaleString()
             : "0"
         }
-        accentClass="bg-primary-container/20"
+        accentClass="bg-emerald-800"
+        iconBgClass="bg-emerald-50 text-emerald-800 border border-emerald-100/50"
         isRtl={isRtl}
       />
       <StatsCard
@@ -33,8 +34,9 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
             ? analytics.totalStores.toLocaleString()
             : "0"
         }
-        accentClass="bg-primary-container"
-        textColorClass="text-primary-container"
+        accentClass="bg-emerald-800"
+        textColorClass="text-emerald-900"
+        iconBgClass="bg-emerald-50 text-emerald-800 border border-emerald-100/50"
         isRtl={isRtl}
       />
       <StatsCard
@@ -44,8 +46,9 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
             ? analytics.totalCharities.toLocaleString()
             : "0"
         }
-        accentClass="bg-blue-600/30"
-        textColorClass="text-blue-900"
+        accentClass="bg-blue-400"
+        textColorClass="text-on-surface"
+        iconBgClass="bg-emerald-50 text-emerald-800 border border-emerald-100/50"
         isRtl={isRtl}
       />
       <StatsCard
@@ -58,8 +61,8 @@ export const UserManagementStats: React.FC<UserManagementStatsProps> = ({
               ).toLocaleString()
             : "0"
         }
-        accentClass="bg-amber-500/30"
-        textColorClass="text-amber-900"
+        accentClass="bg-amber-500"
+        iconBgClass="bg-slate-100 text-slate-400"
         isRtl={isRtl}
       />
     </div>
