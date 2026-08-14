@@ -1,17 +1,8 @@
 import React from "react";
-import {
-  ADMIN_DESIGN_TOKENS,
-  isStatEmpty,
-} from "../../constants/design-tokens";
+import { isStatEmpty } from "../../constants/design-tokens";
+import { StatsCardProps } from "../../types/common.types";
 
-interface StatsCardProps {
-  label: string;
-  value: string | number;
-  accentClass?: string;
-  isRtl?: boolean;
-  textColorClass?: string;
-  icon?: React.ReactNode;
-}
+export type { StatsCardProps };
 
 /**
  * Renders appropriate icon based on stat label if no custom icon is provided.
@@ -22,7 +13,8 @@ function getStatIcon(label: string): React.ReactNode {
     l.includes("sales") ||
     l.includes("مبيعات") ||
     l.includes("مبلغ") ||
-    l.includes("amount")
+    l.includes("amount") ||
+    l.includes("revenue")
   ) {
     return (
       <svg
@@ -40,7 +32,13 @@ function getStatIcon(label: string): React.ReactNode {
       </svg>
     );
   }
-  if (l.includes("order") || l.includes("طلبات") || l.includes("إجمالي")) {
+  if (
+    l.includes("order") ||
+    l.includes("طلبات") ||
+    l.includes("إجمالي") ||
+    l.includes("users") ||
+    l.includes("حسابات")
+  ) {
     return (
       <svg
         className="w-4 h-4"
@@ -80,10 +78,10 @@ function getStatIcon(label: string): React.ReactNode {
     );
   }
   if (
-    l.includes("fulfillment") ||
-    l.includes("تنفيذ") ||
-    l.includes("معدل") ||
-    l.includes("rate")
+    l.includes("waste") ||
+    l.includes("هدر") ||
+    l.includes("co2") ||
+    l.includes("انبعاثات")
   ) {
     return (
       <svg
@@ -96,24 +94,7 @@ function getStatIcon(label: string): React.ReactNode {
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-        />
-      </svg>
-    );
-  }
-  if (l.includes("donation") || l.includes("تبرع") || l.includes("خيرية")) {
-    return (
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V7"
         />
       </svg>
     );
@@ -138,55 +119,90 @@ function getStatIcon(label: string): React.ReactNode {
 export const StatsCard: React.FC<StatsCardProps> = ({
   label,
   value,
-  accentClass = "bg-primary-container/20",
+  unit,
+  subtitle,
+  accentClass = "bg-primary",
   isRtl = false,
   textColorClass,
   icon,
+  iconBgClass,
 }) => {
   const isEmpty = isStatEmpty(value);
-  const styles = isEmpty
-    ? ADMIN_DESIGN_TOKENS.statCard.empty
-    : ADMIN_DESIGN_TOKENS.statCard.active;
-
   const displayIcon = icon || getStatIcon(label);
 
   return (
     <div
-      className={`rounded-2xl border p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between ${
-        styles.container
+      dir={isRtl ? "rtl" : "ltr"}
+      className={`rounded-2xl border p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between transition-all duration-200 min-h-[110px] ${
+        isEmpty
+          ? "bg-slate-50/50 border-slate-200/70"
+          : "bg-white border-card-border shadow-xs hover:shadow-sm"
       } ${isRtl ? "text-right" : "text-left"}`}
     >
+      {/* Header Row: Label & Icon Badge */}
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className={styles.label}>{label}</span>
+        <span
+          className={`text-[11px] sm:text-xs font-extrabold uppercase tracking-wider block font-sans truncate ${
+            isEmpty ? "text-slate-400" : "text-outline"
+          }`}
+        >
+          {label}
+        </span>
         <div
-          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-            styles.iconBox
+          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 ${
+            isEmpty
+              ? "bg-slate-100 text-slate-400"
+              : iconBgClass || "bg-emerald-50 text-emerald-800"
           }`}
         >
           {displayIcon}
         </div>
       </div>
 
-      <div className="flex items-baseline justify-between gap-2">
-        <span
-          className={`${styles.value} ${
-            !isEmpty && textColorClass ? textColorClass : ""
-          }`}
-        >
-          {value}
-        </span>
+      {/* Metric Value Row & Optional Empty Tag */}
+      <div className="flex items-baseline justify-between gap-2 mt-auto">
+        <div className="flex items-baseline gap-1.5 flex-wrap">
+          <span
+            className={`text-2xl sm:text-3xl font-black tracking-tight font-sans ${
+              isEmpty
+                ? "text-slate-400 italic"
+                : textColorClass || "text-on-surface"
+            }`}
+          >
+            {value}
+          </span>
+          {unit && (
+            <span
+              className={`text-xs font-bold font-sans ${
+                isEmpty ? "text-slate-400" : "text-outline"
+              }`}
+            >
+              {unit}
+            </span>
+          )}
+        </div>
         {isEmpty && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 text-slate-500 font-semibold uppercase tracking-wider">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-500 font-bold uppercase tracking-wider">
             {isRtl ? "لا توجد بيانات" : "Empty"}
           </span>
         )}
       </div>
 
-      {!isEmpty && (
+      {/* Subtitle / Extra info if available */}
+      {subtitle && (
+        <div className="mt-2 text-[10px] font-bold block whitespace-nowrap">
+          {typeof subtitle === "string" ? (
+            <span className="text-outline">{subtitle}</span>
+          ) : (
+            subtitle
+          )}
+        </div>
+      )}
+
+      {/* Bottom Accent Bar */}
+      {!isEmpty && accentClass && (
         <div
-          className={`absolute bottom-0 ${
-            isRtl ? "right-0" : "left-0"
-          } w-full h-1 ${accentClass}`}
+          className={`absolute bottom-0 right-0 left-0 w-full h-1 ${accentClass}`}
         />
       )}
     </div>

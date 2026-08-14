@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   updateUserStatus,
@@ -49,6 +49,7 @@ export function UserManagementShell({
 }: UserManagementShellProps = {}) {
   const { lang } = useAppLang();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -104,7 +105,9 @@ export function UserManagementShell({
   }, [initialConsumers.length, initialStores.length, initialCharities.length]);
 
   // Filter & search states
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("search") || searchParams.get("q") || "",
+  );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);

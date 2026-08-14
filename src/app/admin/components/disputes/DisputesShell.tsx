@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   getSupportTickets,
@@ -47,6 +47,7 @@ export function DisputesShell({
 }: DisputesShellProps = {}) {
   const { lang } = useAppLang();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
@@ -63,7 +64,9 @@ export function DisputesShell({
   );
 
   // Search/Filters & Pagination
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("search") || searchParams.get("q") || "",
+  );
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);

@@ -14,10 +14,15 @@ export interface AdminShellProps {
 export interface StatsCardProps {
   label: string;
   value: string | number;
+  unit?: string;
+  subtitle?: React.ReactNode | string;
+  accentClass?: string;
+  isRtl?: boolean;
+  textColorClass?: string;
+  icon?: React.ReactNode;
+  iconBgClass?: string;
   change?: string;
   trend?: "up" | "down" | "neutral";
-  icon?: React.ReactNode;
-  isRtl?: boolean;
 }
 
 export interface TabSwitcherProps<T extends string = string> {

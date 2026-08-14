@@ -1,9 +1,9 @@
+/* eslint-disable max-lines */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAppStore, useHasHydrated } from "@/store/use-app-store";
 import { useAppLang } from "@/store/use-app-lang";
 import { isAdminUser } from "@/utils/roles";
@@ -56,6 +56,23 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const clearSession = useAppStore((state) => state.clearSession);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
+  const [headerSearchQuery, setHeaderSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close search dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Close sidebar drawer when pathname changes during render
   if (pathname !== prevPathname) {
@@ -68,6 +85,34 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     clearSession();
     router.push("/login");
+  };
+
+  const handleHeaderSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = headerSearchQuery.trim();
+    if (!query) return;
+
+    setIsSearchOpen(false);
+    // Direct search to current active section or default to user management
+    let targetBase = "/admin";
+    if (pathname.startsWith("/admin/disputes")) targetBase = "/admin/disputes";
+    else if (pathname.startsWith("/admin/moderation"))
+      targetBase = "/admin/moderation";
+    else if (pathname.startsWith("/admin/audit-log"))
+      targetBase = "/admin/audit-log";
+    else if (pathname.startsWith("/admin/analytics"))
+      targetBase = "/admin/analytics";
+
+    router.push(`${targetBase}?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleQuickNavigate = (targetPath: string) => {
+    setIsSearchOpen(false);
+    const query = headerSearchQuery.trim();
+    const fullUrl = query
+      ? `${targetPath}?search=${encodeURIComponent(query)}`
+      : targetPath;
+    router.push(fullUrl);
   };
 
   if (!hasHydrated) {
@@ -258,24 +303,135 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </span>
 
             {/* Integrated Top Bar Search Bar */}
-            <div className="relative w-full max-w-md min-w-[180px] sm:min-w-[280px]">
-              <Icon
-                name="search"
-                className={`h-4 w-4 absolute ${
-                  lang === "ar" ? "right-3" : "left-3"
-                } top-1/2 -translate-y-1/2 text-outline`}
-              />
-              <input
-                type="text"
-                placeholder={
-                  lang === "ar"
-                    ? "البحث في لوحة تحكم المنصة..."
-                    : "Search admin portal..."
-                }
-                className={`w-full bg-white/80 border border-outline-variant/60 rounded-xl py-2 ${
-                  lang === "ar" ? "pr-9 pl-3" : "pl-9 pr-3"
-                } text-xs font-sans text-on-surface placeholder:text-outline focus:bg-white focus:border-primary focus:outline-hidden transition-all`}
-              />
+            <div
+              ref={searchContainerRef}
+              className="relative w-full max-w-md min-w-[180px] sm:min-w-[280px]"
+            >
+              <form onSubmit={handleHeaderSearchSubmit} className="relative">
+                <Icon
+                  name="search"
+                  className={`h-4 w-4 absolute ${
+                    lang === "ar" ? "right-3" : "left-3"
+                  } top-1/2 -translate-y-1/2 text-outline pointer-events-none`}
+                />
+                <input
+                  type="text"
+                  value={headerSearchQuery}
+                  onChange={(e) => {
+                    setHeaderSearchQuery(e.target.value);
+                    setIsSearchOpen(e.target.value.trim().length > 0);
+                  }}
+                  onFocus={() => {
+                    if (headerSearchQuery.trim().length > 0)
+                      setIsSearchOpen(true);
+                  }}
+                  placeholder={
+                    lang === "ar"
+                      ? "البحث في لوحة تحكم المنصة..."
+                      : "Search admin portal..."
+                  }
+                  className={`w-full bg-white/90 border border-outline-variant/60 rounded-xl py-2 ${
+                    lang === "ar" ? "pr-9 pl-8" : "pl-9 pr-8"
+                  } text-xs font-sans text-on-surface placeholder:text-outline focus:bg-white focus:border-primary focus:outline-hidden transition-all shadow-2xs`}
+                />
+                {headerSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHeaderSearchQuery("");
+                      setIsSearchOpen(false);
+                    }}
+                    className={`absolute top-1/2 -translate-y-1/2 text-xs font-bold text-outline hover:text-on-surface cursor-pointer ${
+                      lang === "ar" ? "left-2.5" : "right-2.5"
+                    }`}
+                  >
+                    ✕
+                  </button>
+                )}
+              </form>
+
+              {/* Quick Search Dropdown */}
+              {isSearchOpen && headerSearchQuery.trim().length > 0 && (
+                <div className="absolute top-full mt-2 right-0 left-0 bg-white rounded-2xl border border-card-border shadow-xl p-2 z-50 flex flex-col gap-1 text-xs font-sans animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-1.5 text-[10px] font-extrabold text-outline uppercase tracking-wider border-b border-surface-container">
+                    {lang === "ar"
+                      ? "نتائج البحث السريع"
+                      : "Quick Search Targets"}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickNavigate("/admin")}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="w-4 h-4 text-primary" />
+                      <span className="font-bold text-on-surface">
+                        {lang === "ar"
+                          ? `البحث عن "${headerSearchQuery}" في المستخدمين والمتاجر`
+                          : `Search "${headerSearchQuery}" in Users & Stores`}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-outline bg-surface px-2 py-0.5 rounded-full border border-card-border">
+                      {lang === "ar" ? "المستخدمين" : "Users"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickNavigate("/admin/moderation")}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                      <span className="font-bold text-on-surface">
+                        {lang === "ar"
+                          ? `البحث عن "${headerSearchQuery}" في مراجعة المنتجات`
+                          : `Search "${headerSearchQuery}" in Moderation`}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-outline bg-surface px-2 py-0.5 rounded-full border border-card-border">
+                      {lang === "ar" ? "المراجعة" : "Moderation"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickNavigate("/admin/disputes")}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <AlertCircleIcon className="w-4 h-4 text-amber-600" />
+                      <span className="font-bold text-on-surface">
+                        {lang === "ar"
+                          ? `البحث عن "${headerSearchQuery}" في النزاعات والدعم`
+                          : `Search "${headerSearchQuery}" in Disputes`}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-outline bg-surface px-2 py-0.5 rounded-full border border-card-border">
+                      {lang === "ar" ? "النزاعات" : "Disputes"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickNavigate("/admin/audit-log")}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container transition-colors text-right cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FileIcon className="w-4 h-4 text-blue-600" />
+                      <span className="font-bold text-on-surface">
+                        {lang === "ar"
+                          ? `البحث عن "${headerSearchQuery}" في سجل المراجعة`
+                          : `Search "${headerSearchQuery}" in Audit Log`}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-outline bg-surface px-2 py-0.5 rounded-full border border-card-border">
+                      {lang === "ar" ? "السجل" : "Audit"}
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -314,32 +470,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               />
             </button>
 
-            <div className="h-7 w-px bg-outline-variant/50" />
-
-            {/* Admin User Profile Avatar Pill */}
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-surface-container-highest p-1 px-2 rounded-full transition-all">
-              {(user as { profilePictureUrl?: string } | null)
-                ?.profilePictureUrl ? (
-                <Image
-                  className="w-8 h-8 rounded-full border border-outline-variant object-cover"
-                  alt="Admin Avatar"
-                  src={
-                    (user as { profilePictureUrl?: string }).profilePictureUrl!
-                  }
-                  width={32}
-                  height={32}
-                  unoptimized
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary font-extrabold text-xs flex items-center justify-center shadow-xs border border-primary/20">
-                  {(user?.fullName || "Admin").slice(0, 2).toUpperCase()}
-                </div>
-              )}
-              <div className="flex flex-col text-right hidden md:flex">
-                <span className="text-xs font-bold text-primary leading-tight">
-                  {user?.fullName || "Admin Controller"}
+            {/* Profile Pill */}
+            <div className="flex items-center gap-2 border-r border-outline-variant/50 pr-3 mr-1">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0">
+                {user?.fullName
+                  ? user.fullName.slice(0, 2).toUpperCase()
+                  : "AD"}
+              </div>
+              <div className="hidden lg:flex flex-col text-right">
+                <span className="text-xs font-bold text-on-surface leading-tight">
+                  {user?.fullName ||
+                    (lang === "ar" ? "مسؤول النظام" : "System Admin")}
                 </span>
-                <span className="text-[10px] text-on-surface-variant font-medium">
+                <span className="text-[10px] text-outline leading-none mt-0.5 font-medium">
                   {currentDict.mainController}
                 </span>
               </div>
@@ -347,7 +490,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto relative">
+        {/* Page Main Workspace Viewport */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-surface overflow-x-hidden">
           {children}
         </main>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import { adminDictionary } from "../../constants/dictionary";
 import {
@@ -25,17 +26,18 @@ export function AuditLogClientContainer({
   initialData,
 }: AuditLogClientContainerProps) {
   const { lang } = useAppLang();
+  const searchParams = useSearchParams();
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
-  const [filters, setFilters] = useState<AuditLogFilterParams>({
-    search: "",
+  const [filters, setFilters] = useState<AuditLogFilterParams>(() => ({
+    search: searchParams.get("search") || searchParams.get("q") || "",
     actionType: "ALL",
     dateRange: "ALL",
     severity: "ALL",
     page: 1,
     pageSize: 5,
-  });
+  }));
 
   const [data, setData] = useState<AuditLogFetchResult | null>(
     initialData ?? null,
