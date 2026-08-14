@@ -66,7 +66,11 @@ export const AuditDetailModal: React.FC<AuditDetailModalProps> = ({
               <span className="text-[11px] font-bold uppercase tracking-wider text-outline block mb-1.5">
                 {t.actionTypeLabel}
               </span>
-              <AuditActionBadge actionType={item.actionType} t={t} />
+              <AuditActionBadge
+                actionType={item.actionType}
+                t={t}
+                isRtl={isRtl}
+              />
             </div>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-outline block mb-1.5">

@@ -60,6 +60,8 @@ export const Endpoints = {
     rejectProduct: (id: string) => `/admin/products/${id}/reject`,
     requestChangesProduct: (id: string) =>
       `/admin/products/${id}/request-changes`,
+    activityLogs: "/admin/activity-logs",
+    activityLogById: (id: string) => `/admin/activity-logs/${id}`,
   },
 
   charities: {

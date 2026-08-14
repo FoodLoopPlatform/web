@@ -21,101 +21,107 @@ export const AuditStatsRow: React.FC<AuditStatsRowProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mt-2">
       {/* 1. Active Sessions */}
       <div
-        className={`bg-white rounded-2xl border border-card-border p-5 shadow-sm relative overflow-hidden flex flex-col justify-between ${
+        className={`bg-white rounded-2xl border border-card-border p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-sm transition-all ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
-        <div>
-          <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
+        <div
+          className={`absolute top-0 ${
+            isRtl ? "right-0" : "left-0"
+          } w-1.5 h-full bg-emerald-500`}
+        />
+        <div className="pl-1 pr-1">
+          <span className="text-[11px] font-extrabold text-outline uppercase tracking-wider block">
             {t.activeSessions}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-mono">
+          <span className="text-2xl sm:text-3xl font-black text-on-surface block mt-2 tracking-tight font-mono">
             {stats.activeSessions}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 mt-3">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
-          <span className="text-[10px] font-bold text-green-600 uppercase tracking-wider">
-            {t.liveNow}
+        <div className="flex items-center gap-1.5 mt-4 self-start pl-1 pr-1">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-950 border border-emerald-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+            <span>{t.liveNow}</span>
           </span>
         </div>
-        <div
-          className={`absolute top-0 ${
-            isRtl ? "left-0" : "right-0"
-          } w-1.5 h-full bg-primary-container/15`}
-        />
       </div>
 
       {/* 2. AI Decisions (24h) */}
       <div
-        className={`bg-white rounded-2xl border border-card-border p-5 shadow-sm relative overflow-hidden flex flex-col justify-between ${
+        className={`bg-white rounded-2xl border border-card-border p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-sm transition-all ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
-        <div>
-          <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
+        <div
+          className={`absolute top-0 ${
+            isRtl ? "right-0" : "left-0"
+          } w-1.5 h-full bg-blue-500`}
+        />
+        <div className="pl-1 pr-1">
+          <span className="text-[11px] font-extrabold text-outline uppercase tracking-wider block">
             {t.aiDecisions24h}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-primary block mt-2 tracking-tight font-mono">
+          <span className="text-2xl sm:text-3xl font-black text-on-surface block mt-2 tracking-tight font-mono">
             {stats.aiDecisions24h.toLocaleString()}
           </span>
         </div>
-        <span className="text-[10px] text-outline font-medium mt-3 block">
-          High-Precision Logic
-        </span>
-        <div
-          className={`absolute top-0 ${
-            isRtl ? "left-0" : "right-0"
-          } w-1.5 h-full bg-surface-tint/15`}
-        />
+        <div className="mt-4 self-start pl-1 pr-1">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-950 border border-blue-300">
+            High-Precision Logic
+          </span>
+        </div>
       </div>
 
       {/* 3. Flagged Events */}
       <div
-        className={`bg-white rounded-2xl border border-card-border p-5 shadow-sm relative overflow-hidden flex flex-col justify-between ${
+        className={`bg-white rounded-2xl border border-card-border p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-sm transition-all ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
-        <div>
-          <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
+        <div
+          className={`absolute top-0 ${
+            isRtl ? "right-0" : "left-0"
+          } w-1.5 h-full bg-rose-500`}
+        />
+        <div className="pl-1 pr-1">
+          <span className="text-[11px] font-extrabold text-outline uppercase tracking-wider block">
             {t.flaggedEvents}
           </span>
-          <span className="text-2xl sm:text-3xl font-extrabold text-error block mt-2 tracking-tight font-mono">
+          <span className="text-2xl sm:text-3xl font-black text-rose-700 block mt-2 tracking-tight font-mono">
             {stats.flaggedEvents}
           </span>
         </div>
-        <span className="text-[10px] font-extrabold text-error-container bg-error-container/20 px-2 py-0.5 rounded-full inline-block mt-3 self-start">
-          {t.attentionSub}
-        </span>
-        <div
-          className={`absolute top-0 ${
-            isRtl ? "left-0" : "right-0"
-          } w-1.5 h-full bg-error/20`}
-        />
+        <div className="mt-4 self-start pl-1 pr-1">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-950 border border-rose-300">
+            {t.attentionSub}
+          </span>
+        </div>
       </div>
 
       {/* 4. System Health */}
       <div
-        className={`bg-white rounded-2xl border border-card-border p-5 shadow-sm relative overflow-hidden flex flex-col justify-between ${
+        className={`bg-white rounded-2xl border border-card-border p-5 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-sm transition-all ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
-        <div>
-          <span className="text-[10px] sm:text-xs font-semibold text-outline uppercase tracking-wider block">
+        <div
+          className={`absolute top-0 ${
+            isRtl ? "right-0" : "left-0"
+          } w-1.5 h-full bg-teal-500`}
+        />
+        <div className="pl-1 pr-1">
+          <span className="text-[11px] font-extrabold text-outline uppercase tracking-wider block">
             {t.systemHealth}
           </span>
-          <span className="text-xl sm:text-2xl font-extrabold text-primary block mt-2 tracking-tight font-sans">
+          <span className="text-xl sm:text-2xl font-black text-on-surface block mt-2 tracking-tight font-sans">
             {t.stableOps}
           </span>
         </div>
-        <span className="text-[10px] text-outline font-medium mt-3 block font-mono">
-          PostgreSQL / .NET API
-        </span>
-        <div
-          className={`absolute top-0 ${
-            isRtl ? "left-0" : "right-0"
-          } w-1.5 h-full bg-tertiary-fixed-dim/30`}
-        />
+        <div className="mt-4 self-start pl-1 pr-1">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-teal-950 border border-teal-300 font-mono">
+            PostgreSQL / .NET API
+          </span>
+        </div>
       </div>
     </div>
   );

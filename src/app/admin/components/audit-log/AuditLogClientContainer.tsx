@@ -140,11 +140,7 @@ export function AuditLogClientContainer({
         </div>
       ) : hasNoResults ? (
         /* No Results State */
-        <AuditEmptyState
-          t={t}
-          isRtl={isRtl}
-          onResetFilters={handleResetFilters}
-        />
+        <AuditEmptyState t={t} onResetFilters={handleResetFilters} />
       ) : (
         /* Activity History Table & Pagination */
         <div className="flex flex-col gap-4">

@@ -122,6 +122,12 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
               } py-2.5 bg-surface-container-low rounded-full border border-card-border text-xs font-bold text-on-surface hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-2xs cursor-pointer`}
             >
               <option value="ALL">{t.allActions}</option>
+              <option value="UserStatusUpdated">
+                {isRtl ? "تحديث حالة حساب" : "User Status Updated"}
+              </option>
+              <option value="StoreVerified">
+                {isRtl ? "توثيق/مراجعة مؤسسة" : "Store/Org Verified"}
+              </option>
               <option value="Pricing Change">{t.pricingChange}</option>
               <option value="Listing Moderation">{t.listingModeration}</option>
               <option value="Donation Decision">{t.donationDecision}</option>

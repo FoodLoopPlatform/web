@@ -9,7 +9,63 @@ import type {
   Dispute,
   AnalyticsSummary,
   ModerationItem,
+  RawActivityLog,
+  AuditLogItem,
+  AuditSeverity,
+  AuditActionType,
 } from "../types/admin.types";
+
+export function normalizeActivityLog(raw: RawActivityLog): AuditLogItem {
+  const actorRole =
+    raw.actorType === "Admin"
+      ? "Admin"
+      : raw.actorType === "System"
+        ? "System AI"
+        : "Moderator";
+
+  const rawSev = String(raw.severity || "").toLowerCase();
+  let severity: AuditSeverity = "Med";
+  if (rawSev.includes("high") || rawSev.includes("critical")) {
+    severity = "High";
+  } else if (rawSev.includes("low")) {
+    severity = "Low";
+  } else {
+    severity = "Med";
+  }
+
+  const isoDate = raw.occurredAt || new Date().toISOString();
+  let timestamp = "Recently";
+  try {
+    const d = new Date(isoDate);
+    if (!isNaN(d.getTime())) {
+      timestamp = d.toLocaleString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  } catch {
+    timestamp = isoDate;
+  }
+
+  const actionTypeStr = raw.title || raw.eventType || "Activity Log";
+
+  return {
+    id: String(raw.id || `act-${Math.random()}`),
+    actionType: actionTypeStr as AuditActionType,
+    actorName: raw.userName || raw.actorType || "System",
+    actorRole,
+    timestamp,
+    isoDate,
+    detailsEn: raw.description || raw.title || "",
+    detailsAr: raw.description || raw.title || "",
+    severity,
+    targetId: raw.userId || raw.organizationId || undefined,
+    targetName: raw.userName || raw.organizationName || undefined,
+  };
+}
 
 const PRIORITY_MAP: Record<string, SupportTicket["priority"]> = {
   High: "High",
@@ -82,20 +138,32 @@ export function normalizeDisputeToTicket(
 export function normalizeAnalytics(raw: AnalyticsSummary): AnalyticsSummary {
   return {
     ...raw,
+    foodWastePreventedKg: raw.foodWastePreventedKg ?? raw.wasteReducedKg ?? 0,
+    co2EmissionsSavedKg: raw.co2EmissionsSavedKg ?? raw.co2SavedKg ?? 0,
+    financialValueRecovered:
+      raw.financialValueRecovered ??
+      raw.totalFoodSavings ??
+      raw.revenueSavedEGP ??
+      0,
     totalConsumers: raw.users?.customers ?? raw.totalConsumers ?? 0,
     totalStores:
-      raw.users?.merchants ?? raw.stores?.total ?? raw.totalStores ?? 0,
+      raw.users?.merchants ?? raw.organizations?.total ?? raw.totalStores ?? 0,
     pendingStoresCount:
       raw.organizations?.pending ?? raw.pendingStoresCount ?? 0,
     pendingCharitiesCount: 0,
     totalCharities: raw.users?.charities ?? raw.totalCharities ?? 0,
-    totalProductsListed:
-      raw.products?.total ??
-      raw.listings?.total ??
-      raw.totalProductsListed ??
+    totalProductsListed: raw.products?.total ?? raw.totalProductsListed ?? 0,
+    revenueSavedEGP:
+      raw.totalRevenue ??
+      raw.financialValueRecovered ??
+      raw.revenueSavedEGP ??
       0,
-    revenueSavedEGP: raw.totalRevenue ?? raw.revenueSavedEGP ?? 0,
-    wasteReducedKg: raw.totalFoodSavings ?? raw.wasteReducedKg ?? 0,
+    wasteReducedKg:
+      raw.foodWastePreventedKg ??
+      raw.totalFoodSavings ??
+      raw.wasteReducedKg ??
+      0,
+    co2SavedKg: raw.co2EmissionsSavedKg ?? raw.co2SavedKg ?? 0,
   };
 }
 
