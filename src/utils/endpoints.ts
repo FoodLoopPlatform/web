@@ -78,4 +78,9 @@ export const Endpoints = {
     byId: (id: string) => `/support-tickets/${id}`,
     reply: (id: string) => `/support-tickets/${id}/reply`,
   },
+
+  orders: {
+    base: "/stores/me/orders",
+    updateStatus: (id: string) => `/stores/me/orders/${id}/status`,
+  },
 };

@@ -52,7 +52,7 @@ export function MerchantSidebar({
     },
     {
       label: "الطلبات",
-      href: "#",
+      href: "/orders",
       icon: "shopping_cart",
     },
     {

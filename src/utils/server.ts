@@ -1,5 +1,6 @@
 import { Endpoints } from "./endpoints";
-import { useAppLang, type SupportedLanguage } from "@/store/use-app-lang";
+
+export type SupportedLanguage = "ar" | "en";
 
 export type ApiResponse<T> =
   | { data: T; error?: never; status?: number }
@@ -37,11 +38,10 @@ function isValidSupportedLang(val?: string | null): val is SupportedLanguage {
 /**
  * Resolves the target Accept-Language header using a prioritized strategy pattern:
  * 1. Explicit request override
- * 2. Active Zustand client state (useAppLang)
- * 3. Client LocalStorage entries
- * 4. Document DOM lang attribute
- * 5. Browser Navigator language preference
- * 6. Default Fallback ("ar")
+ * 2. Client LocalStorage entries
+ * 3. Document DOM lang attribute
+ * 4. Browser Navigator language preference
+ * 5. Default Fallback ("ar")
  */
 export function getAcceptLanguage(preferredLang?: string): SupportedLanguage {
   if (isValidSupportedLang(preferredLang)) {
@@ -53,11 +53,7 @@ export function getAcceptLanguage(preferredLang?: string): SupportedLanguage {
   }
 
   try {
-    // Strategy 1: Active Zustand store state
-    const storeLang = useAppLang.getState?.()?.lang;
-    if (isValidSupportedLang(storeLang)) return storeLang;
-
-    // Strategy 2: Client LocalStorage keys
+    // Strategy 1: Client LocalStorage keys
     for (const key of STORAGE_KEYS) {
       const val = localStorage.getItem(key);
       if (isValidSupportedLang(val)) {

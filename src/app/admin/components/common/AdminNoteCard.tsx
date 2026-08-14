@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { sendAdminNote, getAdminNotes } from "../../api/user-note-api";
 import { AdminNoteItem } from "../../types/admin.types";
-import { arText } from "../../constants/arabic-mapper";
 import {
   PRESET_TEMPLATES,
   CATEGORY_STYLES,

@@ -15,10 +15,9 @@ import {
   LogoutIcon,
   BarChartIcon,
   FileIcon,
-  GlobeIcon,
-  MenuIcon,
   PlusIcon,
 } from "@/components/icons";
+import { Icon } from "@/components/ui/icon";
 
 interface NavItem {
   labelAr: string;
@@ -216,12 +215,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       dir={lang === "ar" ? "rtl" : "ltr"}
       className="min-h-screen bg-surface flex flex-col md:flex-row text-on-surface font-sans antialiased selection:bg-primary-fixed selection:text-primary"
     >
-      <aside className="hidden md:flex w-72 h-screen sticky top-0 flex-col bg-surface-container-low border-r border-outline-variant p-6 z-30 shrink-0">
+      <aside className="hidden md:flex w-72 h-screen sticky top-0 flex-col bg-surface-container-low border-r border-outline-variant p-6 z-30 shrink-0 print:hidden">
         {sidebarInnerContent}
       </aside>
 
       {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-[9999] md:hidden flex">
+        <div className="fixed inset-0 z-[9999] md:hidden flex print:hidden">
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
             onClick={() => setMobileSidebarOpen(false)}
@@ -241,56 +240,108 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        <header className="h-20 bg-surface/80 backdrop-blur-md sticky top-0 z-20 border-b border-outline-variant/60 px-4 sm:px-8 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        {/* Platform Admin Portal Top Bar Header (Matching Store Portal Header) */}
+        <header className="h-16 flex justify-between items-center px-4 sm:px-8 w-full bg-[#FAF9F5] border-b border-outline-variant/40 sticky top-0 z-40 print:hidden">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Mobile Hamburger Button */}
             <button
+              type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer"
-              title="Open Navigation Menu"
+              className="md:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer"
             >
-              <MenuIcon className="w-6 h-6" />
+              <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
+
+            {/* Page title in Top Bar */}
+            <span className="font-bold text-lg text-primary shrink-0 hidden sm:block">
+              {lang === "ar" ? "لوحة تحكم المنصة" : "Platform Admin"}
+            </span>
+
+            {/* Integrated Top Bar Search Bar */}
+            <div className="relative w-full max-w-md min-w-[180px] sm:min-w-[280px]">
+              <Icon
+                name="search"
+                className={`h-4 w-4 absolute ${
+                  lang === "ar" ? "right-3" : "left-3"
+                } top-1/2 -translate-y-1/2 text-outline`}
+              />
+              <input
+                type="text"
+                placeholder={
+                  lang === "ar"
+                    ? "البحث في لوحة تحكم المنصة..."
+                    : "Search admin portal..."
+                }
+                className={`w-full bg-white/80 border border-outline-variant/60 rounded-xl py-2 ${
+                  lang === "ar" ? "pr-9 pl-3" : "pl-9 pr-3"
+                } text-xs font-sans text-on-surface placeholder:text-outline focus:bg-white focus:border-primary focus:outline-hidden transition-all`}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                className="p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer"
+                title={lang === "ar" ? "الإشعارات" : "Notifications"}
+              >
+                <Icon
+                  name="notifications"
+                  className="h-5 w-5 text-on-surface-variant"
+                />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
+              </button>
+
+              <button
+                type="button"
+                className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
+                title={lang === "ar" ? "المساعدة" : "Help"}
+              >
+                <Icon name="help" className="h-5 w-5 text-on-surface-variant" />
+              </button>
+            </div>
+
             <button
+              type="button"
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-all text-xs font-bold border border-outline-variant/40 cursor-pointer"
-              title={lang === "ar" ? "Switch to English" : "التحويل للعربية"}
+              className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
+              title={lang === "ar" ? "تغيير اللغة" : "Switch Language"}
             >
-              <GlobeIcon className="w-4 h-4 text-primary" />
-              <span>{lang === "ar" ? "EN" : "العربية"}</span>
+              <Icon
+                name="language"
+                className="h-5 w-5 text-on-surface-variant"
+              />
             </button>
 
-            <div className="h-6 w-px bg-outline-variant/60 hidden sm:block" />
+            <div className="h-7 w-px bg-outline-variant/50" />
 
-            <div className="flex items-center gap-3 bg-surface-container-high p-1.5 pr-4 rounded-full border border-outline-variant/40">
+            {/* Admin User Profile Avatar Pill */}
+            <div className="flex items-center gap-2 cursor-pointer hover:bg-surface-container-highest p-1 px-2 rounded-full transition-all">
+              {(user as { profilePictureUrl?: string } | null)
+                ?.profilePictureUrl ? (
+                <Image
+                  className="w-8 h-8 rounded-full border border-outline-variant object-cover"
+                  alt="Admin Avatar"
+                  src={
+                    (user as { profilePictureUrl?: string }).profilePictureUrl!
+                  }
+                  width={32}
+                  height={32}
+                  unoptimized
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary font-extrabold text-xs flex items-center justify-center shadow-xs border border-primary/20">
+                  {(user?.fullName || "Admin").slice(0, 2).toUpperCase()}
+                </div>
+              )}
               <div className="flex flex-col text-right hidden md:flex">
-                <span className="text-xs font-bold text-on-surface leading-tight">
+                <span className="text-xs font-bold text-primary leading-tight">
                   {user?.fullName || "Admin Controller"}
                 </span>
                 <span className="text-[10px] text-on-surface-variant font-medium">
                   {currentDict.mainController}
                 </span>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-primary-fixed text-primary font-bold flex items-center justify-center text-sm shadow-xs border border-primary/20 overflow-hidden shrink-0">
-                {(user as { profilePictureUrl?: string } | null)
-                  ?.profilePictureUrl ? (
-                  <Image
-                    src={
-                      (user as { profilePictureUrl?: string })
-                        .profilePictureUrl!
-                    }
-                    alt="Profile"
-                    width={36}
-                    height={36}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>
-                    {(user?.fullName || "A").slice(0, 2).toUpperCase()}
-                  </span>
-                )}
               </div>
             </div>
           </div>
