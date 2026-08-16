@@ -18,8 +18,9 @@ import {
   type ActivityLog,
   type AnalyticsSummary,
 } from "../../api/admin-api";
+import { getAuditLogs } from "../../api/audit-log-api";
 import { adminDictionary } from "../../constants/dictionary";
-import { AdminUserItem } from "../../types/admin.types";
+import { AdminUserItem, AuditLogItem } from "../../types/admin.types";
 import { UserManagementStats } from "./UserManagementStats";
 import { UserManagementToolbarActions } from "./UserManagementToolbarActions";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
@@ -46,6 +47,7 @@ export function UserManagementShell({
   initialConsumers = [],
   initialStores = [],
   initialCharities = [],
+  initialAuditLogs = [],
 }: UserManagementShellProps = {}) {
   const { lang } = useAppLang();
   const router = useRouter();
@@ -62,6 +64,7 @@ export function UserManagementShell({
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(
     initialAnalytics,
   );
+  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(initialAuditLogs);
   const [isLoading, setIsLoading] = useState<boolean>(
     initialConsumers.length === 0 &&
       initialStores.length === 0 &&
@@ -143,17 +146,19 @@ export function UserManagementShell({
   const [selectedUserName, setSelectedUserName] = useState("");
 
   const refreshAllData = async () => {
-    const [analyticsRes, consumersRes, storesRes, charitiesRes] =
+    const [analyticsRes, consumersRes, storesRes, charitiesRes, auditRes] =
       await Promise.all([
         getAnalyticsSummary(),
         getAdminConsumers(),
         getAdminStores(),
         getAdminCharities(),
+        getAuditLogs({ pageSize: 5 }),
       ]);
     if (analyticsRes.data) setAnalytics(analyticsRes.data);
     if (consumersRes.data) setConsumers(consumersRes.data);
     if (storesRes.data) setStores(storesRes.data);
     if (charitiesRes.data) setCharities(charitiesRes.data);
+    if (auditRes.items) setAuditLogs(auditRes.items);
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
@@ -378,21 +383,17 @@ export function UserManagementShell({
 
         {/* Widgets Column */}
         <div className="flex flex-col gap-6">
-          <SmartInsightCard
-            title={t.smartTitle}
-            heading={recommendation.title}
-            bodyText={recommendation.desc}
-            actionLabel={recommendation.actionText}
-            onActionClick={() => {
-              if (recommendation.actionLink === "PENDING") {
-                setStatusFilter("PENDING");
-              } else {
-                router.push(recommendation.actionLink);
-              }
-            }}
+          <AuditLogsWidget
+            title={t.auditLogsTitle}
+            logs={auditLogs.map((log) => ({
+              id: log.id,
+              adminName: log.actorName,
+              action: isRtl ? log.detailsAr : log.detailsEn,
+              timestamp: log.timestamp,
+              details: log.detailsEn,
+            }))}
             isRtl={isRtl}
           />
-          <AuditLogsWidget title={t.auditLogsTitle} logs={[]} isRtl={isRtl} />
         </div>
       </div>
 

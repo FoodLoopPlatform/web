@@ -13,10 +13,14 @@ interface PageProps {
 export default async function UserDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [userRes, actRes, revRes] = await Promise.all([
-    getUserDetailServer(id),
-    getUserActivityEntriesServer(id),
-    getAdminReviewsServer({ storeId: id, pageSize: 50 }),
+  const userRes = await getUserDetailServer(id);
+  const role = userRes.data?.role || "Consumer";
+
+  const [actRes, revRes] = await Promise.all([
+    getUserActivityEntriesServer(id, role),
+    role === "Store"
+      ? getAdminReviewsServer({ storeId: id, pageSize: 50 })
+      : Promise.resolve({ data: [] }),
   ]);
 
   return (

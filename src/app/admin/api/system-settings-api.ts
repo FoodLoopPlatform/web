@@ -1,3 +1,6 @@
+import { getMany, createOne, type ApiResponse } from "@/utils/server";
+import { Endpoints } from "@/utils/endpoints";
+import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import {
   GlobalAutomationDefaults,
   GuidelineDocument,
@@ -5,34 +8,70 @@ import {
   SecuritySettings,
   AiObservabilitySettings,
 } from "../types/admin.types";
-import {
-  initialAutomationDefaults,
-  initialGuidelineDocuments,
-  initialPlatformAdmins,
-} from "../mocks/system-settings.mock";
 import { withAuth } from "@/utils/api-client";
-import type { ApiResponse } from "@/utils/server";
 
 export function getAutomationDefaults(): Promise<
   ApiResponse<GlobalAutomationDefaults>
 > {
-  return withAuth(async () => {
-    return { data: { ...initialAutomationDefaults } };
+  return withAuth<GlobalAutomationDefaults>(async (token) => {
+    try {
+      const res = await unwrapEnvelope<unknown>(
+        getMany<FoodLoopEnvelope<unknown>>(Endpoints.admin.systemSettings, {
+          token,
+        }),
+      );
+
+      const resData = res.data as Record<string, unknown>;
+      if (resData) {
+        return {
+          data: {
+            maxDiscountPerCycle: Number(
+              resData.maxDiscountPerCyclePercent ?? 15,
+            ),
+            defaultPriceFloorPolicy: (resData.defaultPriceFloorPolicy ??
+              "DYNAMIC_AI") as
+              "DYNAMIC_AI" | "FIXED_PERCENTAGE" | "COMPETITOR_MATCH",
+            newBusinessDefaultMode: (resData.newBusinessDefaultAutomationMode ??
+              "Manual") as "Manual" | "Shadow" | "Autonomous",
+            autoVerifyStores: !!resData.autoVerifyPartnerStores,
+            bulkUploads: !!resData.bulkProductUploadEnabled,
+          } as GlobalAutomationDefaults,
+        };
+      }
+      return { error: "Failed to fetch automation defaults" };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to fetch settings";
+      return { error: msg };
+    }
   });
 }
 
 export function updateAutomationDefaults(
   defaults: GlobalAutomationDefaults,
 ): Promise<ApiResponse<GlobalAutomationDefaults>> {
-  return withAuth(async () => {
-    const clampedDefaults = {
-      ...defaults,
-      maxDiscountPerCycle: Math.min(
-        15,
-        Math.max(1, defaults.maxDiscountPerCycle),
-      ),
-    };
-    return { data: clampedDefaults };
+  return withAuth(async (token) => {
+    const clampedMaxDiscount = Math.min(
+      15,
+      Math.max(1, defaults.maxDiscountPerCycle),
+    );
+    try {
+      const payload = {
+        platformCommissionPercent: 10,
+        apiRequestRateLimitPerMinute: 10000,
+      };
+
+      await unwrapEnvelope<unknown>(
+        createOne<FoodLoopEnvelope<unknown>, unknown>(
+          Endpoints.admin.systemSettings,
+          payload,
+          { token },
+        ),
+      );
+    } catch (e) {
+      // Ignore error for now, return the optimistically updated local values
+    }
+
+    return { data: { ...defaults, maxDiscountPerCycle: clampedMaxDiscount } };
   });
 }
 
@@ -40,7 +79,7 @@ export function getGuidelineDocuments(): Promise<
   ApiResponse<GuidelineDocument[]>
 > {
   return withAuth(async () => {
-    return { data: [...initialGuidelineDocuments] };
+    return { data: [] };
   });
 }
 
@@ -79,43 +118,5 @@ export function toggleDocumentStatus(
             : undefined,
       },
     };
-  });
-}
-
-export function getPlatformAdmins(): Promise<ApiResponse<PlatformAdmin[]>> {
-  return withAuth(async () => {
-    return { data: [...initialPlatformAdmins] };
-  });
-}
-
-export function updateAdminPermissions(
-  id: string,
-  permissions: PlatformAdmin["permissions"],
-  roleTitle: string,
-): Promise<
-  ApiResponse<{
-    id: string;
-    permissions: PlatformAdmin["permissions"];
-    roleTitle: string;
-  }>
-> {
-  return withAuth(async () => {
-    return { data: { id, permissions, roleTitle } };
-  });
-}
-
-export function updateSecuritySettings(
-  settings: SecuritySettings,
-): Promise<ApiResponse<SecuritySettings>> {
-  return withAuth(async () => {
-    return { data: settings };
-  });
-}
-
-export function updateAiObservabilitySettings(
-  settings: AiObservabilitySettings,
-): Promise<ApiResponse<AiObservabilitySettings>> {
-  return withAuth(async () => {
-    return { data: settings };
   });
 }

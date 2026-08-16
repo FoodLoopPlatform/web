@@ -10,77 +10,44 @@ import type {
 } from "../types/admin.types";
 import { normalizeActivityLog } from "./admin-normalizers";
 
-function applyLocalFilters(
-  items: AuditLogItem[],
-  params: AuditLogFilterParams,
-): AuditLogItem[] {
-  let filtered = [...items];
+function getDateRangeParams(range?: string): { from?: string; to?: string } {
+  if (!range || range === "ALL") return {};
 
-  if (params.search && params.search.trim()) {
-    const q = params.search.toLowerCase().trim();
-    filtered = filtered.filter(
-      (item) =>
-        item.actorName.toLowerCase().includes(q) ||
-        item.actionType.toLowerCase().includes(q) ||
-        item.detailsEn.toLowerCase().includes(q) ||
-        item.detailsAr.toLowerCase().includes(q) ||
-        (item.targetName && item.targetName.toLowerCase().includes(q)) ||
-        (item.targetId && item.targetId.toLowerCase().includes(q)),
+  const now = new Date();
+  const to = now.toISOString();
+  let from = "";
+
+  if (range === "TODAY") {
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
     );
+    from = startOfDay.toISOString();
+  } else if (range === "7DAYS") {
+    from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (range === "30DAYS") {
+    from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
   }
 
-  if (params.actionType && params.actionType !== "ALL") {
-    const act = params.actionType.toLowerCase();
-    filtered = filtered.filter(
-      (item) =>
-        item.actionType.toLowerCase().includes(act) ||
-        (act === "pricing change" &&
-          item.actionType.toLowerCase().includes("pricing")) ||
-        (act === "listing moderation" &&
-          item.actionType.toLowerCase().includes("moderation")) ||
-        (act === "userstatusupdated" &&
-          (item.actionType.toLowerCase().includes("user") ||
-            item.actionType.toLowerCase().includes("status"))) ||
-        (act === "storeverified" &&
-          (item.actionType.toLowerCase().includes("store") ||
-            item.actionType.toLowerCase().includes("organization"))),
-    );
-  }
-
-  if (params.severity && params.severity !== "ALL") {
-    const reqSev = params.severity;
-    filtered = filtered.filter((item) => item.severity === reqSev);
-  }
-
-  if (params.dateRange && params.dateRange !== "ALL") {
-    const now = new Date().getTime();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-    filtered = filtered.filter((item) => {
-      const itemTime = new Date(item.isoDate).getTime();
-      if (isNaN(itemTime)) return true;
-      const diffDays = (now - itemTime) / oneDayMs;
-
-      if (params.dateRange === "TODAY") return diffDays <= 1;
-      if (params.dateRange === "7DAYS") return diffDays <= 7;
-      if (params.dateRange === "30DAYS") return diffDays <= 30;
-      return true;
-    });
-  }
-
-  return filtered;
+  return { from, to };
 }
 
 export async function getAuditLogsServer(
   params: AuditLogFilterParams = {},
 ): Promise<AuditLogFetchResult> {
   const page = params.page ?? 1;
-  const pageSize = params.pageSize ?? 5;
+  const pageSize = params.pageSize ?? 20;
 
   try {
-    return await withServerAuth(async (token) => {
+    const res = await withServerAuth<AuditLogFetchResult>(async (token) => {
       const query = new URLSearchParams();
-      query.set("pageNumber", "1");
-      query.set("pageSize", "100");
+      query.set("pageNumber", page.toString());
+      query.set("pageSize", pageSize.toString());
+
+      console.log(
+        `[getAuditLogsServer] Token starts with: ${token?.substring(0, 10)}...`,
+      );
 
       if (params.search?.trim()) {
         query.set("searchTerm", params.search.trim());
@@ -89,47 +56,60 @@ export async function getAuditLogsServer(
         query.set("eventType", params.actionType);
       }
 
-      const res = await unwrapEnvelope<
-        RawActivityLog[] | { items: RawActivityLog[]; total?: number }
-      >(
-        getMany<
-          FoodLoopEnvelope<
-            RawActivityLog[] | { items: RawActivityLog[]; total?: number }
-          >
-        >(`${Endpoints.admin.activityLogs}?${query.toString()}`, {
-          token,
-          headers: { "Accept-Language": "ar" },
-        }),
-      );
+      const { from, to } = getDateRangeParams(params.dateRange);
+      if (from) query.set("dateFrom", from);
+      if (to) query.set("dateTo", to);
 
-      const rawList = Array.isArray(res.data)
-        ? res.data
-        : (res.data as { items?: RawActivityLog[] })?.items || [];
+      const url = `${Endpoints.baseUrl}${Endpoints.admin.adminActionsLogs}?${query.toString()}`;
 
-      const normalizedItems = rawList.map(normalizeActivityLog);
-      const filteredItems = applyLocalFilters(normalizedItems, params);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Accept-Language": "ar",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
 
-      const total = filteredItems.length;
+      if (!response.ok) {
+        console.error(
+          `Audit API failed: ${response.status} ${response.statusText}`,
+        );
+        throw new Error("Failed to fetch audit logs");
+      }
+
+      const json = await response.json();
+      const payload = json.data || json;
+      const itemsArray = Array.isArray(payload) ? payload : payload.items || [];
+
+      let normalizedItems = itemsArray.map(normalizeActivityLog);
+
+      if (params.severity && params.severity !== "ALL") {
+        normalizedItems = normalizedItems.filter(
+          (item: AuditLogItem) => item.severity === params.severity,
+        );
+      }
+
+      const total =
+        payload.totalCount ??
+        payload.totalItems ??
+        payload.total ??
+        normalizedItems.length;
       const totalPages = Math.ceil(total / pageSize) || (total > 0 ? 1 : 0);
 
-      const startIndex = (page - 1) * pageSize;
-      const paginatedItems = filteredItems.slice(
-        startIndex,
-        startIndex + pageSize,
-      );
-
-      const uniqueActors = new Set(normalizedItems.map((i) => i.actorName))
-        .size;
+      const uniqueActors = new Set(
+        normalizedItems.map((i: AuditLogItem) => i.actorName),
+      ).size;
       const aiDecisions = normalizedItems.filter(
-        (i) => i.actorRole === "System AI",
+        (i: AuditLogItem) => i.actorRole === "System AI",
       ).length;
       const flaggedCount = normalizedItems.filter(
-        (i) => i.severity === "High",
+        (i: AuditLogItem) => i.severity === "High",
       ).length;
 
       return {
         data: {
-          items: paginatedItems,
+          items: normalizedItems,
           total,
           page,
           pageSize,
@@ -138,25 +118,26 @@ export async function getAuditLogsServer(
             activeSessions: uniqueActors || 0,
             aiDecisions24h: aiDecisions,
             flaggedEvents: flaggedCount,
-            systemHealthStatus: res.error ? "Degraded" : "Operational",
+            systemHealthStatus: "Operational",
           },
         },
       };
-    }).then(
-      (res) =>
-        res.data ?? {
-          items: [],
-          total: 0,
-          page,
-          pageSize,
-          totalPages: 0,
-          stats: {
-            activeSessions: 0,
-            aiDecisions24h: 0,
-            flaggedEvents: 0,
-            systemHealthStatus: "Unavailable",
-          },
+    });
+
+    return (
+      res.data ?? {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        totalPages: 0,
+        stats: {
+          activeSessions: 0,
+          aiDecisions24h: 0,
+          flaggedEvents: 0,
+          systemHealthStatus: "Unavailable",
         },
+      }
     );
   } catch (err) {
     console.error("Failed to fetch server audit logs:", err);

@@ -76,7 +76,11 @@ export function getAdminReviewsServer(params?: {
   return withServerAuth(async (token) => {
     let url = Endpoints.admin.reviews;
     const query = new URLSearchParams();
-    if (params?.storeId) query.set("storeId", params.storeId);
+
+    if (params?.storeId) {
+      url = Endpoints.admin.storeReviews(params.storeId);
+    }
+
     if (params?.rating) query.set("rating", String(params.rating));
     if (params?.pageNumber) query.set("pageNumber", String(params.pageNumber));
     if (params?.pageSize) query.set("pageSize", String(params.pageSize));

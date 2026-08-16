@@ -6,31 +6,20 @@ import { adminDictionary } from "../../constants/dictionary";
 import { TabSwitcher } from "../../components";
 import { CheckIcon } from "@/components/icons";
 
-import {
-  GlobalAutomationDefaults,
-  GuidelineDocument,
-  DocumentCategory,
-} from "../../types/admin.types";
+import { GlobalAutomationDefaults } from "../../types/admin.types";
 
-import {
-  updateAutomationDefaults,
-  uploadGuidelineDocument,
-  toggleDocumentStatus,
-} from "../../api/system-settings-api";
+import { updateAutomationDefaults } from "../../api/system-settings-api";
 
 import { AutomationDefaultsSection } from "./AutomationDefaultsSection";
-import { GuidelineDocumentsSection } from "./GuidelineDocumentsSection";
 
 type SettingsTab = "automation" | "guidelines";
 
 interface SystemSettingsClientContainerProps {
   initialDefaults: GlobalAutomationDefaults;
-  initialDocuments: GuidelineDocument[];
 }
 
 export function SystemSettingsClientContainer({
   initialDefaults,
-  initialDocuments,
 }: SystemSettingsClientContainerProps) {
   const { lang } = useAppLang();
   const t = adminDictionary[lang];
@@ -42,8 +31,6 @@ export function SystemSettingsClientContainer({
   // States
   const [defaults, setDefaults] =
     useState<GlobalAutomationDefaults>(initialDefaults);
-  const [documents, setDocuments] =
-    useState<GuidelineDocument[]>(initialDocuments);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -59,58 +46,7 @@ export function SystemSettingsClientContainer({
     }
   };
 
-  const handleUploadDocument = async (data: {
-    name: string;
-    category: DocumentCategory;
-    version: string;
-    fileSize: string;
-  }) => {
-    const res = await uploadGuidelineDocument(data);
-    if (res.data) {
-      setDocuments((prev) => [res.data!, ...prev]);
-      showToast(
-        isRtl
-          ? `تم رفع المستند المصدر "${data.name}" بنجاح كمسودة.`
-          : `Source document "${data.name}" uploaded successfully as draft.`,
-      );
-    }
-  };
-
-  const handleToggleDocStatus = async (
-    id: string,
-    currentStatus: "Draft" | "Published",
-  ) => {
-    const nextStatus = currentStatus === "Published" ? "Draft" : "Published";
-    const res = await toggleDocumentStatus(id, nextStatus);
-    if (res.data) {
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === id
-            ? {
-                ...doc,
-                status: res.data!.status,
-                lastRagIndexedAt:
-                  res.data!.lastRagIndexedAt || doc.lastRagIndexedAt,
-              }
-            : doc,
-        ),
-      );
-      showToast(
-        nextStatus === "Published"
-          ? isRtl
-            ? "تم نشر المستند وإضافته للفهرس الذكاء الاصطناعي (RAG)."
-            : "Document published and indexed into RAG pipeline."
-          : isRtl
-            ? "تم تحويل المستند لمسودة وإيقاف الفهرسة."
-            : "Document unpublished and reverted to draft.",
-      );
-    }
-  };
-
-  const tabOptions = [
-    { id: "automation", label: t.tabGlobalAutomation },
-    { id: "guidelines", label: t.tabGuidelineDocs, badge: documents.length },
-  ];
+  const tabOptions = [{ id: "automation", label: t.tabGlobalAutomation }];
 
   return (
     <div className="flex flex-col gap-6 lg:gap-8 max-w-7xl mx-auto pb-12 w-full">
@@ -146,16 +82,6 @@ export function SystemSettingsClientContainer({
           t={t}
           isRtl={isRtl}
           onSave={handleSaveDefaults}
-        />
-      )}
-
-      {activeTab === "guidelines" && (
-        <GuidelineDocumentsSection
-          documents={documents}
-          t={t}
-          isRtl={isRtl}
-          onUploadDocument={handleUploadDocument}
-          onToggleStatus={handleToggleDocStatus}
         />
       )}
     </div>

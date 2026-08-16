@@ -99,7 +99,7 @@ export function UserDetailShell({
       );
 
       // Refetch latest activity log from endpoint
-      const freshLogs = await getUserActivityEntries(user.id);
+      const freshLogs = await getUserActivityEntries(user.id, user.role);
       if (freshLogs.data) {
         setActivities(freshLogs.data);
       }
@@ -129,7 +129,7 @@ export function UserDetailShell({
       );
 
       // Refetch latest activity log from endpoint
-      const freshLogs = await getUserActivityEntries(user.id);
+      const freshLogs = await getUserActivityEntries(user.id, user.role);
       if (freshLogs.data) {
         setActivities(freshLogs.data);
       }
@@ -155,7 +155,7 @@ export function UserDetailShell({
       );
 
       // Refetch latest activity log from endpoint
-      const freshLogs = await getUserActivityEntries(user.id);
+      const freshLogs = await getUserActivityEntries(user.id, user.role);
       if (freshLogs.data) {
         setActivities(freshLogs.data);
       }

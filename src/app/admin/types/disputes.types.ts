@@ -1,4 +1,4 @@
-import { Dispute, SupportTicket } from "./admin.types";
+import { Dispute, SupportTicket, AuditLogItem } from "./admin.types";
 import { Review } from "../api/admin-api";
 
 export type DisputeTab = "Disputes" | "Tickets" | "Reviews";
@@ -17,6 +17,7 @@ export interface DisputesShellProps {
   initialDisputes?: Dispute[];
   initialTickets?: SupportTicket[];
   initialReviews?: Review[];
+  initialAuditLogs?: AuditLogItem[];
 }
 
 export interface DisputeCardListProps {
