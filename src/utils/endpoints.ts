@@ -29,11 +29,15 @@ export const Endpoints = {
     productImages: (id: string) => `/stores/me/products/${id}/images`,
     productImageById: (id: string, imageId: string) =>
       `/stores/me/products/${id}/images/${imageId}`,
+    productsPricing: "/stores/me/products/pricing",
+    productPriceHistory: (id: string) =>
+      `/stores/me/products/${id}/price-history`,
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",
     disputes: "/stores/me/disputes",
     disputeById: (id: string) => `/stores/me/disputes/${id}`,
+    reviews: (id: string) => `/stores/${id}/reviews`,
   },
 
   admin: {

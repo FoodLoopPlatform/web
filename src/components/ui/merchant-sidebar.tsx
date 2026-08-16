@@ -61,6 +61,11 @@ export function MerchantSidebar({
       icon: "warning",
     },
     {
+      label: "التقييمات",
+      href: "/reviews",
+      icon: "star",
+    },
+    {
       label: "الإعدادات",
       href: "/settings",
       icon: "settings",
