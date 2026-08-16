@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AdminNoteItem } from "../../types/admin.types";
 import { arText } from "../../constants/arabic-mapper";
 import { CATEGORY_STYLES, ROLE_LABEL_MAP } from "./admin-note-constants";
+import { Pagination } from "./Pagination";
 
 interface AdminNoteHistoryFeedProps {
   notes: AdminNoteItem[];
@@ -29,6 +30,19 @@ export function AdminNoteHistoryFeed({
       n.recipientName.toLowerCase().includes(q)
     );
   });
+
+  const PAGE_SIZE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination when search query or notes change
+  // Removed useEffect to prevent cascading renders
+  // Instead, rely on state initialization and handler resets.
+
+  const totalPages = Math.ceil(filteredNotes.length / PAGE_SIZE) || 1;
+  const paginatedNotes = filteredNotes.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -61,8 +75,8 @@ export function AdminNoteHistoryFeed({
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2.5 max-h-[320px] overflow-y-auto pe-1">
-          {filteredNotes.map((note) => {
+        <div className="flex flex-col gap-2.5 overflow-y-auto pe-1">
+          {paginatedNotes.map((note) => {
             const catStyle =
               CATEGORY_STYLES[note.category] || CATEGORY_STYLES.INFO;
             const roleInfo =
@@ -116,6 +130,16 @@ export function AdminNoteHistoryFeed({
               </div>
             );
           })}
+          <div className="mt-2">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredNotes.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+              isRtl={isRtl}
+            />
+          </div>
         </div>
       )}
     </div>

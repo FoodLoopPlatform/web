@@ -51,7 +51,7 @@ export const ADMIN_DESIGN_TOKENS = {
       label: "text-red-900 font-black",
       sublabel: "text-red-700/80 font-medium",
       badge:
-        "bg-red-600 text-white text-[9px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded",
+        "bg-red-100 text-red-800 border border-red-300 text-[9px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded",
     },
     WARNING: {
       container:

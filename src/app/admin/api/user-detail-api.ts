@@ -323,13 +323,18 @@ function normalizeActivityEntry(
 
 export function getUserActivityEntries(
   id: string,
+  role: string = "Consumer",
 ): Promise<ApiResponse<UserActivityEntry[]>> {
   return withAuth<UserActivityEntry[]>(async (token) => {
+    let endpoint = Endpoints.admin.userActivityLog(id);
+    if (role === "Store") {
+      endpoint = Endpoints.admin.storeActivityLog(id);
+    } else if (role === "Charity") {
+      endpoint = Endpoints.admin.charityActivityLog(id);
+    }
+
     const result = await unwrapEnvelope<RawActivityEntry[]>(
-      getMany<FoodLoopEnvelope<RawActivityEntry[]>>(
-        Endpoints.admin.userActivityLog(id),
-        { token },
-      ),
+      getMany<FoodLoopEnvelope<RawActivityEntry[]>>(endpoint, { token }),
     );
     if (result.data && Array.isArray(result.data)) {
       return { data: result.data.map(normalizeActivityEntry) };

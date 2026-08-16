@@ -4,27 +4,6 @@ import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
 import { AdminNoteItem } from "../types/admin.types";
 
-const LOCAL_STORAGE_NOTES_KEY = "foodloop_admin_notes_store";
-
-function getLocalNotes(): AdminNoteItem[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_NOTES_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalNotes(notes: AdminNoteItem[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(LOCAL_STORAGE_NOTES_KEY, JSON.stringify(notes));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 /**
  * Fetch all notes sent to users/entities, optionally filtered by recipientId or role.
  * Propagates server errors when API call fails.
@@ -34,48 +13,30 @@ export async function getAdminNotes(
   role?: "Consumer" | "Charity" | "Store",
 ): Promise<ApiResponse<AdminNoteItem[]>> {
   return withAuth<AdminNoteItem[]>(async (token) => {
-    const local = getLocalNotes();
+    if (!recipientId) {
+      return { data: [] };
+    }
 
-    if (recipientId) {
-      try {
-        const res = await unwrapEnvelope<AdminNoteItem[] | AdminNoteItem>(
-          getMany<FoodLoopEnvelope<AdminNoteItem[] | AdminNoteItem>>(
-            Endpoints.admin.userNote(recipientId),
-            { token },
-          ),
-        );
+    try {
+      const res = await unwrapEnvelope<AdminNoteItem[] | AdminNoteItem>(
+        getMany<FoodLoopEnvelope<AdminNoteItem[] | AdminNoteItem>>(
+          `${Endpoints.admin.userNotes(recipientId)}?pageSize=50`,
+          { token },
+        ),
+      );
 
-        if (res.data) {
-          const apiData = Array.isArray(res.data) ? res.data : [res.data];
-          const merged = [
-            ...apiData,
-            ...local.filter((n) => n.recipientId === recipientId),
-          ];
-          // Deduplicate by canonical ID
-          const unique = Array.from(
-            new Map(merged.map((m) => [m.id, m])).values(),
-          );
-          return { data: unique };
-        }
-      } catch (err: unknown) {
-        // Explicitly propagate API failure instead of silent mock swallow
-        const msg =
-          err instanceof Error
-            ? err.message
-            : "Failed to load admin notes from server";
-        return { error: msg };
+      if (res.data) {
+        const apiData = Array.isArray(res.data) ? res.data : [res.data];
+        return { data: apiData };
       }
+      return { data: [] };
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Failed to load admin notes from server";
+      return { error: msg };
     }
-
-    let filtered = local;
-    if (recipientId) {
-      filtered = filtered.filter((n) => n.recipientId === recipientId);
-    }
-    if (role) {
-      filtered = filtered.filter((n) => n.recipientRole === role);
-    }
-
-    return { data: filtered };
   });
 }
 
@@ -97,50 +58,37 @@ export async function sendAdminNote(payload: {
   }
 
   return withAuth<AdminNoteItem>(async (token) => {
-    let serverNote: AdminNoteItem | undefined;
-
-    // Call backend API endpoint to create note
     try {
       const res = await unwrapEnvelope<AdminNoteItem>(
         createOne<
           FoodLoopEnvelope<AdminNoteItem>,
-          { note: string; category?: string; title?: string }
+          {
+            body: string;
+            category?: string;
+            title?: string;
+            template?: string;
+            isInternal?: boolean;
+          }
         >(
-          Endpoints.admin.userNote(payload.recipientId),
+          Endpoints.admin.userNotes(payload.recipientId),
           {
             title: payload.title,
-            note: payload.content,
+            body: payload.content,
             category: payload.category,
+            isInternal: !!payload.isInternal,
           },
           { token },
         ),
       );
+
       if (res.data) {
-        serverNote = res.data;
+        return { data: res.data };
       }
-    } catch {
-      // Endpoint may not be active; handle fallback cleanly
+
+      return { error: res.error || "Failed to send note" };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send note";
+      return { error: msg };
     }
-
-    // Construct note object using canonical server ID if returned
-    const finalNote: AdminNoteItem = serverNote || {
-      id: `note-${Date.now()}`,
-      recipientId: payload.recipientId,
-      recipientName: payload.recipientName || "Selected Entity",
-      recipientRole: payload.recipientRole,
-      title: payload.title,
-      content: payload.content,
-      category: payload.category,
-      isInternal: !!payload.isInternal,
-      createdAt: new Date().toISOString().replace("T", " ").slice(0, 16),
-      createdBy: "Admin Agent",
-    };
-
-    // Save to local storage cache
-    const existing = getLocalNotes();
-    const updated = [finalNote, ...existing];
-    saveLocalNotes(updated);
-
-    return { data: finalNote };
   });
 }

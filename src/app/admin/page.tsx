@@ -6,14 +6,16 @@ import {
   getAdminStoresServer,
   getAdminCharitiesServer,
 } from "./api/server-admin-api";
+import { getAuditLogsServer } from "./api/server-audit-log-api";
 
 export default async function UserManagementPage() {
-  const [analyticsRes, consumersRes, storesRes, charitiesRes] =
+  const [analyticsRes, consumersRes, storesRes, charitiesRes, auditRes] =
     await Promise.all([
       getAnalyticsSummaryServer(),
       getAdminConsumersServer(),
       getAdminStoresServer(),
       getAdminCharitiesServer(),
+      getAuditLogsServer({ pageSize: 5 }),
     ]);
 
   return (
@@ -23,6 +25,7 @@ export default async function UserManagementPage() {
         initialConsumers={consumersRes.data ?? []}
         initialStores={storesRes.data ?? []}
         initialCharities={charitiesRes.data ?? []}
+        initialAuditLogs={auditRes.items ?? []}
       />
     </Suspense>
   );

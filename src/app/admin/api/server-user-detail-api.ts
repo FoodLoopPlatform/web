@@ -80,6 +80,34 @@ export function getUserDetailServer(
     }
 
     if (userRes.status === 404) {
+      // Try to fetch as Charity first
+      const charityRes = await unwrapEnvelope<RawRecord>(
+        getMany<FoodLoopEnvelope<RawRecord>>(Endpoints.admin.charityById(id), {
+          token,
+        }),
+      );
+      if (charityRes.data) {
+        const charity = charityRes.data;
+        const userDetail: UserDetail = {
+          id: String(charity.id || id),
+          name: String(charity.name || charity.ownerName || "Charity"),
+          email: String(charity.email || charity.ownerEmail || ""),
+          phone: String(charity.phone || charity.ownerPhone || "N/A"),
+          location: String(charity.location || "Egypt"),
+          joinedDate: String(charity.joinedDate || "Jan 2024"),
+          lastActive: String(charity.lastActive || "Recently"),
+          status: (charity.status as UserDetail["status"]) || "ACTIVE",
+          role: "Charity",
+          stats: {
+            totalOrders: 0,
+            savedAmount: "EGP 0",
+            activeDisputes: 0,
+          },
+        };
+        return { data: userDetail };
+      }
+
+      // Fallback to Store
       const storeRes = await unwrapEnvelope<RawRecord>(
         getMany<FoodLoopEnvelope<RawRecord>>(Endpoints.admin.storeById(id), {
           token,
@@ -87,16 +115,25 @@ export function getUserDetailServer(
       );
       if (storeRes.data) {
         const store = storeRes.data;
+        // Some backends might return a charity from store endpoint.
+        // We double check if taxId or registrationNumber exists and no businessCategory is present.
+        const isActuallyCharity =
+          (store.taxId || store.registrationNumber) && !store.businessCategory;
+
         const userDetail: UserDetail = {
           id: String(store.id || id),
-          name: String(store.name || store.ownerName || "Store"),
+          name: String(
+            store.name ||
+              store.ownerName ||
+              (isActuallyCharity ? "Charity" : "Store"),
+          ),
           email: String(store.email || store.ownerEmail || ""),
           phone: String(store.phone || store.ownerPhone || "N/A"),
           location: String(store.location || "Egypt"),
           joinedDate: String(store.joinedDate || "Jan 2024"),
           lastActive: String(store.lastActive || "Recently"),
           status: (store.status as UserDetail["status"]) || "ACTIVE",
-          role: "Store",
+          role: isActuallyCharity ? "Charity" : "Store",
           stats: {
             totalOrders: 0,
             savedAmount: "EGP 0",
@@ -116,13 +153,18 @@ export function getUserDetailServer(
 
 export function getUserActivityEntriesServer(
   id: string,
+  role: string = "Consumer",
 ): Promise<ApiResponse<UserActivityEntry[]>> {
   return withServerAuth<UserActivityEntry[]>(async (token) => {
+    let endpoint = Endpoints.admin.userActivityLog(id);
+    if (role === "Store") {
+      endpoint = Endpoints.admin.storeActivityLog(id);
+    } else if (role === "Charity") {
+      endpoint = Endpoints.admin.charityActivityLog(id);
+    }
+
     const result = await unwrapEnvelope<RawRecord[]>(
-      getMany<FoodLoopEnvelope<RawRecord[]>>(
-        Endpoints.admin.userActivityLog(id),
-        { token },
-      ),
+      getMany<FoodLoopEnvelope<RawRecord[]>>(endpoint, { token }),
     );
     if (result.data && Array.isArray(result.data)) {
       return {

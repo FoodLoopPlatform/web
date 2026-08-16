@@ -86,6 +86,7 @@ const buildHeaders = (
 ): HeadersInit => {
   const headers: Record<string, string> = {
     "Accept-Language": getAcceptLanguage(langOption),
+    Accept: "application/json, text/plain, */*",
   };
 
   if (!isFormData) {
@@ -143,8 +144,10 @@ async function apiFetch<T>(
 
       if (!res.ok) {
         const errorData = await safeJson(res);
+        const fallbackMessage =
+          res.status === 401 ? "Unauthorized" : `HTTP Error ${res.status}`;
         return {
-          error: errorData?.message || res.statusText,
+          error: errorData?.message || res.statusText || fallbackMessage,
           status: res.status,
         };
       }

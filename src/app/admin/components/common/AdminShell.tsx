@@ -305,7 +305,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             {/* Integrated Top Bar Search Bar */}
             <div
               ref={searchContainerRef}
-              className="relative w-full max-w-md min-w-[180px] sm:min-w-[280px]"
+              className="relative w-full max-w-md min-w-[100px] sm:min-w-[280px]"
             >
               <form onSubmit={handleHeaderSearchSubmit} className="relative">
                 <Icon
@@ -435,11 +435,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+            <div className="flex items-center">
               <button
                 type="button"
-                className="p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer"
+                className="p-1.5 sm:p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer"
                 title={lang === "ar" ? "الإشعارات" : "Notifications"}
               >
                 <Icon
@@ -451,7 +451,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
               <button
                 type="button"
-                className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
+                className="hidden sm:flex p-2 hover:bg-surface-container-highest rounded-full transition-colors items-center justify-center cursor-pointer"
                 title={lang === "ar" ? "المساعدة" : "Help"}
               >
                 <Icon name="help" className="h-5 w-5 text-on-surface-variant" />
@@ -461,7 +461,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-              className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
+              className="p-1.5 sm:p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
               title={lang === "ar" ? "تغيير اللغة" : "Switch Language"}
             >
               <Icon
@@ -471,7 +471,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </button>
 
             {/* Profile Pill */}
-            <div className="flex items-center gap-2 border-r border-outline-variant/50 pr-3 mr-1">
+            <div className="flex items-center gap-2 border-none sm:border-r sm:border-solid border-outline-variant/50 sm:pr-3 mr-1">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0">
                 {user?.fullName
                   ? user.fullName.slice(0, 2).toUpperCase()

@@ -19,6 +19,7 @@ import {
   type Dispute,
 } from "../../api/admin-api";
 import { adminDictionary } from "../../constants/dictionary";
+import { AuditLogItem } from "../../types/admin.types";
 import { StatsCard } from "../common/StatsCard";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
@@ -44,6 +45,7 @@ export function DisputesShell({
   initialDisputes = [],
   initialTickets = [],
   initialReviews = [],
+  initialAuditLogs = [],
 }: DisputesShellProps = {}) {
   const { lang } = useAppLang();
   const router = useRouter();
@@ -62,6 +64,7 @@ export function DisputesShell({
       initialTickets.length === 0 &&
       initialReviews.length === 0,
   );
+  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(initialAuditLogs);
 
   // Search/Filters & Pagination
   const [searchQuery, setSearchQuery] = useState(
@@ -540,25 +543,17 @@ export function DisputesShell({
 
         {/* Side Column */}
         <div className="flex flex-col gap-6">
-          <SmartInsightCard
-            title={t.smartTitle}
-            heading={
-              isRtl
-                ? "قاعدة معالجة النزاعات التلقائية"
-                : "Automatic Dispute Resolution Rule"
-            }
-            bodyText={
-              isRtl
-                ? "التذاكر ذات الأولوية العالية غير المعالجة لأكثر من 24 ساعة تتطلب تنبيهاً فورياً لإدارة العمليات لتجنب تأثير النزاعات المالية على المتاجر."
-                : "High priority tickets left unaddressed for >24 hours require instant admin escalation to prevent financial conflicts."
-            }
-            actionLabel={isRtl ? "مراجعة القواعد" : "Review Rules"}
-            onActionClick={() => {
-              router.push("/admin/settings");
-            }}
+          <AuditLogsWidget
+            title={t.auditLogsTitle}
+            logs={auditLogs.map((log) => ({
+              id: log.id,
+              adminName: log.actorName,
+              action: isRtl ? log.detailsAr : log.detailsEn,
+              timestamp: log.timestamp,
+              details: log.detailsEn,
+            }))}
             isRtl={isRtl}
           />
-          <AuditLogsWidget title={t.auditLogsTitle} logs={[]} isRtl={isRtl} />
         </div>
       </div>
 

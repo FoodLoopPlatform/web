@@ -49,26 +49,30 @@ export const CATEGORY_STYLES = {
   INFO: {
     labelEn: "Notice",
     labelAr: "تنويه عام",
-    badge: "bg-blue-50 text-blue-700 border-blue-200",
-    activePill: "bg-blue-600 text-white border-blue-600 shadow-2xs",
+    badge: "bg-emerald-50/60 text-emerald-700 border-emerald-200/70",
+    activePill:
+      "bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold shadow-2xs",
   },
   WARNING: {
     labelEn: "Warning",
     labelAr: "تحذير هام",
-    badge: "bg-amber-50 text-amber-800 border-amber-200",
-    activePill: "bg-amber-600 text-white border-amber-600 shadow-2xs",
+    badge: "bg-amber-50/60 text-amber-700 border-amber-200/70",
+    activePill:
+      "bg-amber-100 text-amber-900 border-amber-300 font-extrabold shadow-2xs",
   },
   URGENT: {
     labelEn: "Urgent",
     labelAr: "عاجل جداً",
-    badge: "bg-red-50 text-red-700 border-red-200",
-    activePill: "bg-red-600 text-white border-red-600 shadow-2xs",
+    badge: "bg-red-50/60 text-red-700 border-red-200/70",
+    activePill:
+      "bg-red-100 text-red-900 border-red-300 font-extrabold shadow-2xs",
   },
   INTERNAL: {
     labelEn: "Internal",
     labelAr: "ملاحظة داخلية",
-    badge: "bg-purple-50 text-purple-700 border-purple-200",
-    activePill: "bg-purple-700 text-white border-purple-700 shadow-2xs",
+    badge: "bg-slate-50 text-slate-600 border-slate-200",
+    activePill:
+      "bg-slate-200 text-slate-900 border-slate-300 font-extrabold shadow-2xs",
   },
 };
 

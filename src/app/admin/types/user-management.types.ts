@@ -1,5 +1,11 @@
 import React from "react";
-import { Consumer, Store, Charity, AnalyticsSummary } from "./admin.types";
+import {
+  Consumer,
+  Store,
+  Charity,
+  AnalyticsSummary,
+  AuditLogItem,
+} from "./admin.types";
 
 export type EntityType = "all" | "consumers" | "stores" | "charities";
 
@@ -8,6 +14,7 @@ export interface UserManagementShellProps {
   initialConsumers?: Consumer[];
   initialStores?: Store[];
   initialCharities?: Charity[];
+  initialAuditLogs?: AuditLogItem[];
 }
 
 export interface UserManagementStatsProps {
