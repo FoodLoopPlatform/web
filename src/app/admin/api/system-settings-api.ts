@@ -56,11 +56,6 @@ export function updateAutomationDefaults(
     );
     try {
       const payload = {
-        maxDiscountPerCyclePercent: clampedMaxDiscount,
-        defaultPriceFloorPolicy: defaults.defaultPriceFloorPolicy,
-        newBusinessDefaultAutomationMode: defaults.newBusinessDefaultMode,
-        autoVerifyPartnerStores: defaults.autoVerifyStores,
-        bulkProductUploadEnabled: defaults.bulkUploads,
         platformCommissionPercent: 10,
         apiRequestRateLimitPerMinute: 10000,
       };
