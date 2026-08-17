@@ -4,6 +4,7 @@ import {
   updateOne,
   deleteOne,
   getAcceptLanguage,
+  type ApiResponse,
 } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
@@ -301,29 +302,68 @@ export async function deleteProductImage(id: string, imageId: string) {
 /**
  * Bulk upload merchant products via POST /stores/me/products/bulk
  */
-export function bulkUploadProducts(file: File) {
+export function bulkUploadProducts(
+  file: File,
+): Promise<ApiResponse<{ count?: number; message?: string } | unknown>> {
   const formData = new FormData();
   formData.append("file", file);
 
   return withAuth(async (token) => {
-    const res = await fetch(
-      `${Endpoints.baseUrl}${Endpoints.stores.productsBulk}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Accept-Language": getAcceptLanguage(),
-        },
-        body: formData,
-      },
-    );
-    const text = await res.text();
-    let data;
     try {
-      data = text ? JSON.parse(text) : null;
-    } catch {
-      data = { message: text || "Invalid response" };
+      const res = await fetch(
+        `${Endpoints.baseUrl}${Endpoints.stores.productsBulk}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Accept-Language": getAcceptLanguage(),
+          },
+          body: formData,
+        },
+      );
+      const text = await res.text();
+      let data: Record<string, unknown> | null = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = { message: text || "Invalid response" };
+      }
+
+      if (!res.ok) {
+        let errorMsg = "فشل في رفع ومعالجة ملف المنتجات";
+        if (data) {
+          if (Array.isArray(data.errors) && data.errors.length > 0) {
+            errorMsg = data.errors.join("\n");
+          } else if (typeof data.message === "string") {
+            errorMsg = data.message;
+          } else if (typeof data.error === "string") {
+            errorMsg = data.error;
+          }
+        }
+        return { error: errorMsg, status: res.status };
+      }
+
+      if (data && typeof data === "object" && "success" in data) {
+        if (!data.success) {
+          const detail =
+            Array.isArray(data.errors) && data.errors.length > 0
+              ? data.errors.join("\n")
+              : (typeof data.message === "string" ? data.message : null) ||
+                "حدث خطأ أثناء معالجة الملف";
+          return { error: detail, status: res.status };
+        }
+        return { data: data.data ?? data, status: res.status };
+      }
+
+      return { data: data ?? true, status: res.status };
+    } catch (err: unknown) {
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "تعذر الاتصال بالسيرفر لرفع الملف",
+        status: 500,
+      };
     }
-    return data;
   });
 }

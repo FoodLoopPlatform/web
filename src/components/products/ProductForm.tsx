@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   MerchantShell,
@@ -10,6 +11,7 @@ import { ImageUpload } from "@/components/products/ImageUpload";
 import { ClassificationSelect } from "@/components/products/ClassificationSelect";
 import { ProductInfoForm } from "@/components/products/ProductInfoForm";
 import { ExpiryDateSelector } from "@/components/products/ExpiryDateSelector";
+import { BulkProductUploadModal } from "@/components/products/BulkProductUploadModal";
 import { useProductForm } from "./use-product-form";
 import type { MerchantProduct } from "@/app/products/api/types";
 import { useStoreProfile } from "@/hooks/use-store-profile";
@@ -26,6 +28,7 @@ export function ProductForm({
   initialProduct,
   productId,
 }: ProductFormProps) {
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const formState = useProductForm({ mode, initialProduct, productId });
   const store = useStoreProfile();
 
@@ -63,6 +66,33 @@ export function ProductForm({
           {/* Form Container */}
           <section className="flex-1 p-margin-mobile md:p-margin-desktop bg-surface-container-lowest overflow-y-auto">
             <div className="max-w-4xl mx-auto flex flex-col gap-md">
+              {mode === "add" && (
+                <div className="p-4 rounded-2xl bg-light-green border border-primary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Icon name="cloud_upload" className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-on-surface">
+                        هل ترغب في إضافة عدة منتجات دفعة واحدة؟
+                      </p>
+                      <p className="text-xs text-on-surface-variant">
+                        استخدم خاصية رفع كشوف الإكسل (Excel / CSV) وتنزيل
+                        النموذج المعتمد.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setBulkModalOpen(true)}
+                    className="px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:opacity-90 transition-all shrink-0 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Icon name="upload_file" className="h-4 w-4" />
+                    <span>رفع ملف إكسل</span>
+                  </button>
+                </div>
+              )}
+
               {formState.submitError && (
                 <div className="p-4 bg-error-container/20 border border-error/30 rounded-xl text-error text-body-md flex items-center gap-3">
                   <Icon name="error" className="h-5 w-5 shrink-0" />
@@ -78,6 +108,11 @@ export function ProductForm({
                   </div>
                 </div>
               )}
+
+              <BulkProductUploadModal
+                isOpen={bulkModalOpen}
+                onClose={() => setBulkModalOpen(false)}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-lg">
                 {/* Left Column: Image & Category */}
