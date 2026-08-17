@@ -1,8 +1,13 @@
-import { getMany, updateOne } from "@/utils/server";
+import { getMany, updateOne, createOne } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
-import { Order, OrderItem, OrderTab } from "../types/orders.types";
+import {
+  Order,
+  OrderItem,
+  OrderTab,
+  RefundOrderPayload,
+} from "../types/orders.types";
 
 /**
  * Normalizes raw order responses from GET /stores/me/orders into the UI Order interface.
@@ -20,6 +25,10 @@ function normalizeOrder(raw: Record<string, unknown>): Order {
       status: "PENDING",
     };
   }
+
+  // Payment Status
+  const paymentStatus = (raw.paymentStatus as string) || "Pending";
+  const refundedAmount = Number(raw.refundedAmount || 0);
 
   // Handle orderStatus mapping (e.g. "Pending" -> "PENDING", "Completed" -> "DELIVERED")
   const rawStatusStr = String(
@@ -127,6 +136,8 @@ function normalizeOrder(raw: Record<string, unknown>): Order {
     currency: String(raw.currency || "ج.م"),
     status,
     displayStatusTag: status,
+    paymentStatus,
+    refundedAmount,
     accentVariant:
       status === "CONFIRMED"
         ? "confirmed"
@@ -308,6 +319,56 @@ export async function updateOrderStatus(
         err instanceof Error
           ? err.message
           : "Network error updating order status",
+    };
+  }
+}
+
+/**
+ * Refund an order via POST /stores/me/orders/{id}/refund
+ */
+export async function refundOrder(
+  id: string,
+  payload: RefundOrderPayload,
+  lang = "ar",
+  customToken?: string,
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  try {
+    const res = customToken
+      ? await unwrapEnvelope<unknown>(
+          createOne<FoodLoopEnvelope<unknown>, RefundOrderPayload>(
+            Endpoints.orders.refund(id),
+            payload,
+            { token: customToken, lang },
+          ),
+        )
+      : await withAuth((token) =>
+          unwrapEnvelope<unknown>(
+            createOne<FoodLoopEnvelope<unknown>, RefundOrderPayload>(
+              Endpoints.orders.refund(id),
+              payload,
+              { token, lang },
+            ),
+          ),
+        );
+
+    if (!res.error || res.status === 200 || res.status === 204) {
+      return {
+        success: true,
+        data: res.data,
+      };
+    }
+
+    return {
+      success: false,
+      error: res.error || "فشل استرداد مبلغ الطلب",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "حدث خطأ غير متوقع أثناء استرداد الطلب",
     };
   }
 }

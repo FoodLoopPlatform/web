@@ -74,17 +74,24 @@ export function OrderCard({
             ? `ORD-${order.id.slice(0, 4).toUpperCase()}`
             : order.id}
         </span>
-        <span
-          className={`text-[10px] sm:text-xs uppercase px-2.5 py-0.5 rounded-md font-sans tracking-wide ${getTagBadgeStyle()}`}
-        >
-          {order.displayStatusTag
-            ? t.tags[
-                order.displayStatusTag
-                  .toLowerCase()
-                  .replace(" ", "") as keyof typeof t.tags
-              ] || order.displayStatusTag
-            : t.tags[statusConfig.labelKey]}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {order.paymentStatus === "Refunded" && (
+            <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
+              {isRtl ? "مسترد" : "Refunded"}
+            </span>
+          )}
+          <span
+            className={`text-[10px] sm:text-xs uppercase px-2.5 py-0.5 rounded-md font-sans tracking-wide ${getTagBadgeStyle()}`}
+          >
+            {order.displayStatusTag
+              ? t.tags[
+                  order.displayStatusTag
+                    .toLowerCase()
+                    .replace(" ", "") as keyof typeof t.tags
+                ] || order.displayStatusTag
+              : t.tags[statusConfig.labelKey]}
+          </span>
+        </div>
       </div>
 
       {/* Customer Name */}

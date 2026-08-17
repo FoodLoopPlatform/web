@@ -1,8 +1,9 @@
 "use client";
 
 import React, { use, useState } from "react";
-import type { Dispute } from "@/app/disputes/types";
+import type { Dispute, ResolveStoreDisputePayload } from "@/app/disputes/types";
 import { Icon } from "@/components/ui/icon";
+import { resolveStoreDispute } from "@/app/disputes/api/disputes-api";
 import { DisputeTable } from "./DisputeTable";
 import { DisputeCardList } from "./DisputeCardList";
 import { DisputeDetailDrawer } from "./DisputeDetailDrawer";
@@ -15,13 +16,50 @@ interface DisputesContentProps {
 
 export function DisputesContent({ disputesPromise }: DisputesContentProps) {
   const res = use(disputesPromise);
-  const disputes = res.data ?? [];
+  const [disputes, setDisputes] = useState<Dispute[]>(res.data ?? []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(
     null,
   );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleResolveDispute = async (
+    id: string,
+    payload: ResolveStoreDisputePayload,
+  ): Promise<{ success: boolean; error?: string }> => {
+    const result = await resolveStoreDispute(id, payload);
+    if (result.success) {
+      const nowIso = new Date().toISOString();
+      const refundText = payload.refundAmount
+        ? ` (تعويض: ${payload.refundAmount} ج.م)`
+        : "";
+      const noteText = `حل التاجر: ${payload.merchantNote}${refundText}`;
+
+      setDisputes((prev) =>
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                isResolved: true,
+                adminNote: noteText,
+                resolvedAt: nowIso,
+              }
+            : d,
+        ),
+      );
+
+      setToastMessage("تم تسجيل حل النزاع بنجاح.");
+      setTimeout(() => setToastMessage(null), 4000);
+      return { success: true };
+    }
+
+    return {
+      success: false,
+      error: result.error || "فشل حل النزاع. يرجى المحاولة مرة أخرى.",
+    };
+  };
 
   const q = searchQuery.toLowerCase().trim();
   const filteredDisputes = disputes.filter((d) => {
@@ -30,7 +68,8 @@ export function DisputesContent({ disputesPromise }: DisputesContentProps) {
       (d.reason ?? "").toLowerCase().includes(q) ||
       (d.raisedByName ?? "").toLowerCase().includes(q) ||
       (d.id ?? "").toLowerCase().includes(q) ||
-      (d.orderId ?? "").toLowerCase().includes(q)
+      (d.orderId ?? "").toLowerCase().includes(q) ||
+      (d.productTitle ?? "").toLowerCase().includes(q)
     );
   });
 
@@ -58,6 +97,14 @@ export function DisputesContent({ disputesPromise }: DisputesContentProps) {
 
   return (
     <div className="flex flex-col gap-6 lg:gap-8 max-w-[1600px] mx-auto">
+      {/* Toast Feedback */}
+      {toastMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#0B3C26] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-xs sm:text-sm font-bold border border-emerald-400/30 animate-in fade-in slide-in-from-top-2">
+          <Icon name="check_circle" className="w-5 h-5 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Metrics Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-card-border p-5 sm:p-6 shadow-sm relative overflow-hidden text-right">
@@ -96,7 +143,7 @@ export function DisputesContent({ disputesPromise }: DisputesContentProps) {
         </span>
         <input
           type="text"
-          placeholder="ابحث بالسبب، العميل، أو رقم الطلب..."
+          placeholder="ابحث بالسبب، العميل، أو المنتج..."
           className="w-full py-2 text-xs rounded-xl border border-outline-variant focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-surface text-on-surface pr-10 pl-4 text-right"
           value={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
@@ -182,6 +229,7 @@ export function DisputesContent({ disputesPromise }: DisputesContentProps) {
       <DisputeDetailDrawer
         dispute={selectedDispute}
         onCloseDrawer={() => setSelectedDisputeId(null)}
+        onResolveDispute={handleResolveDispute}
       />
     </div>
   );

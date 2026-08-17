@@ -9,12 +9,11 @@ import { DashboardHeroMetrics } from "@/components/dashboard/DashboardHeroMetric
 import { DashboardHeroMetricsSkeleton } from "@/components/dashboard/DashboardHeroMetricsSkeleton";
 import { TopProductsWidget } from "@/components/dashboard/TopProductsWidget";
 import { TopProductsWidgetSkeleton } from "@/components/dashboard/TopProductsWidgetSkeleton";
-import { DemandForecastChart } from "@/components/dashboard/DemandForecastChart";
-import { InventoryRiskWidget } from "@/components/dashboard/InventoryRiskWidget";
-import { ExpiringSoonWidget } from "@/components/dashboard/ExpiringSoonWidget";
+import { OrdersFulfillmentWidget } from "@/components/dashboard/OrdersFulfillmentWidget";
+import { InventoryAnalyticsWidget } from "@/components/dashboard/InventoryAnalyticsWidget";
+import { DisputesAnalyticsWidget } from "@/components/dashboard/DisputesAnalyticsWidget";
 import { QuickActionsWidget } from "@/components/dashboard/QuickActionsWidget";
-import { RecentActivityWidget } from "@/components/dashboard/RecentActivityWidget";
-import { LogisticsAlertWidget } from "@/components/dashboard/LogisticsAlertWidget";
+import { AdminNoticesWidget } from "@/components/dashboard/AdminNoticesWidget";
 import { withAuth } from "@/lib/auth/with-auth";
 import { useStoreProfile } from "@/hooks/use-store-profile";
 import { resolveImageUrl } from "@/utils/image-utils";
@@ -46,7 +45,7 @@ function DashboardPage() {
             avatarUrl={resolveImageUrl(store?.logo)}
             left={
               <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary font-bold">
-                لوحة تحكم التاجر والتحليلات
+                لوحة تحكم المتجر والتحليلات
               </h1>
             }
           />
@@ -71,35 +70,58 @@ function DashboardPage() {
               ))}
             </div>
 
-            {/* Hero Metrics Section */}
+            {/* Hero Metrics Section (Revenue, Savings, Orders, Average Order Value, Donations, Refunds, Health) */}
             <Suspense fallback={<DashboardHeroMetricsSkeleton />}>
               <DashboardHeroMetrics analyticsPromise={analyticsPromise} />
             </Suspense>
 
-            {/* Main Content Grid */}
+            {/* Main Content Grid: Real Analytics & Controls */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-md items-start">
-              {/* Left/Center Column: Charts & Lists */}
+              {/* Left/Center Column: Orders Fulfillment & Top Products */}
               <div className="md:col-span-8 space-y-md">
-                {/* Demand Forecast Chart Bento Card */}
-                <DemandForecastChart />
+                {/* Orders Fulfillment Breakdown */}
+                <Suspense
+                  fallback={
+                    <div className="h-64 rounded-2xl bg-surface animate-pulse" />
+                  }
+                >
+                  <OrdersFulfillmentWidget
+                    analyticsPromise={analyticsPromise}
+                  />
+                </Suspense>
 
-                {/* Top Products — real sales data from GET /stores/me/analytics */}
+                {/* Real Top Selling Products */}
                 <Suspense fallback={<TopProductsWidgetSkeleton />}>
                   <TopProductsWidget analyticsPromise={analyticsPromise} />
                 </Suspense>
 
-                {/* Row of Widgets: Risk & Expiring */}
+                {/* Real Inventory Health & Disputes Analytics Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                  <InventoryRiskWidget />
-                  <ExpiringSoonWidget />
+                  <Suspense
+                    fallback={
+                      <div className="h-48 rounded-2xl bg-surface animate-pulse" />
+                    }
+                  >
+                    <InventoryAnalyticsWidget
+                      analyticsPromise={analyticsPromise}
+                    />
+                  </Suspense>
+                  <Suspense
+                    fallback={
+                      <div className="h-48 rounded-2xl bg-surface animate-pulse" />
+                    }
+                  >
+                    <DisputesAnalyticsWidget
+                      analyticsPromise={analyticsPromise}
+                    />
+                  </Suspense>
                 </div>
               </div>
 
-              {/* Right Column: Actions & Notifications */}
+              {/* Right Column: Admin Notes & Quick Actions */}
               <aside className="md:col-span-4 space-y-md">
+                <AdminNoticesWidget />
                 <QuickActionsWidget />
-                <RecentActivityWidget />
-                <LogisticsAlertWidget />
               </aside>
             </div>
           </div>

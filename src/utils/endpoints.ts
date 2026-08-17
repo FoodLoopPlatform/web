@@ -35,9 +35,14 @@ export const Endpoints = {
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",
+    notes: "/stores/me/notes",
     disputes: "/stores/me/disputes",
     disputeById: (id: string) => `/stores/me/disputes/${id}`,
+    resolveDispute: (id: string) => `/stores/me/disputes/${id}/resolve`,
     reviews: (id: string) => `/stores/${id}/reviews`,
+    orders: "/stores/me/orders",
+    orderById: (id: string) => `/stores/me/orders/${id}`,
+    refundOrder: (id: string) => `/stores/me/orders/${id}/refund`,
   },
 
   admin: {
@@ -96,6 +101,8 @@ export const Endpoints = {
 
   orders: {
     base: "/stores/me/orders",
+    byId: (id: string) => `/stores/me/orders/${id}`,
     updateStatus: (id: string) => `/stores/me/orders/${id}/status`,
+    refund: (id: string) => `/stores/me/orders/${id}/refund`,
   },
 };

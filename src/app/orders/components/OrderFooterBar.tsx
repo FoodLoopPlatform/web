@@ -9,16 +9,20 @@ import { useAppLang } from "@/store/use-app-lang";
 interface OrderFooterBarProps {
   currentStatus: OrderTab;
   itemsVerified?: boolean;
+  isRefunded?: boolean;
   onPrintInvoice?: () => void;
   onOpenCancelModal?: () => void;
+  onOpenRefundModal?: () => void;
   onAdvanceStatus?: () => void;
 }
 
 export function OrderFooterBar({
   currentStatus,
   itemsVerified = true,
+  isRefunded = false,
   onPrintInvoice,
   onOpenCancelModal,
+  onOpenRefundModal,
   onAdvanceStatus,
 }: OrderFooterBarProps) {
   const { lang } = useAppLang();
@@ -69,8 +73,26 @@ export function OrderFooterBar({
         </button>
       </div>
 
-      {/* Right Action Buttons: Cancel Order + Primary Action Button */}
-      <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+      {/* Right Action Buttons: Refund + Cancel Order + Primary Action Button */}
+      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+        {onOpenRefundModal && !isRefunded && (
+          <button
+            type="button"
+            onClick={onOpenRefundModal}
+            className="py-2.5 px-4 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <Icon name="currency_exchange" className="w-4 h-4" />
+            <span>{isRtl ? "استرداد المبلغ" : "Refund Order"}</span>
+          </button>
+        )}
+
+        {isRefunded && (
+          <span className="py-2 px-3 rounded-xl bg-rose-100 text-rose-800 font-bold text-xs flex items-center gap-1.5">
+            <Icon name="check_circle" className="w-4 h-4" />
+            <span>{isRtl ? "تم استرداد المبلغ" : "Refunded"}</span>
+          </span>
+        )}
+
         {currentStatus !== "CANCELLED" && currentStatus !== "DELIVERED" && (
           <button
             type="button"
