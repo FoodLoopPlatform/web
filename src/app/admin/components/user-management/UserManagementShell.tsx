@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
@@ -30,7 +30,6 @@ import { AuditLogsWidget } from "../audit-log/AuditLogsWidget";
 import { UserCardList } from "./UserCardList";
 import { UserTable } from "./UserTable";
 import { Pagination } from "../common/Pagination";
-import { EnrollModal } from "./EnrollModal";
 import { ActivityLogsDrawer } from "./ActivityLogsDrawer";
 import { UserManagementSkeleton } from "./UserManagementSkeleton";
 import {
@@ -71,50 +70,154 @@ export function UserManagementShell({
       initialCharities.length === 0,
   );
 
-  useEffect(() => {
-    if (
-      initialConsumers.length > 0 ||
-      initialStores.length > 0 ||
-      initialCharities.length > 0
-    ) {
-      return;
-    }
-
-    let isSubscribed = true;
-
-    Promise.all([
-      getAnalyticsSummary(),
-      getAdminConsumers(),
-      getAdminStores(),
-      getAdminCharities(),
-    ])
-      .then(([analyticsRes, consumersRes, storesRes, charitiesRes]) => {
-        if (!isSubscribed) return;
-        if (analyticsRes.data) setAnalytics(analyticsRes.data);
-        if (consumersRes.data) setConsumers(consumersRes.data);
-        if (storesRes.data) setStores(storesRes.data);
-        if (charitiesRes.data) setCharities(charitiesRes.data);
-      })
-      .catch((err) => {
-        console.error("Error loading user management data:", err);
-      })
-      .finally(() => {
-        if (isSubscribed) setIsLoading(false);
-      });
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [initialConsumers.length, initialStores.length, initialCharities.length]);
+  const [consumersCount, setConsumersCount] = useState(initialAnalytics?.users?.customers ?? 0);
+  const [storesCount, setStoresCount] = useState(initialAnalytics?.users?.merchants ?? 0);
+  const [charitiesCount, setCharitiesCount] = useState(initialAnalytics?.users?.charities ?? 0);
+  const [pendingCount, setPendingCount] = useState(initialAnalytics?.organizations?.pending ?? 0);
+  
+  const [activeTotalCount, setActiveTotalCount] = useState(initialAnalytics?.users?.customers ?? 0);
+  const [totalPages, setTotalPages] = useState(() => {
+    const total = initialAnalytics?.users?.customers ?? 0;
+    return Math.ceil(total / 5) || 1;
+  });
 
   // Filter & search states
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("search") || searchParams.get("q") || "",
   );
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const isFirstRender = React.useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (
+        activeTab === "Consumers" &&
+        currentPage === 1 &&
+        !debouncedSearchQuery &&
+        statusFilter === "ALL" &&
+        initialConsumers.length > 0
+      ) {
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    let isSubscribed = true;
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    setIsLoading(true);
+
+    const fetchParams = {
+      page: currentPage,
+      pageSize: ITEMS_PER_PAGE,
+      search: debouncedSearchQuery,
+      status: statusFilter,
+      signal,
+    };
+
+    const fetchAll = async () => {
+      try {
+        const [consumersRes, storesRes, charitiesRes] = await Promise.all([
+          getAdminConsumers(activeTab === "Consumers" ? fetchParams : { page: 1, pageSize: 1, signal }),
+          getAdminStores(activeTab === "Stores" ? fetchParams : { page: 1, pageSize: 1, signal }),
+          getAdminCharities(activeTab === "Charities" ? fetchParams : { page: 1, pageSize: 1, signal }),
+        ]);
+
+        if (!isSubscribed) return;
+
+        if (consumersRes.data && activeTab === "Consumers") setConsumers(consumersRes.data);
+        if (storesRes.data && activeTab === "Stores") setStores(storesRes.data);
+        if (charitiesRes.data && activeTab === "Charities") setCharities(charitiesRes.data);
+
+        // Update global counts only if they weren't fetched with filters
+        const noFilters = !debouncedSearchQuery && statusFilter === "ALL";
+        if (noFilters || activeTab !== "Consumers") {
+          setConsumersCount(consumersRes.data ? (consumersRes.totalCount ?? consumersRes.data.length) : consumersCount);
+        }
+        if (noFilters || activeTab !== "Stores") {
+          setStoresCount(storesRes.data ? (storesRes.totalCount ?? storesRes.data.length) : storesCount);
+        }
+        if (noFilters || activeTab !== "Charities") {
+          setCharitiesCount(charitiesRes.data ? (charitiesRes.totalCount ?? charitiesRes.data.length) : charitiesCount);
+        }
+        
+        // Update pagination for the active tab
+        const activeRes = activeTab === "Consumers" ? consumersRes : activeTab === "Stores" ? storesRes : charitiesRes;
+        const activeTotal = activeRes.data ? (activeRes.totalCount ?? activeRes.data.length) : 0;
+        setActiveTotalCount(activeTotal);
+        setTotalPages((activeRes.data && activeRes.totalPages) ? activeRes.totalPages : (Math.ceil(activeTotal / ITEMS_PER_PAGE) || 1));
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Error loading user management data:", err);
+        }
+      } finally {
+        if (isSubscribed) setIsLoading(false);
+      }
+    };
+
+    fetchAll();
+
+    return () => {
+      isSubscribed = false;
+      abortController.abort();
+    };
+  }, [activeTab, currentPage, debouncedSearchQuery, statusFilter, initialConsumers.length]);
+
+  useEffect(() => {
+    let isSubscribed = true;
+    // Decoupled pending count fetch (Bug C)
+    getAdminStores({ status: "PENDING", page: 1, pageSize: 1 }).then((res) => {
+      if (isSubscribed && res.data && res.totalCount !== undefined) {
+        setPendingCount(res.totalCount);
+      }
+    });
+    return () => {
+      isSubscribed = false;
+    };
+  }, []);
+
+  const isAuditLogFirstRender = React.useRef(true);
+  useEffect(() => {
+    if (isAuditLogFirstRender.current) {
+      isAuditLogFirstRender.current = false;
+      if (initialAuditLogs.length > 0) return;
+    }
+    let isSubscribed = true;
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    getAuditLogs({ pageSize: 5, signal })
+      .then((res) => {
+        if (isSubscribed && res.items) setAuditLogs(res.items);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Error loading audit logs:", err);
+        }
+      });
+
+    return () => {
+      isSubscribed = false;
+      try {
+        abortController.abort();
+      } catch (e) {
+        // Ignore abort errors
+      }
+    };
+  }, [initialAuditLogs.length]);
 
   const handleTabChange = (tab: ActorTab) => {
     setActiveTab(tab);
@@ -131,14 +234,6 @@ export function UserManagementShell({
     setCurrentPage(1);
   };
 
-  // Modal & Drawer states
-  const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const [enrollForm, setEnrollForm] = useState({
-    name: "",
-    email: "",
-    location: "",
-    extra: "",
-  });
 
   const [selectedUserLogs, setSelectedUserLogs] = useState<ActivityLog[]>([]);
   const [showLogsDrawer, setShowLogsDrawer] = useState(false);
@@ -235,50 +330,16 @@ export function UserManagementShell({
     setShowLogsDrawer(true);
   };
 
-  const handleEnrollSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Add real API endpoint for enrolling new actors
-    alert("Enroll functionality requires a backend endpoint.");
-    setShowEnrollModal(false);
-    setEnrollForm({ name: "", email: "", location: "", extra: "" });
-  };
 
   const handleExportCSV = () => {
     exportAdminCSV(activeTab, consumers, stores, charities);
   };
 
-  const filteredItems = useMemo(() => {
-    let items: AdminUserItem[] = [];
-    if (activeTab === "Consumers") items = consumers;
-    else if (activeTab === "Stores") items = stores;
-    else items = charities;
-
-    return items.filter((item) => {
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.location &&
-          item.location.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const itemStatus = (item.status || "ACTIVE").toString().toUpperCase();
-      const targetStatus = statusFilter.toUpperCase();
-      const matchesStatus =
-        statusFilter === "ALL" ||
-        itemStatus === targetStatus ||
-        (targetStatus === "ACTIVE" &&
-          (itemStatus === "APPROVED" || itemStatus === "VERIFIED")) ||
-        (targetStatus === "PENDING" &&
-          (itemStatus === "UNVERIFIED" || itemStatus === "REVIEW"));
-      return matchesSearch && matchesStatus;
-    });
-  }, [activeTab, consumers, stores, charities, searchQuery, statusFilter]);
-
-  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
+  const paginatedItems = useMemo(() => {
+    if (activeTab === "Consumers") return consumers;
+    else if (activeTab === "Stores") return stores;
+    else return charities;
+  }, [activeTab, consumers, stores, charities]);
 
   const recommendation = getSmartRecommendation(activeTab, isRtl)!;
 
@@ -295,7 +356,7 @@ export function UserManagementShell({
     { id: "SUSPENDED", label: t.suspended },
   ];
 
-  if (isLoading) {
+  if (isLoading && isFirstRender.current) {
     return <UserManagementSkeleton />;
   }
 
@@ -318,7 +379,14 @@ export function UserManagementShell({
       </div>
 
       {/* Top Metrics Banner */}
-      <UserManagementStats t={t} analytics={analytics} isRtl={isRtl} />
+      <UserManagementStats 
+        t={t} 
+        consumersCount={consumersCount} 
+        storesCount={storesCount} 
+        charitiesCount={charitiesCount} 
+        pendingCount={pendingCount} 
+        isRtl={isRtl} 
+      />
 
       {/* Search and Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between bg-white p-4 rounded-2xl border border-card-border shadow-sm gap-4">
@@ -340,7 +408,6 @@ export function UserManagementShell({
 
         <UserManagementToolbarActions
           onExportCSV={handleExportCSV}
-          onOpenEnrollModal={() => setShowEnrollModal(true)}
           exportCsvLabel={t.exportCsv}
           isRtl={isRtl}
         />
@@ -349,7 +416,7 @@ export function UserManagementShell({
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Table & Cards Column */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
+        <div className={`lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0 transition-opacity ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
           <div>
             <UserCardList
               users={paginatedItems}
@@ -374,7 +441,7 @@ export function UserManagementShell({
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filteredItems.length}
+            totalItems={activeTotalCount}
             pageSize={ITEMS_PER_PAGE}
             onPageChange={(page) => setCurrentPage(page)}
             isRtl={isRtl}
@@ -397,15 +464,6 @@ export function UserManagementShell({
         </div>
       </div>
 
-      {/* ── Enroll Modal ─────────────────────────────────────── */}
-      <EnrollModal
-        isOpen={showEnrollModal}
-        isRtl={isRtl}
-        enrollForm={enrollForm}
-        onClose={() => setShowEnrollModal(false)}
-        onChange={(form) => setEnrollForm(form)}
-        onSubmit={handleEnrollSubmit}
-      />
 
       {/* ── Activity Logs Drawer ──────────────────────────────── */}
       <ActivityLogsDrawer

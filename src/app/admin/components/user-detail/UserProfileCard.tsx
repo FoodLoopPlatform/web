@@ -75,8 +75,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
     rawStatus.includes("APPROV") ||
     rawStatus.includes("VERIF")
       ? statusBadgeTokens.ACTIVE
+      : rawStatus.includes("BAN")
+        ? statusBadgeTokens.BANNED
       : rawStatus.includes("SUSPEND") ||
-          rawStatus.includes("BAN") ||
           rawStatus.includes("REJECT")
         ? statusBadgeTokens.SUSPENDED
         : statusBadgeTokens.PENDING);
@@ -88,8 +89,11 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       ? isRtl
         ? "نشط"
         : "Active"
-      : rawStatus.includes("SUSPEND") ||
-          rawStatus.includes("BAN") ||
+      : rawStatus.includes("BAN")
+        ? isRtl
+          ? "محظور"
+          : "Banned"
+        : rawStatus.includes("SUSPEND") ||
           rawStatus.includes("REJECT")
         ? isRtl
           ? "معطل"
