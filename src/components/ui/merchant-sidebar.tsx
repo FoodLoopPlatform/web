@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "./icon";
 import { useAppStore } from "@/store/use-app-store";
 import { logoutSession } from "@/app/register/api/auth-api";
+import { AdminNotesDrawer } from "@/components/common/AdminNotesDrawer";
 
 interface MerchantSidebarProps {
   onClose?: () => void;
@@ -19,6 +21,7 @@ export function MerchantSidebar({
 }: MerchantSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
   const refreshToken = useAppStore((state) => state.refreshToken);
   const clearSession = useAppStore((state) => state.clearSession);
 
@@ -59,6 +62,11 @@ export function MerchantSidebar({
       label: "النزاعات",
       href: "/disputes",
       icon: "warning",
+    },
+    {
+      label: "التقييمات",
+      href: "/reviews",
+      icon: "star",
     },
     {
       label: "الإعدادات",
@@ -184,6 +192,20 @@ export function MerchantSidebar({
           ))}
           <button
             type="button"
+            onClick={() => setNotesDrawerOpen(true)}
+            className={`flex items-center gap-3 py-2.5 rounded-xl text-primary font-bold hover:bg-surface-container-high transition-colors cursor-pointer text-start ${
+              isCollapsed ? "justify-center px-1" : "px-4"
+            }`}
+          >
+            <Icon name="campaign" className="h-5 w-5 shrink-0 text-primary" />
+            {!isCollapsed && (
+              <span className="text-body-md font-sans leading-none">
+                ملاحظات الإدارة
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
             onClick={handleLogout}
             className={`flex items-center gap-3 py-2.5 rounded-xl text-error font-medium hover:bg-error-container hover:text-on-error-container transition-colors cursor-pointer text-start ${
               isCollapsed ? "justify-center px-1" : "px-4"
@@ -198,6 +220,11 @@ export function MerchantSidebar({
           </button>
         </div>
       </div>
+
+      <AdminNotesDrawer
+        isOpen={notesDrawerOpen}
+        onClose={() => setNotesDrawerOpen(false)}
+      />
     </div>
   );
 }

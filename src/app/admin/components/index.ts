@@ -17,6 +17,8 @@ export * from "./user-management/UserTable";
 export * from "./user-management/ActivityLogsDrawer";
 export * from "./user-management/UserManagementInsights";
 
+export * from "./commissions";
+
 export * from "./user-detail/UserDetailShell";
 export * from "./user-detail/UserDetailSkeleton";
 export * from "./user-detail/UserDetailHeader";

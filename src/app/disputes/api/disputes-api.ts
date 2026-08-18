@@ -1,8 +1,8 @@
-import { getMany } from "@/utils/server";
+import { getMany, updateOne } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
-import type { Dispute } from "../types";
+import type { Dispute, ResolveStoreDisputePayload } from "../types";
 
 function normalizeDispute(raw: Record<string, unknown>): Dispute {
   const getStr = (val: unknown) =>
@@ -13,15 +13,16 @@ function normalizeDispute(raw: Record<string, unknown>): Dispute {
     getStr(raw.id) ||
     getStr(raw._id) ||
     `disp-${Math.random().toString(36).substring(2, 7)}`;
-  const orderId = getStr(raw.orderId) || getStr(raw.productId);
-  const raisedByName =
-    getStr(raw.raisedByName) ||
+  const orderId = getStr(raw.orderId);
+  const productId = getStr(raw.productId);
+  const productTitle = getStr(raw.productTitle);
+  const reportedBy = getStr(raw.reportedBy);
+  const reporterName =
     getStr(raw.reporterName) ||
+    getStr(raw.raisedByName) ||
     getStr(raw.userFullName) ||
-    getStr(raw.userName) ||
-    getStr(raw.reportedBy) ||
-    getStr(raw.userEmail) ||
-    "عميل";
+    getStr(raw.userName);
+  const raisedByName = reporterName || getStr(raw.userEmail) || "عميل";
   const raisedByType =
     (raw.userType as Dispute["raisedByType"]) ||
     (raw.raisedByType as Dispute["raisedByType"]) ||
@@ -31,8 +32,8 @@ function normalizeDispute(raw: Record<string, unknown>): Dispute {
     getStr(raw.details) ||
     getStr(raw.description) ||
     getStr(raw.message) ||
-    getStr(raw.productTitle) ||
     "طلب مراجعة أو تظلم بشأن طلب";
+  const details = getStr(raw.details);
   const isResolved = Boolean(
     raw.isResolved ?? (raw.status === "Resolved" || raw.status === "Closed"),
   );
@@ -43,9 +44,14 @@ function normalizeDispute(raw: Record<string, unknown>): Dispute {
   return {
     id,
     orderId,
+    productId,
+    productTitle,
+    reportedBy,
+    reporterName,
     raisedByName,
     raisedByType,
     reason,
+    details,
     isResolved,
     adminNote,
     createdAt,
@@ -100,4 +106,37 @@ export function getStoreDisputes(params?: {
 
     return { data: [] as Dispute[] };
   });
+}
+
+/** PATCH /stores/me/disputes/{id}/resolve */
+export async function resolveStoreDispute(
+  id: string,
+  payload: ResolveStoreDisputePayload,
+  lang = "ar",
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<unknown>(
+        updateOne<FoodLoopEnvelope<unknown>, ResolveStoreDisputePayload>(
+          Endpoints.stores.resolveDispute(id),
+          payload,
+          { token, lang },
+        ),
+      ),
+    );
+
+    if (!res.error || res.status === 200 || res.status === 204) {
+      return { success: true, data: res.data };
+    }
+
+    return {
+      success: false,
+      error: res.error || "فشل حل النزاع",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "حدث خطأ أثناء حل النزاع",
+    };
+  }
 }

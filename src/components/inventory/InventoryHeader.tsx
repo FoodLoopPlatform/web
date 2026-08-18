@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { SparklesIcon } from "@/components/icons";
+import { BulkProductUploadModal } from "@/components/products/BulkProductUploadModal";
 
 interface InventoryHeaderProps {
   searchQuery: string;
@@ -15,6 +16,7 @@ export function InventoryHeader({
   setSearchQuery,
 }: InventoryHeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-lg mb-lg">
@@ -69,9 +71,13 @@ export function InventoryHeader({
                     </div>
                   </Link>
                   <div className="h-px bg-outline-variant/50" />
-                  <Link
-                    href="#"
-                    className="flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setBulkModalOpen(true);
+                    }}
+                    className="w-full text-right flex items-center gap-sm px-md py-4 hover:bg-light-green transition-colors text-on-surface group cursor-pointer"
                   >
                     <Icon
                       name="cloud_upload"
@@ -83,13 +89,18 @@ export function InventoryHeader({
                         استيراد ملف Excel أو CSV
                       </p>
                     </div>
-                  </Link>
+                  </button>
                 </div>
               </>
             )}
           </div>
         </div>
       </div>
+
+      <BulkProductUploadModal
+        isOpen={bulkModalOpen}
+        onClose={() => setBulkModalOpen(false)}
+      />
 
       {/* Search bar inside content area. Explicit min-width prevents input collapsing into a circle in RTL/flexbox layout. */}
       <div className="relative w-full max-w-3xl min-w-[280px] sm:min-w-[320px]">

@@ -14,6 +14,7 @@ export interface AdminDictionary {
   consumers: string;
   stores: string;
   charities: string;
+  commissions: string;
   tickets: string;
   reviews: string;
 
@@ -276,6 +277,35 @@ export interface AdminDictionary {
   systemStatus: string;
   supportLink: string;
   viewAuditDetailsModalTitle: string;
+
+  // Commissions Keys
+  commissionsTitle: string;
+  commissionsSubtitle: string;
+  totalPlatformCommission: string;
+  totalWithdrawable: string;
+  totalWithdrawn: string;
+  avgCommissionRate: string;
+  withdrawCommission: string;
+  withdrawModalTitle: string;
+  withdrawAmount: string;
+  withdrawAmountPlaceholder: string;
+  withdrawSuccess: string;
+  withdrawFailed: string;
+  withdrawMax: string;
+  withdraw50: string;
+  withdraw25: string;
+  currentBalance: string;
+  remainingBalance: string;
+  commissionRate: string;
+  totalSalesCol: string;
+  totalCommissionCol: string;
+  withdrawableCol: string;
+  withdrawnCol: string;
+  lastWithdrawalCol: string;
+  searchCommissionsPlaceholder: string;
+  noCommissionsData: string;
+  confirmWithdrawPrompt: string;
+  activeCommissionStores: string;
 }
 
 export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
@@ -295,6 +325,7 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     consumers: "المستهلكون",
     stores: "المتاجر الشريكة",
     charities: "الجمعيات الخيرية",
+    commissions: "العمولات",
     tickets: "تذاكر الدعم",
     reviews: "التقييمات المبلغ عنها",
 
@@ -579,6 +610,37 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     confirmRoleUpdateTitle: "تأكيد تعديل صلاحيات الأدمن",
     confirmRoleUpdateMsg:
       "هل أنت متأكد من تعديل الصلاحيات الخاصة بهذا الحساب الإداري؟",
+
+    // Commissions Keys
+    commissionsTitle: "إدارة عمولات المتاجر والأرباح",
+    commissionsSubtitle:
+      "متابعة عوائد المنصة ونسب العمولات المطبقة على المتاجر وسحب المستحقات المالية.",
+    totalPlatformCommission: "إجمالي عمولات المنصة",
+    totalWithdrawable: "الرصيد المتاح للسحب",
+    totalWithdrawn: "إجمالي المسحوبات",
+    avgCommissionRate: "متوسط نسبة العمولة",
+    withdrawCommission: "سحب العمولة",
+    withdrawModalTitle: "سحب أرباح العمولة من المتجر",
+    withdrawAmount: "المبلغ المراد سحبه",
+    withdrawAmountPlaceholder: "أدخل المبلغ بالجنيه (مثال: 500)",
+    withdrawSuccess: "تم سحب مبلغ العمولة بنجاح",
+    withdrawFailed: "تعذر إتمام عملية السحب",
+    withdrawMax: "كامل الرصيد",
+    withdraw50: "50% من الرصيد",
+    withdraw25: "25% من الرصيد",
+    currentBalance: "الرصيد القابل للسحب",
+    remainingBalance: "الرصيد المتبقي بعد العملية",
+    commissionRate: "نسبة العمولة",
+    totalSalesCol: "إجمالي المبيعات",
+    totalCommissionCol: "إجمالي العمولة",
+    withdrawableCol: "المتاح للسحب",
+    withdrawnCol: "المسحوب",
+    lastWithdrawalCol: "آخر سحب",
+    searchCommissionsPlaceholder: "ابحث باسم المتجر أو المالك أو المحافظة...",
+    noCommissionsData: "لا توجد سجلات عمولات مطابقة.",
+    confirmWithdrawPrompt:
+      "هل أنت متأكد من سحب هذا المبلغ؟ سيتم خصمه من رصيد عمولة المتجر وتحديث الحسابات فوراً.",
+    activeCommissionStores: "المتاجر النشطة بالعمولة",
   },
   en: {
     title: "User Management",
@@ -596,6 +658,7 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     consumers: "Consumers",
     stores: "Partner Stores",
     charities: "Charities",
+    commissions: "Commissions",
     tickets: "Support Tickets",
     reviews: "Flagged Reviews",
 
@@ -880,5 +943,36 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     confirmRoleUpdateTitle: "Confirm Admin Permissions Update",
     confirmRoleUpdateMsg:
       "Are you sure you want to update permissions for this administrative account?",
+
+    // Commissions Keys
+    commissionsTitle: "Store Commissions & Platform Earnings",
+    commissionsSubtitle:
+      "Monitor platform revenue, applied merchant commission rates, and withdraw accrued fees.",
+    totalPlatformCommission: "Total Platform Commission",
+    totalWithdrawable: "Withdrawable Balance",
+    totalWithdrawn: "Total Withdrawn",
+    avgCommissionRate: "Avg Commission Rate",
+    withdrawCommission: "Withdraw Commission",
+    withdrawModalTitle: "Withdraw Store Commission",
+    withdrawAmount: "Withdrawal Amount",
+    withdrawAmountPlaceholder: "Enter amount in EGP (e.g. 500)",
+    withdrawSuccess: "Commission withdrawn successfully",
+    withdrawFailed: "Failed to withdraw commission",
+    withdrawMax: "Full Balance",
+    withdraw50: "50% Balance",
+    withdraw25: "25% Balance",
+    currentBalance: "Available for Withdrawal",
+    remainingBalance: "Remaining Balance",
+    commissionRate: "Commission Rate",
+    totalSalesCol: "Gross Sales",
+    totalCommissionCol: "Total Commission",
+    withdrawableCol: "Withdrawable",
+    withdrawnCol: "Withdrawn",
+    lastWithdrawalCol: "Last Withdrawal",
+    searchCommissionsPlaceholder: "Search store name, owner, governorate...",
+    noCommissionsData: "No store commission records found.",
+    confirmWithdrawPrompt:
+      "Are you sure you want to withdraw this amount? It will be deducted from the store balance immediately.",
+    activeCommissionStores: "Active Stores with Commission",
   },
 };

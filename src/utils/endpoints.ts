@@ -29,11 +29,21 @@ export const Endpoints = {
     productImages: (id: string) => `/stores/me/products/${id}/images`,
     productImageById: (id: string, imageId: string) =>
       `/stores/me/products/${id}/images/${imageId}`,
+    productsPricing: "/stores/me/products/pricing",
+    productPriceHistory: (id: string) =>
+      `/stores/me/products/${id}/price-history`,
     productsBulk: "/stores/me/products/bulk",
     analytics: "/stores/me/analytics",
     aiSettings: "/stores/me/ai-settings",
+    notes: "/stores/me/notes",
     disputes: "/stores/me/disputes",
     disputeById: (id: string) => `/stores/me/disputes/${id}`,
+    resolveDispute: (id: string) => `/stores/me/disputes/${id}/resolve`,
+    reviews: (id: string) => `/stores/${id}/reviews`,
+    orders: "/stores/me/orders",
+    orderById: (id: string) => `/stores/me/orders/${id}`,
+    refundOrder: (id: string) => `/stores/me/orders/${id}/refund`,
+    commission: "/stores/me/commission",
   },
 
   admin: {
@@ -58,6 +68,9 @@ export const Endpoints = {
     systemSettings: "/admin/system-settings",
     consumers: "/users?role=Customer",
     stores: "/admin/stores",
+    commissions: "/admin/stores/commissions",
+    withdrawCommission: (id: string) =>
+      `/admin/stores/${id}/withdraw-commission`,
     charities: "/admin/charities",
     reviews: "/admin/reviews",
     storeReviews: (id: string) => `/stores/${id}/reviews`,
@@ -92,7 +105,9 @@ export const Endpoints = {
 
   orders: {
     base: "/stores/me/orders",
+    byId: (id: string) => `/stores/me/orders/${id}`,
     updateStatus: (id: string) => `/stores/me/orders/${id}/status`,
+    refund: (id: string) => `/stores/me/orders/${id}/refund`,
   },
 
   notifications: {

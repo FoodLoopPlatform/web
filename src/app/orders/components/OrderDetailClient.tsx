@@ -11,6 +11,7 @@ import { OrderItemsCard } from "./OrderItemsCard";
 import { CustomerInfoCard } from "./CustomerInfoCard";
 import { OrderFooterBar } from "./OrderFooterBar";
 import { CancelOrderModal } from "./CancelOrderModal";
+import { RefundOrderModal } from "./RefundOrderModal";
 import { PrintableInvoice } from "./PrintableInvoice";
 import { ordersDictionary } from "../constants/orders-dictionary";
 import { useAppLang } from "@/store/use-app-lang";
@@ -31,6 +32,7 @@ export function OrderDetailClient({
   // Initialized directly from server-fetched initialOrder (No client mount useEffect)
   const [order, setOrder] = useState<Order | null>(initialOrder || null);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const displayId =
@@ -171,6 +173,24 @@ export function OrderDetailClient({
       ? `ORD-${order.id.slice(0, 4).toUpperCase()}`
       : order.id;
 
+  const handleRefundSuccess = (amount: number) => {
+    setOrder((prev) =>
+      prev
+        ? {
+            ...prev,
+            paymentStatus: "Refunded",
+            refundedAmount: amount,
+          }
+        : null,
+    );
+    setToastMessage(
+      isRtl
+        ? `تم استرداد ${amount} ج.م بنجاح.`
+        : `Successfully refunded ${amount} EGP.`,
+    );
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
   return (
     <>
       {/* Isolated Printable Sales Invoice Component */}
@@ -213,6 +233,11 @@ export function OrderDetailClient({
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight font-sans">
                   {t.order} #{orderHeaderDisplayId}
                 </h1>
+                {order.paymentStatus === "Refunded" && (
+                  <span className="bg-rose-100 text-rose-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                    {isRtl ? "مسترد" : "Refunded"}
+                  </span>
+                )}
               </div>
               <p className="text-xs sm:text-sm text-outline mt-0.5 font-medium">
                 {t.placedOn} {order.date || "14/08/2026"} · {order.time}
@@ -263,8 +288,10 @@ export function OrderDetailClient({
         <OrderFooterBar
           currentStatus={order.status}
           itemsVerified={order.itemsVerified}
+          isRefunded={order.paymentStatus === "Refunded"}
           onPrintInvoice={handlePrintInvoice}
           onOpenCancelModal={() => setCancelModalOpen(true)}
+          onOpenRefundModal={() => setRefundModalOpen(true)}
           onAdvanceStatus={handleAdvanceStatus}
         />
 
@@ -274,6 +301,16 @@ export function OrderDetailClient({
           onClose={() => setCancelModalOpen(false)}
           onConfirmCancel={handleConfirmCancel}
           orderId={order.id}
+        />
+
+        {/* Refund Order Modal */}
+        <RefundOrderModal
+          isOpen={refundModalOpen}
+          onClose={() => setRefundModalOpen(false)}
+          orderId={order.id}
+          maxAmount={order.totalAmount}
+          currency={order.currency || "EGP"}
+          onRefundSuccess={handleRefundSuccess}
         />
       </div>
     </>

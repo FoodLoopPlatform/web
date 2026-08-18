@@ -1,97 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
-import {
-  pricingListings,
-  totalActiveListings,
-  type AutomationMode,
-} from "@/app/pricing/lib/mock-data";
-
-const modeFilters: { key: AutomationMode | "all"; label: string }[] = [
-  { key: "all", label: "جميع الأوضاع" },
-  { key: "Autonomous", label: "تلقائي بالكامل" },
-  { key: "Assisted", label: "بمساعدة" },
-  { key: "Manual", label: "يدوي" },
-];
-
-const automationModeMeta: Record<
-  AutomationMode,
-  { label: string; className: string; dotClassName?: string }
-> = {
-  Autonomous: {
-    label: "تلقائي بالكامل",
-    className: "bg-[#98f3b0] border border-[#006d38]/20 text-[#0b723c]",
-    dotClassName: "bg-[#006d38]",
-  },
-  Assisted: {
-    label: "بمساعدة",
-    className:
-      "bg-[#e6e9e3] border border-outline-variant/30 text-on-surface-variant",
-  },
-  Manual: {
-    label: "يدوي",
-    className:
-      "bg-[#e6e9e3] border border-outline-variant/30 text-on-surface-variant",
-  },
-};
+import { resolveImageUrl } from "@/utils/image-utils";
+import type { ProductPricingItem } from "@/app/pricing/api/types";
 
 function formatEGP(value: number) {
   return `${value.toFixed(2)} EGP`;
 }
 
-export function PricingTable() {
-  const [modeFilter, setModeFilter] = useState<AutomationMode | "all">("all");
+type PricingTableProps = {
+  items?: ProductPricingItem[];
+  isLoading?: boolean;
+  onViewHistory?: (productId: string) => void;
+};
+
+const ITEMS_PER_PAGE = 6;
+
+export function PricingTable({
+  items = [],
+  isLoading = false,
+  onViewHistory,
+}: PricingTableProps) {
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredListings = pricingListings.filter(
-    (listing) => modeFilter === "all" || listing.automationMode === modeFilter,
+  const filteredListings = useMemo(() => {
+    return items.filter((listing) => {
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        listing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (listing.nameAr &&
+          listing.nameAr.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        listing.code.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [items, searchQuery]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredListings.length / ITEMS_PER_PAGE),
   );
+  const paginatedListings = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredListings.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredListings, currentPage]);
 
   return (
     <section className="bg-white border border-outline-variant/30 rounded-xl shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] overflow-hidden">
       {/* Filter Header */}
       <div className="flex items-center justify-between gap-4 border-b border-outline-variant/20 px-6 py-5 flex-wrap">
-        <h3 className="font-sans text-2xl font-semibold text-primary">
-          بث الأسعار المباشر
-        </h3>
-        <div className="flex items-center gap-4">
-          <span className="text-xs tracking-wide text-on-surface-variant whitespace-nowrap">
-            تصفية حسب الوضع:
+        <div className="flex items-center gap-3">
+          <h3 className="font-sans text-2xl font-semibold text-primary">
+            بث الأسعار المباشر
+          </h3>
+          <span className="bg-light-green text-primary text-xs font-bold px-2.5 py-1 rounded-full">
+            {items.length} منتج
           </span>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Quick Search */}
           <div className="relative">
-            <select
-              value={modeFilter}
-              onChange={(event) =>
-                setModeFilter(event.target.value as AutomationMode | "all")
-              }
-              className="appearance-none bg-[#ecefe8] border border-outline-variant rounded-lg py-2 ps-4 pe-9 text-body-md text-on-surface cursor-pointer outline-none focus:border-primary transition-colors"
-            >
-              {modeFilters.map((filter) => (
-                <option key={filter.key} value={filter.key}>
-                  {filter.label}
-                </option>
-              ))}
-            </select>
             <Icon
-              name="expand_more"
-              className="h-3.5 w-3.5 text-on-surface-variant absolute inset-s-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              name="search"
+              className="h-4 w-4 absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
             />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="ابحث بالاسم أو الرمز..."
+              className="bg-[#ecefe8] border border-outline-variant rounded-lg py-1.5 pr-9 pl-3 text-body-md text-on-surface outline-none focus:border-primary transition-colors text-sm w-48 sm:w-64"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+              >
+                <Icon name="close" className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-          <button
-            type="button"
-            aria-label="خيارات تصفية إضافية"
-            className="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant cursor-pointer"
-          >
-            <Icon name="tune" className="h-4.5 w-4.5" />
-          </button>
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-225 border-collapse">
+        <table className="w-full min-w-200 border-collapse">
           <thead>
             <tr className="bg-light-green">
               <th className="border-b border-outline-variant/20 px-6 py-4 text-sm tracking-wide text-on-surface-variant font-normal text-start">
@@ -106,124 +107,155 @@ export function PricingTable() {
               <th className="border-b border-outline-variant/20 px-6 py-4 text-sm tracking-wide text-on-surface-variant font-normal text-start">
                 العد التنازلي للدورة
               </th>
-              <th className="border-b border-outline-variant/20 px-6 py-4 text-sm tracking-wide text-on-surface-variant font-normal text-start">
-                وضع الأتمتة
+              <th className="border-b border-outline-variant/20 px-6 py-4 text-center text-sm tracking-wide text-on-surface-variant font-normal">
+                الإجراءات
               </th>
-              <th className="border-b border-outline-variant/20 px-6 py-4 w-22" />
             </tr>
           </thead>
           <tbody>
-            {filteredListings.map((listing) => {
-              const mode =
-                automationModeMeta[listing.automationMode] ||
-                automationModeMeta[
-                  ((listing.automationMode as string)?.charAt(0).toUpperCase() +
-                    (listing.automationMode as string)?.slice(
-                      1,
-                    )) as AutomationMode
-                ] ||
-                automationModeMeta["Assisted"];
-              const discountBadgeClassName =
-                listing.discountPercent > 0
-                  ? "bg-[#ffddb7] border border-[#633d00]/20 text-[#653e00]"
-                  : "bg-[#ecefe8] border border-outline-variant/20 text-on-surface-variant";
-              const cyclePillClassName = listing.cycleUrgent
-                ? "bg-error-container text-on-error-container"
-                : "bg-[#ecefe8] text-on-surface-variant";
-
-              return (
+            {isLoading ? (
+              [1, 2, 3, 4].map((idx) => (
                 <tr
-                  key={listing.id}
-                  className="border-t border-outline-variant/10 first:border-t-0"
+                  key={idx}
+                  className="border-t border-outline-variant/10 animate-pulse"
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative">
-                        <Image
-                          src={listing.image}
-                          alt={listing.name}
-                          fill
-                          sizes="48px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-body-md text-on-surface">
-                          {listing.name}
-                        </span>
-                        <span className="text-xs tracking-wide text-on-surface-variant">
-                          الرمز: {listing.code}
-                        </span>
+                      <div className="h-12 w-12 rounded-lg bg-outline-variant/30 shrink-0" />
+                      <div className="flex flex-col gap-2">
+                        <div className="h-4 w-32 bg-outline-variant/30 rounded" />
+                        <div className="h-3 w-20 bg-outline-variant/20 rounded" />
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-end">
-                    <span
-                      dir="ltr"
-                      className="font-data-mono text-body-md text-on-surface-variant"
-                    >
-                      {formatEGP(listing.originalPrice)}
-                    </span>
+                    <div className="h-4 w-16 bg-outline-variant/30 rounded ms-auto" />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <span
-                        dir="ltr"
-                        className="font-data-mono text-body-md font-bold text-primary"
-                      >
-                        {formatEGP(listing.currentPrice)}
-                      </span>
-                      <span
-                        dir="ltr"
-                        className={`rounded-full px-2.5 py-1 text-[11px] shrink-0 ${discountBadgeClassName}`}
-                      >
-                        {listing.discountPercent > 0
-                          ? `-${listing.discountPercent}%`
-                          : "0%"}
-                      </span>
-                    </div>
+                    <div className="h-4 w-20 bg-outline-variant/30 rounded" />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon
-                        name="schedule"
-                        className={`h-3 w-3 shrink-0 ${
-                          listing.cycleUrgent
-                            ? "text-on-error-container"
-                            : "text-on-surface-variant"
-                        }`}
-                      />
-                      <span
-                        className={`rounded-full px-4 py-1 text-label-md whitespace-nowrap ${cyclePillClassName}`}
-                      >
-                        {listing.cycleCountdownLabel}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs tracking-[-0.03em] uppercase shrink-0 ${mode.className}`}
-                    >
-                      {mode.dotClassName && (
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full shrink-0 ${mode.dotClassName}`}
-                        />
-                      )}
-                      {mode.label}
-                    </span>
+                    <div className="h-6 w-24 bg-outline-variant/30 rounded-full" />
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button
-                      type="button"
-                      aria-label="خيارات إضافية للمنتج"
-                      className="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant cursor-pointer"
-                    >
-                      <Icon name="more_vert" className="h-4 w-4" />
-                    </button>
+                    <div className="h-8 w-24 bg-outline-variant/30 rounded mx-auto" />
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            ) : paginatedListings.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center py-16 px-6">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Icon
+                      name="search_off"
+                      className="h-10 w-10 text-on-surface-variant/40"
+                    />
+                    <p className="text-body-md font-bold text-on-surface">
+                      لم يتم العثور على منتجات مطابقة
+                    </p>
+                    <p className="text-sm text-on-surface-variant">
+                      جرب البحث باسم أو رمز آخر
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              paginatedListings.map((listing) => {
+                const discountBadgeClassName =
+                  listing.discountPercent > 0
+                    ? "bg-[#ffddb7] border border-[#633d00]/20 text-[#653e00]"
+                    : "bg-[#ecefe8] border border-outline-variant/20 text-on-surface-variant";
+                const cyclePillClassName = listing.cycleUrgent
+                  ? "bg-error-container text-on-error-container"
+                  : "bg-[#ecefe8] text-on-surface-variant";
+
+                const displayImage =
+                  resolveImageUrl(listing.image) || "/pricing/sourdough.jpg";
+
+                return (
+                  <tr
+                    key={listing.id}
+                    className="border-t border-outline-variant/10 first:border-t-0 hover:bg-surface-container-lowest/70 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative">
+                          <Image
+                            src={displayImage}
+                            alt={listing.name}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                            unoptimized={displayImage.startsWith("http")}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-body-md font-medium text-on-surface">
+                            {listing.name}
+                          </span>
+                          <span className="text-xs tracking-wide text-on-surface-variant">
+                            الرمز: {listing.code}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-end">
+                      <span
+                        dir="ltr"
+                        className="font-data-mono text-body-md text-on-surface-variant"
+                      >
+                        {formatEGP(listing.originalPrice)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <span
+                          dir="ltr"
+                          className="font-data-mono text-body-md font-bold text-primary"
+                        >
+                          {formatEGP(listing.currentPrice)}
+                        </span>
+                        <span
+                          dir="ltr"
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold shrink-0 ${discountBadgeClassName}`}
+                        >
+                          {listing.discountPercent > 0
+                            ? `-${listing.discountPercent}%`
+                            : "0%"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Icon
+                          name="schedule"
+                          className={`h-3 w-3 shrink-0 ${
+                            listing.cycleUrgent
+                              ? "text-on-error-container"
+                              : "text-on-surface-variant"
+                          }`}
+                        />
+                        <span
+                          className={`rounded-full px-3 py-1 text-label-md whitespace-nowrap ${cyclePillClassName}`}
+                        >
+                          {listing.cycleCountdownLabel}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => onViewHistory?.(listing.id)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:bg-light-green px-3 py-1.5 rounded-lg border border-primary/20 transition-all cursor-pointer hover:shadow-xs"
+                      >
+                        <Icon name="history" className="h-3.5 w-3.5" />
+                        سجل الأسعار
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -231,19 +263,24 @@ export function PricingTable() {
       {/* Footer / Pagination */}
       <div className="flex items-center justify-between gap-4 flex-wrap bg-light-green/50 px-6 py-4">
         <span className="text-xs tracking-wide text-on-surface-variant">
-          عرض {filteredListings.length} من أصل {totalActiveListings} قائمة نشطة
+          عرض{" "}
+          {filteredListings.length === 0
+            ? 0
+            : (currentPage - 1) * ITEMS_PER_PAGE + 1}{" "}
+          - {Math.min(currentPage * ITEMS_PER_PAGE, filteredListings.length)} من
+          أصل {items.length} منتج
         </span>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || isLoading}
             onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
             aria-label="الصفحة السابقة"
             className="h-8 w-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:border-primary transition-colors cursor-pointer"
           >
             <Icon name="chevron_right" className="h-4 w-4" />
           </button>
-          {[1, 2, 3].map((page) => (
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
               type="button"
@@ -259,9 +296,12 @@ export function PricingTable() {
           ))}
           <button
             type="button"
-            onClick={() => setCurrentPage((page) => Math.min(3, page + 1))}
+            disabled={currentPage === totalPages || isLoading}
+            onClick={() =>
+              setCurrentPage((page) => Math.min(totalPages, page + 1))
+            }
             aria-label="الصفحة التالية"
-            className="h-8 w-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:border-primary transition-colors cursor-pointer"
+            className="h-8 w-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:border-primary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Icon name="chevron_left" className="h-4 w-4" />
           </button>

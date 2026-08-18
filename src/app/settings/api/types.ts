@@ -86,3 +86,17 @@ export const formValueToBusinessCategory: Record<
   "Grocery Chain": "GroceryChain",
   Other: undefined,
 };
+
+export interface StoreCommissionDetails {
+  storeId?: string;
+  storeName?: string;
+  commissionRate: number; // Percentage, e.g. 10 (%)
+  totalSales: number;
+  totalCommissionDue: number;
+  withdrawnAmount: number;
+  pendingAmount: number;
+  effectiveDate?: string;
+  updatedAt?: string;
+  settlementTerms?: string;
+  autoDeductionEnabled?: boolean;
+}

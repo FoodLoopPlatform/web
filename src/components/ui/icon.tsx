@@ -451,6 +451,32 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "star":
+      return (
+        <svg {...svgProps}>
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            fill={fill ? "currentColor" : "none"}
+          />
+        </svg>
+      );
+
+    case "star_half":
+      return (
+        <svg {...svgProps}>
+          <path d="M12 17.8L5.8 21 7 14.1 2 9.3l7-.9L12 2" />
+        </svg>
+      );
+
+    case "rate_review":
+    case "reviews":
+      return (
+        <svg {...svgProps}>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="M12 7l1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5-2.5-2.5 3.5-.5z" />
+        </svg>
+      );
+
     default:
       return null;
   }

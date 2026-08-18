@@ -7,11 +7,21 @@
 export interface Dispute {
   id: string;
   orderId?: string;
+  productId?: string;
+  productTitle?: string;
+  reportedBy?: string;
+  reporterName?: string;
   raisedByName: string;
   raisedByType?: "Consumer" | "Store" | "Charity";
   reason: string;
+  details?: string;
   isResolved: boolean;
   adminNote?: string;
   createdAt: string;
   resolvedAt?: string;
+}
+
+export interface ResolveStoreDisputePayload {
+  merchantNote: string;
+  refundAmount?: number;
 }

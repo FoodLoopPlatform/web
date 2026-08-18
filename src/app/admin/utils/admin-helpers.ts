@@ -1,6 +1,6 @@
 import { Consumer, Store, Charity } from "../api/admin-api";
 
-type ActorTab = "Consumers" | "Stores" | "Charities";
+type ActorTab = "Consumers" | "Stores" | "Charities" | "Commissions";
 
 export function getSmartRecommendation(activeTab: ActorTab, isRtl: boolean) {
   if (isRtl) {
@@ -26,6 +26,13 @@ export function getSmartRecommendation(activeTab: ActorTab, isRtl: boolean) {
           actionText: "تصفية التوثيق",
           actionLink: "PENDING",
         };
+      case "Commissions":
+        return {
+          title: "عوائد وعمولات المتاجر",
+          desc: "متابعة وتحصيل أرباح وعمولات المنصة المكتسبة من المتاجر الشريكة.",
+          actionText: "سحب العمولات",
+          actionLink: "/admin/commissions",
+        };
     }
   } else {
     switch (activeTab) {
@@ -50,6 +57,13 @@ export function getSmartRecommendation(activeTab: ActorTab, isRtl: boolean) {
           actionText: "Filter Verification",
           actionLink: "PENDING",
         };
+      case "Commissions":
+        return {
+          title: "Store Commission Earnings",
+          desc: "Track and withdraw platform revenue accrued from store sales.",
+          actionText: "View Commissions",
+          actionLink: "/admin/commissions",
+        };
     }
   }
 }
@@ -71,12 +85,14 @@ export function exportAdminCSV(
     stores.forEach((s) => {
       csvContent += `"${s.id}","${s.name}","${s.email}","${s.location}","${s.status}","${s.joinedDate}","${s.lastActive}"\n`;
     });
-  } else {
+  } else if (activeTab === "Charities") {
     csvContent +=
       "ID,Name,Email,Location,Status,Tax ID,Verified,Joined Date,Last Active\n";
     charities.forEach((c) => {
       csvContent += `"${c.id}","${c.name}","${c.email}","${c.location}","${c.status}","${c.taxId}","${c.verified}","${c.joinedDate}","${c.lastActive}"\n`;
     });
+  } else {
+    return;
   }
 
   const encodedUri = encodeURI(csvContent);

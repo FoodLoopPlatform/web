@@ -66,6 +66,13 @@ export interface Order {
   warningMessage?: string;
   customerDetail?: CustomerDetail;
   itemsVerified?: boolean;
+  paymentStatus?: "Pending" | "Paid" | "Refunded" | string;
+  refundedAmount?: number;
+}
+
+export interface RefundOrderPayload {
+  amount: number;
+  reason: string;
 }
 
 export interface OrderSummaryData {

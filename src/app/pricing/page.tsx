@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   MerchantShell,
@@ -8,12 +8,15 @@ import {
 } from "@/components/layout/merchant-shell";
 import { Icon } from "@/components/ui/icon";
 import { PricingStatCards } from "@/components/pricing/PricingStatCards";
+import { StoreCommissionBanner } from "@/components/pricing/StoreCommissionBanner";
 import { PricingTable } from "@/components/pricing/PricingTable";
-import { PricingInsights } from "@/components/pricing/PricingInsights";
 import { PricingRecommendationModal } from "@/components/pricing/PricingRecommendationModal";
+import { PricingHistoryView } from "@/components/pricing/PricingHistoryView";
 import { withAuth } from "@/lib/auth/with-auth";
 import { useStoreProfile } from "@/hooks/use-store-profile";
 import { resolveImageUrl } from "@/utils/image-utils";
+import { getProductsPricing } from "./api/pricing-api";
+import type { ProductPricingItem, PricingStatsData } from "./api/types";
 
 function PricingPage() {
   const store = useStoreProfile();
@@ -22,15 +25,46 @@ function PricingPage() {
   const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
     useState(false);
 
+  const [products, setProducts] = useState<ProductPricingItem[]>([]);
+  const [stats, setStats] = useState<PricingStatsData | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedProductForHistory, setSelectedProductForHistory] = useState<
+    string | null
+  >(null);
+
+  // Fetch data from /stores/me/products/pricing
+  useEffect(() => {
+    let isMounted = true;
+
+    getProductsPricing()
+      .then((res) => {
+        if (!isMounted) return;
+        if (res.data) {
+          setProducts(res.data);
+          setStats(res.stats);
+        }
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleRunAutoAdjustment = () => {
     if (isRunningAutomation) return;
     setIsRunningAutomation(true);
-    // Mocked: simulate the AI pricing engine processing before surfacing a
-    // recommendation. Swap for a real API call once the endpoint exists.
     setTimeout(() => {
       setIsRunningAutomation(false);
       setIsRecommendationModalOpen(true);
     }, 900);
+  };
+
+  const handleViewHistory = (productId: string) => {
+    setSelectedProductForHistory(productId);
+    setActiveTab("history");
   };
 
   return (
@@ -69,10 +103,10 @@ function PricingPage() {
                   </h1>
                   <p className="text-body-lg text-on-surface-variant max-w-2xl">
                     حسّن هوامش مخزونك من خلال التسعير الديناميكي الفوري وإدارة
-                    دورات التخفيض.
+                    دورات التخفيض وسجل الأسعار.
                   </p>
                 </div>
-                <div className="flex gap-4 shrink-0">
+                <div className="flex gap-4 shrink-0 flex-wrap">
                   <button
                     type="button"
                     className="flex items-center gap-2 border border-outline px-6 py-4 rounded-xl text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
@@ -111,7 +145,7 @@ function PricingPage() {
                   onClick={() => setActiveTab("live")}
                   className={`pb-2.5 px-2 text-body-md font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
                     activeTab === "live"
-                      ? "border-primary text-primary"
+                      ? "border-primary text-primary font-bold"
                       : "border-transparent text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
@@ -121,7 +155,7 @@ function PricingPage() {
                   onClick={() => setActiveTab("history")}
                   className={`pb-2.5 px-2 text-body-md font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
                     activeTab === "history"
-                      ? "border-primary text-primary"
+                      ? "border-primary text-primary font-bold"
                       : "border-transparent text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
@@ -131,25 +165,26 @@ function PricingPage() {
 
               {activeTab === "live" ? (
                 <>
-                  <PricingStatCards />
-                  <PricingTable />
-                  <PricingInsights />
+                  <StoreCommissionBanner />
+                  <PricingStatCards stats={stats} isLoading={isLoading} />
+                  <PricingTable
+                    items={products}
+                    isLoading={isLoading}
+                    onViewHistory={handleViewHistory}
+                  />
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
-                  <p className="text-body-lg font-bold text-on-surface">
-                    سجل الأسعار غير متاح بعد
-                  </p>
-                  <p className="text-body-md text-on-surface-variant">
-                    سيتم عرض سجل التعديلات السابقة على الأسعار هنا قريبًا.
-                  </p>
-                </div>
+                <PricingHistoryView
+                  products={products}
+                  initialProductId={selectedProductForHistory}
+                />
               )}
             </div>
           </main>
           <PricingRecommendationModal
             open={isRecommendationModalOpen}
             onClose={() => setIsRecommendationModalOpen(false)}
+            products={products}
           />
         </>
       )}
