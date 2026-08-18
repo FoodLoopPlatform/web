@@ -8,6 +8,7 @@ import {
 } from "@/components/layout/merchant-shell";
 import { Icon } from "@/components/ui/icon";
 import { PricingStatCards } from "@/components/pricing/PricingStatCards";
+import { StoreCommissionBanner } from "@/components/pricing/StoreCommissionBanner";
 import { PricingTable } from "@/components/pricing/PricingTable";
 import { PricingRecommendationModal } from "@/components/pricing/PricingRecommendationModal";
 import { PricingHistoryView } from "@/components/pricing/PricingHistoryView";
@@ -164,6 +165,7 @@ function PricingPage() {
 
               {activeTab === "live" ? (
                 <>
+                  <StoreCommissionBanner />
                   <PricingStatCards stats={stats} isLoading={isLoading} />
                   <PricingTable
                     items={products}

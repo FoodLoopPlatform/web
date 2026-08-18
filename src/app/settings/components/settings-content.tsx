@@ -11,6 +11,7 @@ import { StoreProfileForm } from "./store-profile-form";
 import { LocationForm } from "./location-form";
 import { SettingsSkeleton } from "./settings-skeleton";
 import { StoreVerificationSection } from "./store-verification-section";
+import { StoreCommissionSettingsSection } from "./store-commission-settings-section";
 import type { StoreProfileInput, LocationSettingsInput } from "../lib/schemas";
 import { useAppStore } from "@/store/use-app-store";
 import { getStoreResource } from "../api/store-resource";
@@ -256,6 +257,8 @@ function SettingsContent({
                       verificationStatus={store.verificationStatus}
                       documents={store.documents}
                     />
+
+                    <StoreCommissionSettingsSection />
                   </div>
                 )}
 

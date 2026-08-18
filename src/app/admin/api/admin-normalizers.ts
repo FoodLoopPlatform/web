@@ -13,6 +13,8 @@ import type {
   AuditLogItem,
   AuditSeverity,
   AuditActionType,
+  StoreCommission,
+  RawStoreCommission,
 } from "../types/admin.types";
 
 export function normalizeActivityLog(raw: RawActivityLog): AuditLogItem {
@@ -492,5 +494,131 @@ export function normalizeProductToModerationItem(
     flagReasonQuoteAr,
     flagReasonQuoteEn,
     createdAt,
+  };
+}
+
+export function normalizeStoreCommission(
+  raw: RawStoreCommission,
+): StoreCommission {
+  // rawApiId: the actual UUID from the API — used as the {id} path param for withdraw
+  // The backend returns `storeId` as the UUID; `id` may be absent.
+  const rawApiId = String(raw.storeId || raw.id || "");
+  const rawId = rawApiId || `store-${Math.random().toString(36).slice(2, 8)}`;
+  const storeId = rawApiId || rawId;
+
+  const storeName = String(raw.storeName || raw.name || "Store Partner");
+  const storeLogo = raw.storeLogo || raw.logo || undefined;
+  const businessCategory = String(raw.businessCategory || "General");
+  const ownerName = String(raw.ownerName || raw.name || "");
+  const ownerEmail = String(raw.ownerEmail || raw.email || "");
+  const ownerPhone = String(raw.ownerPhone || raw.phone || "");
+
+  const locationParts = [raw.neighborhood, raw.city, raw.governorate].filter(
+    Boolean,
+  );
+  const location =
+    locationParts.length > 0
+      ? locationParts.join(", ")
+      : String(raw.location || "");
+
+  // Commission rate — prioritise exact API field name
+  const rawRate = Number(
+    raw.platformCommissionPercent ??
+      raw.commissionRate ??
+      raw.commissionPercent ??
+      raw.rate ??
+      0,
+  );
+  // Normalize: if returned as decimal (e.g. 0.10 → 10%)
+  const commissionRate =
+    rawRate > 0 && rawRate <= 1 ? Math.round(rawRate * 100) : rawRate;
+
+  const totalSales = Number(
+    raw.totalSales ??
+      raw.totalRevenue ??
+      raw.grossSales ??
+      raw.salesAmount ??
+      0,
+  );
+
+  // Commission generated — prioritise exact API field name
+  const calculatedCommission =
+    Math.round(totalSales * (commissionRate / 100) * 100) / 100;
+  const totalCommission = Number(
+    raw.totalCommissionGenerated ??
+      raw.totalCommission ??
+      raw.platformCommission ??
+      raw.earnedCommission ??
+      raw.commissionAmount ??
+      raw.totalCommissionDue ??
+      calculatedCommission,
+  );
+
+  // Withdrawn — prioritise exact API field name
+  const withdrawnAmount = Number(
+    raw.commissionWithdrawn ??
+      raw.withdrawnAmount ??
+      raw.withdrawnCommission ??
+      raw.collectedCommission ??
+      raw.totalWithdrawn ??
+      0,
+  );
+
+  // Withdrawable — prioritise exact API field name (outstandingCommission)
+  const withdrawableAmount = Number(
+    raw.outstandingCommission ??
+      raw.withdrawableAmount ??
+      raw.availableCommission ??
+      raw.pendingCommission ??
+      raw.uncollectedCommission ??
+      raw.currentBalance ??
+      raw.balance ??
+      Math.max(0, totalCommission - withdrawnAmount),
+  );
+
+  const lastWithdrawalDate =
+    raw.lastWithdrawalDate ||
+    raw.lastSettledAt ||
+    raw.lastUpdated ||
+    raw.updatedAt ||
+    undefined;
+
+  const completedOrdersCount = Number(
+    raw.completedOrdersCount ?? raw.orderCount ?? raw.pendingOrdersCount ?? 0,
+  );
+
+  const vStatus = (raw.status || raw.verificationStatus || "ACTIVE")
+    .toString()
+    .toUpperCase();
+  let status: "ACTIVE" | "PENDING" | "SUSPENDED" = "ACTIVE";
+  if (vStatus.includes("PENDING") || vStatus.includes("UNVERIFIED")) {
+    status = "PENDING";
+  } else if (
+    vStatus.includes("SUSPEND") ||
+    vStatus.includes("REJECT") ||
+    vStatus.includes("BAN")
+  ) {
+    status = "SUSPENDED";
+  }
+
+  return {
+    id: rawId,
+    rawApiId,
+    storeId,
+    storeName,
+    storeLogo,
+    businessCategory,
+    ownerName,
+    ownerEmail,
+    ownerPhone,
+    location,
+    commissionRate,
+    totalSales,
+    totalCommission,
+    withdrawableAmount,
+    withdrawnAmount,
+    lastWithdrawalDate,
+    completedOrdersCount,
+    status,
   };
 }

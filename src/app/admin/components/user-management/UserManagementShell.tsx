@@ -33,13 +33,14 @@ import { Pagination } from "../common/Pagination";
 import { EnrollModal } from "./EnrollModal";
 import { ActivityLogsDrawer } from "./ActivityLogsDrawer";
 import { UserManagementSkeleton } from "./UserManagementSkeleton";
+import { CommissionsShell } from "../commissions/CommissionsShell";
 import {
   exportAdminCSV,
   getSmartRecommendation,
 } from "../../utils/admin-helpers";
 import { UserManagementShellProps } from "../../types/user-management.types";
 
-type ActorTab = "Consumers" | "Stores" | "Charities";
+type ActorTab = "Consumers" | "Stores" | "Charities" | "Commissions";
 type StatusFilter = "ALL" | "ACTIVE" | "PENDING" | "SUSPENDED";
 
 export function UserManagementShell({
@@ -55,7 +56,18 @@ export function UserManagementShell({
   const t = adminDictionary[lang];
   const isRtl = lang === "ar";
 
-  const [activeTab, setActiveTab] = useState<ActorTab>("Consumers");
+  const [activeTab, setActiveTab] = useState<ActorTab>(() => {
+    const tabParam = searchParams.get("tab");
+    if (
+      tabParam?.toLowerCase() === "commissions" ||
+      tabParam?.toLowerCase() === "commission"
+    ) {
+      return "Commissions";
+    }
+    if (tabParam?.toLowerCase() === "stores") return "Stores";
+    if (tabParam?.toLowerCase() === "charities") return "Charities";
+    return "Consumers";
+  });
 
   // Data states — seeded directly from props
   const [consumers, setConsumers] = useState<Consumer[]>(initialConsumers);
@@ -286,6 +298,7 @@ export function UserManagementShell({
     { id: "Consumers", label: t.consumers },
     { id: "Stores", label: t.stores },
     { id: "Charities", label: t.charities },
+    { id: "Commissions", label: t.commissions },
   ];
 
   const filterOptions: FilterOption<StatusFilter>[] = [
@@ -305,9 +318,11 @@ export function UserManagementShell({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight font-sans">
-            {t.title}
+            {activeTab === "Commissions" ? t.commissionsTitle : t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-outline">{t.subtitle}</p>
+          <p className="text-xs sm:text-sm text-outline">
+            {activeTab === "Commissions" ? t.commissionsSubtitle : t.subtitle}
+          </p>
         </div>
 
         <TabSwitcher
@@ -317,105 +332,111 @@ export function UserManagementShell({
         />
       </div>
 
-      {/* Top Metrics Banner */}
-      <UserManagementStats t={t} analytics={analytics} isRtl={isRtl} />
+      {activeTab === "Commissions" ? (
+        <CommissionsShell />
+      ) : (
+        <>
+          {/* Top Metrics Banner */}
+          <UserManagementStats t={t} analytics={analytics} isRtl={isRtl} />
 
-      {/* Search and Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between bg-white p-4 rounded-2xl border border-card-border shadow-sm gap-4">
-        <SearchToolbar
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          placeholder={t.searchPlaceholder}
-          isRtl={isRtl}
-          filterTitle={t.filter}
-          filterButtonLabel={t.filter}
-          filterOptions={filterOptions}
-          activeFilter={statusFilter}
-          onFilterSelect={handleFilterSelect}
-          showFilterDropdown={showFiltersDropdown}
-          onToggleFilterDropdown={() =>
-            setShowFiltersDropdown(!showFiltersDropdown)
-          }
-        />
-
-        <UserManagementToolbarActions
-          onExportCSV={handleExportCSV}
-          onOpenEnrollModal={() => setShowEnrollModal(true)}
-          exportCsvLabel={t.exportCsv}
-          isRtl={isRtl}
-        />
-      </div>
-
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-        {/* Table & Cards Column */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
-          <div>
-            <UserCardList
-              users={paginatedItems}
-              t={t}
-              activeTab={activeTab}
+          {/* Search and Toolbar */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between bg-white p-4 rounded-2xl border border-card-border shadow-sm gap-4">
+            <SearchToolbar
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
+              placeholder={t.searchPlaceholder}
               isRtl={isRtl}
-              onViewActivity={handleViewActivity}
-              onToggleStatus={handleToggleStatus}
-              onVerify={handleVerify}
+              filterTitle={t.filter}
+              filterButtonLabel={t.filter}
+              filterOptions={filterOptions}
+              activeFilter={statusFilter}
+              onFilterSelect={handleFilterSelect}
+              showFilterDropdown={showFiltersDropdown}
+              onToggleFilterDropdown={() =>
+                setShowFiltersDropdown(!showFiltersDropdown)
+              }
             />
-            <UserTable
-              users={paginatedItems}
-              t={t}
-              activeTab={activeTab}
+
+            <UserManagementToolbarActions
+              onExportCSV={handleExportCSV}
+              onOpenEnrollModal={() => setShowEnrollModal(true)}
+              exportCsvLabel={t.exportCsv}
               isRtl={isRtl}
-              onViewActivity={handleViewActivity}
-              onToggleStatus={handleToggleStatus}
-              onVerify={handleVerify}
             />
           </div>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredItems.length}
-            pageSize={ITEMS_PER_PAGE}
-            onPageChange={(page) => setCurrentPage(page)}
+          {/* Main Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+            {/* Table & Cards Column */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0">
+              <div>
+                <UserCardList
+                  users={paginatedItems}
+                  t={t}
+                  activeTab={activeTab}
+                  isRtl={isRtl}
+                  onViewActivity={handleViewActivity}
+                  onToggleStatus={handleToggleStatus}
+                  onVerify={handleVerify}
+                />
+                <UserTable
+                  users={paginatedItems}
+                  t={t}
+                  activeTab={activeTab}
+                  isRtl={isRtl}
+                  onViewActivity={handleViewActivity}
+                  onToggleStatus={handleToggleStatus}
+                  onVerify={handleVerify}
+                />
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredItems.length}
+                pageSize={ITEMS_PER_PAGE}
+                onPageChange={(page) => setCurrentPage(page)}
+                isRtl={isRtl}
+              />
+            </div>
+
+            {/* Widgets Column */}
+            <div className="flex flex-col gap-6">
+              <AuditLogsWidget
+                title={t.auditLogsTitle}
+                logs={auditLogs.map((log) => ({
+                  id: log.id,
+                  adminName: log.actorName,
+                  action: isRtl ? log.detailsAr : log.detailsEn,
+                  timestamp: log.timestamp,
+                  details: log.detailsEn,
+                }))}
+                isRtl={isRtl}
+              />
+            </div>
+          </div>
+
+          {/* ── Enroll Modal ─────────────────────────────────────── */}
+          <EnrollModal
+            isOpen={showEnrollModal}
             isRtl={isRtl}
+            enrollForm={enrollForm}
+            onClose={() => setShowEnrollModal(false)}
+            onChange={(form) => setEnrollForm(form)}
+            onSubmit={handleEnrollSubmit}
           />
-        </div>
 
-        {/* Widgets Column */}
-        <div className="flex flex-col gap-6">
-          <AuditLogsWidget
-            title={t.auditLogsTitle}
-            logs={auditLogs.map((log) => ({
-              id: log.id,
-              adminName: log.actorName,
-              action: isRtl ? log.detailsAr : log.detailsEn,
-              timestamp: log.timestamp,
-              details: log.detailsEn,
-            }))}
+          {/* ── Activity Logs Drawer ──────────────────────────────── */}
+          <ActivityLogsDrawer
+            isOpen={showLogsDrawer}
             isRtl={isRtl}
+            userId={selectedUserId}
+            userName={selectedUserName}
+            logs={selectedUserLogs}
+            onClose={() => setShowLogsDrawer(false)}
           />
-        </div>
-      </div>
-
-      {/* ── Enroll Modal ─────────────────────────────────────── */}
-      <EnrollModal
-        isOpen={showEnrollModal}
-        isRtl={isRtl}
-        enrollForm={enrollForm}
-        onClose={() => setShowEnrollModal(false)}
-        onChange={(form) => setEnrollForm(form)}
-        onSubmit={handleEnrollSubmit}
-      />
-
-      {/* ── Activity Logs Drawer ──────────────────────────────── */}
-      <ActivityLogsDrawer
-        isOpen={showLogsDrawer}
-        isRtl={isRtl}
-        userId={selectedUserId}
-        userName={selectedUserName}
-        logs={selectedUserLogs}
-        onClose={() => setShowLogsDrawer(false)}
-      />
+        </>
+      )}
     </div>
   );
 }

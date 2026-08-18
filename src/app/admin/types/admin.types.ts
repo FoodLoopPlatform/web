@@ -556,3 +556,101 @@ export interface AdminNoteItem {
   createdAt: string;
   createdBy: string;
 }
+
+// ─── Commissions Domain Types ─────────────────────────────────────────────
+
+export interface RawStoreCommission {
+  id?: string;
+  storeId?: string;
+  storeName?: string;
+  name?: string;
+  storeLogo?: string;
+  logo?: string;
+  businessCategory?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  phone?: string;
+  email?: string;
+  location?: string;
+  governorate?: string;
+  city?: string;
+  neighborhood?: string;
+  // Commission rate fields
+  commissionRate?: number;
+  commissionPercent?: number;
+  platformCommissionPercent?: number; // actual API field name
+  rate?: number;
+  // Sales fields
+  totalSales?: number;
+  totalRevenue?: number;
+  grossSales?: number;
+  salesAmount?: number;
+  // Commission total fields
+  totalCommission?: number;
+  totalCommissionGenerated?: number; // actual API field name
+  platformCommission?: number;
+  earnedCommission?: number;
+  commissionAmount?: number;
+  totalCommissionDue?: number;
+  // Withdrawable balance fields
+  withdrawableAmount?: number;
+  outstandingCommission?: number; // actual API field name
+  availableCommission?: number;
+  pendingCommission?: number;
+  uncollectedCommission?: number;
+  currentBalance?: number;
+  balance?: number;
+  // Withdrawn amount fields
+  withdrawnAmount?: number;
+  commissionWithdrawn?: number; // actual API field name
+  withdrawnCommission?: number;
+  collectedCommission?: number;
+  totalWithdrawn?: number;
+  // Dates
+  lastWithdrawalDate?: string;
+  lastSettledAt?: string;
+  lastUpdated?: string;
+  updatedAt?: string;
+  // Counts
+  pendingOrdersCount?: number;
+  completedOrdersCount?: number;
+  orderCount?: number;
+  // Status
+  status?: string;
+  verificationStatus?: string;
+}
+
+export interface StoreCommission {
+  id: string;
+  /** Raw UUID returned directly from the API — use this for the withdraw endpoint path param. */
+  rawApiId: string;
+  storeId: string;
+  storeName: string;
+  storeLogo?: string;
+  businessCategory: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+  location: string;
+  commissionRate: number; // Percent (e.g. 10 for 10%)
+  totalSales: number;
+  totalCommission: number;
+  withdrawableAmount: number;
+  withdrawnAmount: number;
+  lastWithdrawalDate?: string;
+  completedOrdersCount: number;
+  status: "ACTIVE" | "PENDING" | "SUSPENDED";
+}
+
+export interface WithdrawCommissionRequest {
+  amount: number;
+}
+
+export interface WithdrawCommissionResult {
+  success: boolean;
+  message?: string;
+  storeId: string;
+  withdrawnAmount: number;
+  remainingBalance?: number;
+}

@@ -43,6 +43,7 @@ export const Endpoints = {
     orders: "/stores/me/orders",
     orderById: (id: string) => `/stores/me/orders/${id}`,
     refundOrder: (id: string) => `/stores/me/orders/${id}/refund`,
+    commission: "/stores/me/commission",
   },
 
   admin: {
@@ -67,6 +68,9 @@ export const Endpoints = {
     systemSettings: "/admin/system-settings",
     consumers: "/users?role=Customer",
     stores: "/admin/stores",
+    commissions: "/admin/stores/commissions",
+    withdrawCommission: (id: string) =>
+      `/admin/stores/${id}/withdraw-commission`,
     charities: "/admin/charities",
     reviews: "/admin/reviews",
     storeReviews: (id: string) => `/stores/${id}/reviews`,
