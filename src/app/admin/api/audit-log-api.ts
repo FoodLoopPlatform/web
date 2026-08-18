@@ -153,8 +153,10 @@ export async function getAuditLogs(
         },
       }
     );
-  } catch (err) {
-    console.error("Failed to fetch audit logs:", err);
+  } catch (err: unknown) {
+    if ((err as Error)?.name !== "AbortError") {
+      console.error("Failed to fetch audit logs:", err);
+    }
     return {
       items: [],
       total: 0,
