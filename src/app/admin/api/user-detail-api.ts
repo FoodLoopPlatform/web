@@ -56,11 +56,16 @@ interface RawUserObj {
   fulfillmentRate?: number;
   donationsReceived?: number;
   donationsCount?: number;
+  revenue?: number | string;
+  totalRevenue?: number | string;
+  orders?: number;
+  purchasesCount?: number;
 }
 
 function extractStoreStats(u: RawUserObj) {
+  const sales = u.totalSales ?? u.totalRevenue ?? u.revenue;
   return {
-    totalSales: u.totalSales !== undefined ? String(u.totalSales) : "EGP 0",
+    totalSales: sales !== undefined ? String(sales) : "EGP 0",
     fulfillmentRate: u.fulfillmentRate ?? 100,
     activeDisputes: u.activeDisputes ?? u.disputesCount ?? 0,
   };
@@ -75,7 +80,7 @@ function extractCharityStats(u: RawUserObj) {
 
 function extractConsumerStats(u: RawUserObj) {
   return {
-    totalOrders: u.totalOrders ?? u.ordersCount ?? 0,
+    totalOrders: u.totalOrders ?? u.ordersCount ?? u.orders ?? u.purchasesCount ?? 0,
     savedAmount:
       u.savedAmount !== undefined
         ? String(u.savedAmount)

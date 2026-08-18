@@ -18,6 +18,7 @@ import {
   PlusIcon,
 } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
+import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 
 interface NavItem {
   labelAr: string;
@@ -437,17 +438,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <div className="flex items-center">
-              <button
-                type="button"
-                className="p-1.5 sm:p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer"
-                title={lang === "ar" ? "الإشعارات" : "Notifications"}
-              >
-                <Icon
-                  name="notifications"
-                  className="h-5 w-5 text-on-surface-variant"
-                />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
-              </button>
+              <NotificationsDropdown />
 
               <button
                 type="button"

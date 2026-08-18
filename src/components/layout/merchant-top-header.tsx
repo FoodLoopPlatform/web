@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
+import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 
 interface MerchantTopHeaderProps {
   /** Opens the mobile sidebar drawer. */
@@ -41,8 +42,11 @@ export function MerchantTopHeader({
         {left}
       </div>
 
-      {/* Store Profile */}
-      <div className="flex items-center gap-sm cursor-pointer hover:bg-surface-container-highest p-1 pl-3 pr-1 rounded-full transition-all">
+      <div className="flex items-center gap-2">
+        <NotificationsDropdown />
+        
+        {/* Store Profile */}
+        <div className="flex items-center gap-sm cursor-pointer hover:bg-surface-container-highest p-1 pl-3 pr-1 rounded-full transition-all">
         {avatarUrl ? (
           <Image
             className="w-8 h-8 rounded-full border border-outline-variant object-cover"
@@ -60,6 +64,7 @@ export function MerchantTopHeader({
         <span className="font-label-caps text-label-caps text-primary font-bold hidden md:block">
           {storeName || "متجري"}
         </span>
+        </div>
       </div>
     </header>
   );

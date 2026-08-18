@@ -466,6 +466,7 @@ export interface AuditLogFilterParams {
   severity?: "ALL" | AuditSeverity;
   page?: number;
   pageSize?: number;
+  signal?: AbortSignal;
 }
 
 export interface AuditLogFetchResult {

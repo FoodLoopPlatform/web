@@ -94,4 +94,12 @@ export const Endpoints = {
     base: "/stores/me/orders",
     updateStatus: (id: string) => `/stores/me/orders/${id}/status`,
   },
+
+  notifications: {
+    base: "/notifications",
+    read: (id: string) => `/notifications/${id}/read`,
+    readAll: "/notifications/read-all",
+    deviceToken: "/notifications/device-token",
+    hub: "", // Set exact backend hub route here (e.g. "/hubs/notifications") when ready
+  },
 };

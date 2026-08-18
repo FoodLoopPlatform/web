@@ -3,7 +3,17 @@ import { Endpoints } from "./endpoints";
 export type SupportedLanguage = "ar" | "en";
 
 export type ApiResponse<T> =
-  | { data: T; error?: never; status?: number }
+  | {
+      data: T;
+      error?: never;
+      status?: number;
+      totalCount?: number;
+      totalPages?: number;
+      page?: number;
+      pageSize?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+    }
   | { data?: never; error: string; status?: number };
 
 export type FetchOptions = {
