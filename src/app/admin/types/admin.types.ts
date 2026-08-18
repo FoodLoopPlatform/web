@@ -364,7 +364,7 @@ export interface UserDetail {
   location: string;
   joinedDate: string;
   lastActive: string;
-  status: "ACTIVE" | "SUSPENDED" | "PENDING";
+  status: "ACTIVE" | "SUSPENDED" | "PENDING" | "BANNED";
   role: "Consumer" | "Store" | "Charity";
   avatar?: string;
   ownerName?: string;

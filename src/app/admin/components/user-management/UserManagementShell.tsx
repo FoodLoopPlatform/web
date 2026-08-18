@@ -152,7 +152,7 @@ export function UserManagementShell({
             setStoresCount(res.data.users.merchants);
             setCharitiesCount(res.data.users.charities);
           }
-          if (res.data.organizations) {
+          if (res.data.organizations && res.data.organizations.pending !== undefined) {
             setPendingCount(res.data.organizations.pending);
           }
         }
@@ -322,7 +322,7 @@ export function UserManagementShell({
           user.name.toLowerCase().includes(q) ||
           user.email?.toLowerCase().includes(q) ||
           user.phone?.includes(q) ||
-          user.address?.toLowerCase().includes(q),
+          user.location?.toLowerCase().includes(q),
       );
     }
     if (statusFilter !== "ALL") {
@@ -397,27 +397,24 @@ export function UserManagementShell({
   };
 
   const handleExportCSV = () => {
-    exportAdminCSV(
-      paginatedItems,
-      `FoodLoop-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`,
-    );
+    exportAdminCSV(activeTab, consumers, stores, charities);
   };
 
   const tabOptions: TabOption<ActorTab>[] = [
-    { id: "Consumers", label: t.tabConsumers, count: consumersCount },
-    { id: "Stores", label: t.tabStores, count: storesCount },
-    { id: "Charities", label: t.tabCharities, count: charitiesCount },
-    { id: "Commissions", label: t.tabCommissions ?? "العمولات" },
+    { id: "Consumers", label: t.consumers, badge: consumersCount },
+    { id: "Stores", label: t.stores, badge: storesCount },
+    { id: "Charities", label: t.charities, badge: charitiesCount },
+    { id: "Commissions", label: t.commissions },
   ];
 
-  const filterOptions: FilterOption[] = [
-    { value: "ALL", label: t.filterAll },
-    { value: "ACTIVE", label: t.filterActive },
-    { value: "PENDING", label: t.filterPending },
-    { value: "SUSPENDED", label: t.filterSuspended },
+  const filterOptions: FilterOption<StatusFilter>[] = [
+    { id: "ALL", label: t.all },
+    { id: "ACTIVE", label: t.active },
+    { id: "PENDING", label: t.pending },
+    { id: "SUSPENDED", label: t.suspended },
   ];
 
-  const smartRec = getSmartRecommendation(activeTab, filteredItems, isRtl);
+  const smartRec = getSmartRecommendation(activeTab, isRtl);
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
