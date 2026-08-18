@@ -60,7 +60,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/settings");
+    router.push("/dashboard");
   }
 
   return (

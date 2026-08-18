@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   title: "FoodLoop",
   description:
     "FoodLoop — high-efficiency logistics with the tactile, approachable nature of sustainability.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

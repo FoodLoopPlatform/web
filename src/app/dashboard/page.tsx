@@ -12,7 +12,6 @@ import { TopProductsWidgetSkeleton } from "@/components/dashboard/TopProductsWid
 import { OrdersFulfillmentWidget } from "@/components/dashboard/OrdersFulfillmentWidget";
 import { InventoryAnalyticsWidget } from "@/components/dashboard/InventoryAnalyticsWidget";
 import { DisputesAnalyticsWidget } from "@/components/dashboard/DisputesAnalyticsWidget";
-import { QuickActionsWidget } from "@/components/dashboard/QuickActionsWidget";
 import { AdminNoticesWidget } from "@/components/dashboard/AdminNoticesWidget";
 import { CommissionMetricCard } from "@/components/dashboard/CommissionMetricCard";
 import { withAuth } from "@/lib/auth/with-auth";
@@ -119,11 +118,10 @@ function DashboardPage() {
                 </div>
               </div>
 
-              {/* Right Column: Admin Notes, Commission Info & Quick Actions */}
+              {/* Right Column: Admin Notes & Commission Info */}
               <aside className="md:col-span-4 space-y-md">
                 <CommissionMetricCard />
                 <AdminNoticesWidget />
-                <QuickActionsWidget />
               </aside>
             </div>
           </div>
