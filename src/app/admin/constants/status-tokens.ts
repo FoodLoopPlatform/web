@@ -1,5 +1,5 @@
 export interface StatusBadgeToken {
-  textKey: "active" | "pending" | "suspended" | "open" | "closed";
+  textKey: "active" | "pending" | "suspended" | "open" | "closed" | "banned";
   classes: string;
   accentBarClass: string;
 }
@@ -64,6 +64,18 @@ export const statusBadgeTokens: Record<string, StatusBadgeToken> = {
     classes:
       "bg-slate-100 text-slate-800 border border-slate-300 font-extrabold shadow-2xs",
     accentBarClass: "bg-slate-500/20",
+  },
+  BANNED: {
+    textKey: "banned",
+    classes:
+      "bg-red-700 text-white border border-red-900 font-extrabold shadow-2xs",
+    accentBarClass: "bg-red-900/40",
+  },
+  Banned: {
+    textKey: "banned",
+    classes:
+      "bg-red-700 text-white border border-red-900 font-extrabold shadow-2xs",
+    accentBarClass: "bg-red-900/40",
   },
 };
 

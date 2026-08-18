@@ -271,6 +271,16 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
                   </button>
                 )}
               </div>
+            ) : status.toUpperCase() === "BANNED" ? (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-red-100 border border-red-300 text-red-900">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold">
+                    {isRtl
+                      ? "الحساب محظور نهائياً. لا يمكن توثيق المستندات."
+                      : "Account is permanently banned. Verification disabled."}
+                  </span>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 {onApprove && (

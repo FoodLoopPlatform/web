@@ -27,7 +27,7 @@ export const UserCardList: React.FC<UserCardListProps> = ({
 }) => {
   if (users.length === 0) {
     return (
-      <div className="px-6 py-12 text-center text-xs font-semibold text-outline">
+      <div className="block md:hidden px-6 py-12 text-center text-xs font-semibold text-outline">
         {t.noData}
       </div>
     );

@@ -6,7 +6,7 @@ import { ADMIN_DESIGN_TOKENS } from "../../constants/design-tokens";
 
 interface PlatformActionsPanelProps {
   userId: string;
-  status: "ACTIVE" | "SUSPENDED" | "PENDING";
+  status: "ACTIVE" | "SUSPENDED" | "PENDING" | "BANNED";
   isRtl?: boolean;
   onSuspend: () => void;
   onBan: () => void;
@@ -24,6 +24,7 @@ export const PlatformActionsPanel: React.FC<PlatformActionsPanelProps> = ({
 }) => {
   const isActive = status === "ACTIVE";
   const isSuspended = status === "SUSPENDED";
+  const isBanned = status.toUpperCase() === "BANNED";
 
   const renderTieredActionRow = (
     icon: React.ReactNode,
@@ -148,7 +149,7 @@ export const PlatformActionsPanel: React.FC<PlatformActionsPanelProps> = ({
               : "Restore complete user access",
           onReactivate,
           "ROUTINE_POSITIVE",
-          isActive,
+          isActive || isBanned,
         )}
       </div>
 
@@ -178,7 +179,7 @@ export const PlatformActionsPanel: React.FC<PlatformActionsPanelProps> = ({
             : "Temporarily restrict user activity",
           onSuspend,
           "WARNING",
-          isSuspended,
+          isSuspended || isBanned,
         )}
 
         {/* Destructive Permanent Ban */}
@@ -190,7 +191,7 @@ export const PlatformActionsPanel: React.FC<PlatformActionsPanelProps> = ({
             : "Irreversible action — requires confirmation",
           onBan,
           "DESTRUCTIVE",
-          false,
+          isBanned,
           isRtl ? "إجراء خطير" : "HIGH STAKES",
         )}
       </div>

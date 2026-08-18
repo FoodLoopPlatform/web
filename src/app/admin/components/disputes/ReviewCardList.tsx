@@ -10,7 +10,6 @@ interface ReviewCardListProps {
   t: AdminDictionary;
   isRtl?: boolean;
   onDeleteReview: (id: string) => void;
-  onDismissFlag: (id: string) => void;
 }
 
 export const ReviewCardList: React.FC<ReviewCardListProps> = ({
@@ -18,7 +17,6 @@ export const ReviewCardList: React.FC<ReviewCardListProps> = ({
   t,
   isRtl = false,
   onDeleteReview,
-  onDismissFlag,
 }) => {
   if (reviews.length === 0) {
     return (
@@ -77,12 +75,6 @@ export const ReviewCardList: React.FC<ReviewCardListProps> = ({
               className="px-3 py-1.5 text-xs font-bold bg-error hover:bg-error/90 text-on-error rounded-lg transition-colors cursor-pointer"
             >
               {t.deleteReview}
-            </button>
-            <button
-              onClick={() => onDismissFlag(review.id)}
-              className="px-3 py-1.5 text-xs font-bold bg-surface-container text-outline hover:text-on-surface rounded-lg transition-colors cursor-pointer"
-            >
-              {t.dismissFlag}
             </button>
           </div>
         </div>

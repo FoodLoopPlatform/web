@@ -14,7 +14,6 @@ export * from "./user-management/UserManagementStats";
 export * from "./user-management/UserManagementToolbarActions";
 export * from "./user-management/UserCardList";
 export * from "./user-management/UserTable";
-export * from "./user-management/EnrollModal";
 export * from "./user-management/ActivityLogsDrawer";
 export * from "./user-management/UserManagementInsights";
 

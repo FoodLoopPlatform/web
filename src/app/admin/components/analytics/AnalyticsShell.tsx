@@ -70,20 +70,6 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
   const categoryBreakdown: AnalyticsSummaryCategory[] =
     analytics.categoryBreakdown || [];
   const monthlyTrends = analytics.monthlyTrends || [];
-  const aiOpp = analytics.aiOpportunity || {
-    title: "فرصة لتفادي هدر المخبوزات",
-    description:
-      "تشير التحليلات إلى أن 12% من حقائب طعام المخابز المعروضة تنتهي صلاحيتها صباح كل ثلاثاء. يُنصح بتنبيه مديري المتاجر لتعديل أوقات تغليف وتدوير العروض.",
-    categoryName: "Bakery",
-    wastePercentage: 12,
-    actionHint: "ضبط الإعدادات التشغيلية",
-  };
-  const systemAudit = analytics.systemAudit || {
-    activeSessionsCount: 24,
-    aiDecisions24hCount: 1420,
-    reportedIncidentsCount: 23,
-    systemHealth: "تشغيل مستقر PostgreSQL / .NET API",
-  };
 
   return (
     <div className="flex flex-col gap-6 max-w-[1600px] mx-auto pb-12">
@@ -203,54 +189,12 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
       {/* Screen View: Active Tab Content */}
       <div className="print:hidden">
         {activeTab === "overview" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-            <div className="lg:col-span-2">
-              <AnalyticsCharts
-                t={t}
-                lang={lang}
-                monthlyTrends={monthlyTrends}
-              />
-            </div>
-
-            <div className="flex flex-col gap-6">
-              <div className="bg-primary-container text-white p-6 rounded-2xl flex flex-col justify-between shadow-elevation-2 relative overflow-hidden min-h-[280px]">
-                <div
-                  className={`flex gap-4 items-start z-10 ${isRtl ? "flex-row text-right" : "flex-row-reverse text-left"}`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
-                    <SparklesIcon className="w-5 h-5 text-on-primary-container" />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase bg-white/20 px-2 py-0.5 rounded-full text-white">
-                        {aiOpp.categoryName || "AI Insight"}
-                      </span>
-                      <span className="text-[10px] font-bold text-amber-300">
-                        {aiOpp.wastePercentage}%{" "}
-                        {isRtl ? "معدل الهدر" : "waste"}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-extrabold leading-snug mt-1 font-sans text-white">
-                      {aiOpp.title}
-                    </h3>
-                    <p className="text-xs text-outline-variant leading-relaxed mt-1">
-                      {aiOpp.description}
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/admin/settings"
-                  className={`mt-6 bg-white hover:bg-surface text-primary-container font-bold text-xs py-2.5 px-4 rounded-xl transition-all cursor-pointer active:scale-95 z-10 inline-block text-center shadow-xs ${
-                    isRtl ? "self-start" : "self-end"
-                  }`}
-                >
-                  {aiOpp.actionHint ||
-                    (isRtl ? "تعديل إعدادات النظام" : "Adjust Settings")}
-                </Link>
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5 border border-white/5 pointer-events-none" />
-              </div>
-            </div>
+          <div className="w-full max-w-5xl mx-auto">
+            <AnalyticsCharts
+              t={t}
+              lang={lang}
+              monthlyTrends={monthlyTrends}
+            />
           </div>
         )}
 
@@ -268,7 +212,6 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
           <AnalyticsPartnersHealthTab
             topStores={topStores}
             topCharities={topCharities}
-            systemAudit={systemAudit}
             isRtl={isRtl}
           />
         )}
@@ -347,7 +290,6 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
           <AnalyticsPartnersHealthTab
             topStores={topStores}
             topCharities={topCharities}
-            systemAudit={systemAudit}
             isRtl={isRtl}
           />
         </div>
