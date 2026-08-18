@@ -364,7 +364,7 @@ export interface UserDetail {
   location: string;
   joinedDate: string;
   lastActive: string;
-  status: "ACTIVE" | "SUSPENDED" | "PENDING";
+  status: "ACTIVE" | "SUSPENDED" | "PENDING" | "BANNED";
   role: "Consumer" | "Store" | "Charity";
   avatar?: string;
   ownerName?: string;
@@ -466,6 +466,7 @@ export interface AuditLogFilterParams {
   severity?: "ALL" | AuditSeverity;
   page?: number;
   pageSize?: number;
+  signal?: AbortSignal;
 }
 
 export interface AuditLogFetchResult {

@@ -65,9 +65,27 @@ export async function getAuditLogs(
           "Accept-Language": "ar",
           Authorization: token ? `Bearer ${token}` : "",
         },
+        signal: params.signal,
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          return {
+            data: {
+              items: [],
+              total: 0,
+              page,
+              pageSize,
+              totalPages: 0,
+              stats: {
+                activeSessions: 0,
+                aiDecisions24h: 0,
+                flaggedEvents: 0,
+                systemHealthStatus: "Unauthorized",
+              },
+            },
+          };
+        }
         console.error(
           `Audit API failed: ${response.status} ${response.statusText}`,
         );
@@ -135,8 +153,10 @@ export async function getAuditLogs(
         },
       }
     );
-  } catch (err) {
-    console.error("Failed to fetch audit logs:", err);
+  } catch (err: unknown) {
+    if ((err as Error)?.name !== "AbortError") {
+      console.error("Failed to fetch audit logs:", err);
+    }
     return {
       items: [],
       total: 0,

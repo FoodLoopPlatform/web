@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
+import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 import { AdminNotesDrawer } from "@/components/common/AdminNotesDrawer";
 
 interface MerchantTopHeaderProps {
@@ -16,7 +17,7 @@ interface MerchantTopHeaderProps {
   className?: string;
 }
 
-/** The standard top bar (hamburger + left slot + admin notes + store name/logo) used across merchant pages. */
+/** The standard top bar (hamburger + left slot + admin notes + notifications + store name/logo) used across merchant pages. */
 export function MerchantTopHeader({
   onMenuClick,
   left,
@@ -45,8 +46,10 @@ export function MerchantTopHeader({
           {left}
         </div>
 
-        {/* Right Section: Admin Notes / Notifications + Store Profile */}
+        {/* Right Section: Notifications + Admin Notes + Store Profile */}
         <div className="flex items-center gap-3">
+          <NotificationsDropdown />
+
           {/* Admin Notes Button */}
           <button
             type="button"

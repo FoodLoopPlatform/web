@@ -41,6 +41,7 @@ export interface AdminDictionary {
   active: string;
   pending: string;
   suspended: string;
+  banned: string;
   open: string;
   closed: string;
   high: string;
@@ -351,6 +352,7 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     active: "نشط",
     pending: "معلق",
     suspended: "معطل",
+    banned: "محظور",
     open: "مفتوحة",
     closed: "مغلقة",
     high: "عالية",
@@ -683,6 +685,7 @@ export const adminDictionary: Record<"ar" | "en", AdminDictionary> = {
     active: "Active",
     pending: "Pending",
     suspended: "Suspended",
+    banned: "Banned",
     open: "Open",
     closed: "Closed",
     high: "High",

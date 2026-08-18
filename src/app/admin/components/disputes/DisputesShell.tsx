@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppLang } from "@/store/use-app-lang";
 import {
@@ -23,7 +23,6 @@ import { AuditLogItem } from "../../types/admin.types";
 import { StatsCard } from "../common/StatsCard";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
-import { SmartInsightCard } from "../common/SmartInsightCard";
 import { AuditLogsWidget } from "../audit-log/AuditLogsWidget";
 import { DisputeCardList } from "./DisputeCardList";
 import { DisputeTable } from "./DisputeTable";
@@ -108,13 +107,13 @@ export function DisputesShell({
         getSupportTickets(),
         getAdminReviews(),
       ]);
-      if (disputesRes.data && disputesRes.data.length > 0) {
+      if (disputesRes.data) {
         setDisputes(disputesRes.data);
       }
-      if (ticketsRes.data && ticketsRes.data.length > 0) {
+      if (ticketsRes.data) {
         setTickets(ticketsRes.data);
       }
-      if (reviewsRes.data && reviewsRes.data.length > 0) {
+      if (reviewsRes.data) {
         setReviews(reviewsRes.data);
       }
     } finally {
@@ -142,7 +141,7 @@ export function DisputesShell({
       id: dispute.id,
       userType: dispute.raisedByType || "Consumer",
       userName: dispute.raisedByName,
-      userEmail: dispute.raisedByName,
+      userEmail: undefined, // Blocked on backend: Dispute type currently lacks an email field
       subject: dispute.orderId ? `طلب رقم: ${dispute.orderId}` : dispute.reason,
       description: dispute.reason,
       status: dispute.isResolved ? "Closed" : "Pending",
@@ -230,7 +229,12 @@ export function DisputesShell({
           ...(ticketRes.data.replies || []),
           ...extra.filter((r) => !existingIds.has(r.id)),
         ];
-        setSelectedTicket({ ...ticketRes.data, replies: mergedReplies });
+        const fullTicket = { ...ticketRes.data, replies: mergedReplies };
+        setSelectedTicket(fullTicket);
+        
+        // Save back to tickets array so it persists on next open without flashing empty
+        setTickets((prev) => prev.map((t) => t.id === id ? fullTicket : t));
+        
         setShowTicketDrawer(true);
       }
     } catch {
@@ -339,10 +343,6 @@ export function DisputesShell({
     fetchDisputesData();
   };
 
-  const handleDismissFlag = (id: string) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
-  };
-
   const getFilteredItems = () => {
     const q = searchQuery.toLowerCase().trim();
     if (activeTab === "Disputes") {
@@ -387,8 +387,22 @@ export function DisputesShell({
     currentPage * PAGE_SIZE,
   );
 
-  const openDisputesCount = disputes.filter((d) => !d.isResolved).length;
-  const resolvedDisputesCount = disputes.filter((d) => d.isResolved).length;
+  const disputeStats = useMemo(() => ({
+    total: disputes.length,
+    open: disputes.filter(d => !d.isResolved).length,
+    resolved: disputes.filter(d => d.isResolved).length,
+  }), [disputes]);
+
+  const ticketStats = useMemo(() => ({
+    total: tickets.length,
+    open: tickets.filter(t => t.status !== "Closed").length,
+    closed: tickets.filter(t => t.status === "Closed").length,
+  }), [tickets]);
+
+  const reviewStats = useMemo(() => ({
+    total: reviews.length,
+    flagged: reviews.filter(r => r.flagged).length,
+  }), [reviews]);
 
   const tabOptions: TabOption<DisputeTab>[] = [
     { id: "Disputes", label: t.disputesTabLabel },
@@ -427,26 +441,71 @@ export function DisputesShell({
 
       {/* Metrics Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard
-          label={t.totalDisputes}
-          value={disputes.length}
-          accentClass="bg-primary-container/20"
-          isRtl={isRtl}
-        />
-        <StatsCard
-          label={t.openDisputes}
-          value={openDisputesCount}
-          accentClass="bg-red-500"
-          textColorClass="text-red-900"
-          isRtl={isRtl}
-        />
-        <StatsCard
-          label={t.resolvedDisputes}
-          value={resolvedDisputesCount}
-          accentClass="bg-green-500"
-          textColorClass="text-green-900"
-          isRtl={isRtl}
-        />
+        {activeTab === "Disputes" && (
+          <>
+            <StatsCard
+              label={t.totalDisputes}
+              value={disputeStats.total}
+              accentClass="bg-primary-container/20"
+              isRtl={isRtl}
+            />
+            <StatsCard
+              label={t.openDisputes}
+              value={disputeStats.open}
+              accentClass="bg-red-500"
+              textColorClass="text-red-900"
+              isRtl={isRtl}
+            />
+            <StatsCard
+              label={t.resolvedDisputes}
+              value={disputeStats.resolved}
+              accentClass="bg-green-500"
+              textColorClass="text-green-900"
+              isRtl={isRtl}
+            />
+          </>
+        )}
+        {activeTab === "Tickets" && (
+          <>
+            <StatsCard
+              label={t.tickets}
+              value={ticketStats.total}
+              accentClass="bg-primary-container/20"
+              isRtl={isRtl}
+            />
+            <StatsCard
+              label={t.open}
+              value={ticketStats.open}
+              accentClass="bg-red-500"
+              textColorClass="text-red-900"
+              isRtl={isRtl}
+            />
+            <StatsCard
+              label={t.closed}
+              value={ticketStats.closed}
+              accentClass="bg-green-500"
+              textColorClass="text-green-900"
+              isRtl={isRtl}
+            />
+          </>
+        )}
+        {activeTab === "Reviews" && (
+          <>
+            <StatsCard
+              label={t.reviews}
+              value={reviewStats.total}
+              accentClass="bg-primary-container/20"
+              isRtl={isRtl}
+            />
+            <StatsCard
+              label={t.flagReasonCol}
+              value={reviewStats.flagged}
+              accentClass="bg-red-500"
+              textColorClass="text-red-900"
+              isRtl={isRtl}
+            />
+          </>
+        )}
       </div>
 
       {/* Search Toolbar */}
@@ -459,9 +518,9 @@ export function DisputesShell({
             : t.searchPlaceholder
         }
         isRtl={isRtl}
-        filterTitle={activeTab !== "Reviews" ? t.filterPriority : undefined}
+        filterTitle={activeTab === "Tickets" ? t.filterPriority : undefined}
         filterButtonLabel={t.filter}
-        filterOptions={activeTab !== "Reviews" ? priorityOptions : undefined}
+        filterOptions={activeTab === "Tickets" ? priorityOptions : undefined}
         activeFilter={priorityFilter}
         onFilterSelect={(f) => setPriorityFilter(f)}
         showFilterDropdown={showFilters}
@@ -517,7 +576,6 @@ export function DisputesShell({
                 t={t}
                 isRtl={isRtl}
                 onDeleteReview={handleDeleteReview}
-                onDismissFlag={handleDismissFlag}
               />
               <div className="hidden md:block overflow-x-auto w-full">
                 <ReviewTable
@@ -525,7 +583,6 @@ export function DisputesShell({
                   t={t}
                   isRtl={isRtl}
                   onDeleteReview={handleDeleteReview}
-                  onDismissFlag={handleDismissFlag}
                 />
               </div>
             </>

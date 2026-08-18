@@ -10,7 +10,6 @@ interface ReviewTableProps {
   t: AdminDictionary;
   isRtl?: boolean;
   onDeleteReview: (id: string) => void;
-  onDismissFlag: (id: string) => void;
 }
 
 export const ReviewTable: React.FC<ReviewTableProps> = ({
@@ -18,7 +17,6 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
   t,
   isRtl = false,
   onDeleteReview,
-  onDismissFlag,
 }) => {
   return (
     <table
@@ -92,12 +90,6 @@ export const ReviewTable: React.FC<ReviewTableProps> = ({
                     className="px-2.5 py-1 text-[10px] font-bold bg-error hover:bg-error/90 text-on-error rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                   >
                     {t.deleteReview}
-                  </button>
-                  <button
-                    onClick={() => onDismissFlag(review.id)}
-                    className="px-2.5 py-1 text-[10px] font-bold bg-surface-container text-outline hover:text-on-surface rounded-lg transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    {t.dismissFlag}
                   </button>
                 </div>
               </td>

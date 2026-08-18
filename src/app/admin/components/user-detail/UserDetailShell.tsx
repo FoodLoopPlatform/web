@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAppLang } from "@/store/use-app-lang";
 import {
   banUserPermanently,
@@ -151,7 +151,7 @@ export function UserDetailShell({
     try {
       await banUserPermanently(user.id);
       setUser((prev: UserDetail | null) =>
-        prev ? { ...prev, status: "SUSPENDED" } : null,
+        prev ? { ...prev, status: "BANNED" } : null,
       );
 
       // Refetch latest activity log from endpoint
@@ -191,8 +191,26 @@ export function UserDetailShell({
     link.click();
     document.body.removeChild(link);
   };
+  const userWithDerivedStats = useMemo(() => {
+    if (!user) return user;
+    const orderActivitiesCount = activities.filter(a => a.type === "order").length;
+    const updatedUser = { ...user, stats: { ...user.stats } };
 
-  if (!user) return <UserDetailSkeleton />;
+    if (user.role === "Consumer") {
+      if (!user.stats.totalOrders || user.stats.totalOrders === 0) {
+        updatedUser.stats.totalOrders = orderActivitiesCount;
+      }
+    } else if (user.role === "Store") {
+      const ts = user.stats.totalSales;
+      if (!ts || ts === "EGP 0" || ts === "0" || ts === "—" || ts === "-") {
+        updatedUser.stats.totalSales = orderActivitiesCount > 0 ? `${orderActivitiesCount}` : "0";
+      }
+    }
+    
+    return updatedUser;
+  }, [user, activities]);
+
+  if (!user || !userWithDerivedStats) return <UserDetailSkeleton />;
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
@@ -222,7 +240,7 @@ export function UserDetailShell({
       {/* Top 2-Column Grid: Profile card (left 2/3) + Actions/Notes (right 1/3) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <UserProfileCard user={user} isRtl={isRtl} />
+          <UserProfileCard user={userWithDerivedStats} isRtl={isRtl} />
           {(user.role === "Store" || user.role === "Charity") && (
             <StoreDocumentsCard
               documents={user.documents}

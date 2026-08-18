@@ -17,29 +17,29 @@ export const AnalyticsBentoGrid: React.FC<AnalyticsBentoGridProps> = ({
   isRtl = false,
 }) => {
   const users = analytics.users || {
-    total: 60,
-    customers: 42,
-    merchants: 11,
-    charities: 6,
-    admins: 1,
+    total: 0,
+    customers: 0,
+    merchants: 0,
+    charities: 0,
+    admins: 0,
   };
   const orgs = analytics.organizations || {
-    total: 17,
-    verified: 17,
+    total: 0,
+    verified: 0,
     pending: 0,
     unverified: 0,
     rejected: 0,
   };
   const products = analytics.products || {
-    total: 85,
-    active: 84,
+    total: 0,
+    active: 0,
     soldOut: 0,
     expired: 0,
   };
   const orders = analytics.orders || {
-    total: 55,
-    completed: 32,
-    pending: 15,
+    total: 0,
+    completed: 0,
+    pending: 0,
     cancelled: 0,
   };
 
@@ -104,7 +104,7 @@ export const AnalyticsBentoGrid: React.FC<AnalyticsBentoGridProps> = ({
             </h3>
           </div>
           <span className="text-xs font-bold text-on-surface bg-surface border border-card-border px-2 py-0.5 rounded-full">
-            {orgs.total ?? 17}
+            {orgs.total ?? 0}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -113,7 +113,7 @@ export const AnalyticsBentoGrid: React.FC<AnalyticsBentoGridProps> = ({
               {isRtl ? "موثقة" : "Verified"}
             </span>
             <span className="font-extrabold text-emerald-950 text-xs">
-              {orgs.verified ?? 17}
+              {orgs.verified ?? 0}
             </span>
           </div>
           <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-100 flex items-center justify-between">
@@ -153,7 +153,7 @@ export const AnalyticsBentoGrid: React.FC<AnalyticsBentoGridProps> = ({
             </h3>
           </div>
           <span className="text-xs font-bold text-on-surface bg-surface border border-card-border px-2 py-0.5 rounded-full">
-            {products.total ?? 85}
+            {products.total ?? 0}
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2 text-xs">
@@ -162,7 +162,7 @@ export const AnalyticsBentoGrid: React.FC<AnalyticsBentoGridProps> = ({
               {isRtl ? "نشطة" : "Active"}
             </span>
             <span className="font-extrabold text-emerald-950 text-xs mt-0.5">
-              {products.active ?? 84}
+              {products.active ?? 0}
             </span>
           </div>
           <div className="bg-surface p-2 rounded-xl border border-card-border flex flex-col items-center text-center">

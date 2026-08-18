@@ -36,6 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const prevButton = (
     <button
       key="prev"
+      type="button"
       onClick={() => onPageChange(currentPage - 1)}
       disabled={currentPage === 1}
       className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-outline-variant bg-white text-on-surface-variant hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold cursor-pointer text-xs flex items-center gap-1.5 shadow-2xs active:scale-95"
@@ -61,6 +62,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const nextButton = (
     <button
       key="next"
+      type="button"
       onClick={() => onPageChange(currentPage + 1)}
       disabled={currentPage === totalPages || totalPages === 0}
       className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-outline-variant bg-white text-on-surface-variant hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold cursor-pointer text-xs flex items-center gap-1.5 shadow-2xs active:scale-95"
@@ -90,6 +92,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         return (
           <button
             key={page}
+            type="button"
             onClick={() => onPageChange(page)}
             className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center justify-center ${
               isActive

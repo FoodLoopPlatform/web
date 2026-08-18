@@ -7,6 +7,7 @@ import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 import { useStoreProfile } from "@/hooks/use-store-profile";
 import { useAppLang } from "@/store/use-app-lang";
+import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 
 interface OrdersPageShellProps {
   pageTitleKey?: string;
@@ -165,17 +166,7 @@ export function OrdersPageShell({
 
             {!showFeedbackIcons && (
               <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  className="p-2 hover:bg-surface-container-highest rounded-full transition-colors relative flex items-center justify-center cursor-pointer"
-                  title={isRtl ? "الإشعارات" : "Notifications"}
-                >
-                  <Icon
-                    name="notifications"
-                    className="h-5 w-5 text-on-surface-variant"
-                  />
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
-                </button>
+                <NotificationsDropdown />
 
                 <button
                   type="button"
