@@ -4,14 +4,13 @@ import React from "react";
 
 interface UserManagementToolbarActionsProps {
   onExportCSV: () => void;
-  onOpenEnrollModal: () => void;
   exportCsvLabel: string;
   isRtl: boolean;
 }
 
 export const UserManagementToolbarActions: React.FC<
   UserManagementToolbarActionsProps
-> = ({ onExportCSV, onOpenEnrollModal, exportCsvLabel, isRtl }) => {
+> = ({ onExportCSV, exportCsvLabel, isRtl }) => {
   return (
     <div className="flex items-center gap-3 self-end md:self-auto">
       <button

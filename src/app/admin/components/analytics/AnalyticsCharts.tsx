@@ -17,46 +17,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
 }) => {
   const isRtl = lang === "ar";
 
-  const data =
-    monthlyTrends.length > 0
-      ? monthlyTrends
-      : [
-          {
-            month: "مارس",
-            year: 2026,
-            wastePreventedKg: 420,
-            financialSavings: 950,
-            ordersCount: 78,
-          },
-          {
-            month: "أبريل",
-            year: 2026,
-            wastePreventedKg: 680,
-            financialSavings: 1420,
-            ordersCount: 120,
-          },
-          {
-            month: "مايو",
-            year: 2026,
-            wastePreventedKg: 1100,
-            financialSavings: 2300,
-            ordersCount: 195,
-          },
-          {
-            month: "يونيو",
-            year: 2026,
-            wastePreventedKg: 1580,
-            financialSavings: 3100,
-            ordersCount: 280,
-          },
-          {
-            month: "يوليو",
-            year: 2026,
-            wastePreventedKg: 2021,
-            financialSavings: 4081,
-            ordersCount: 360,
-          },
-        ];
+  const data = monthlyTrends;
 
   const maxWaste = Math.max(...data.map((d) => d.wastePreventedKg), 100);
 
