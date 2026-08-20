@@ -48,7 +48,7 @@ export function MerchantTopHeader({
 
         {/* Right Section: Notifications + Admin Notes + Store Profile */}
         <div className="flex items-center gap-3">
-          <NotificationsDropdown />
+          <NotificationsDropdown scope="merchant" />
 
           {/* Admin Notes Button */}
           <button

@@ -68,7 +68,7 @@ export async function unwrapEnvelope<T>(
 
   // Handle direct paginated object { items: [...] }
   if (typeof payload === "object" && payload !== null && "items" in payload) {
-    const paginated = payload as { 
+    const paginated = payload as {
       items: unknown;
       totalCount?: number;
       totalPages?: number;
@@ -77,8 +77,8 @@ export async function unwrapEnvelope<T>(
       hasNextPage?: boolean;
       hasPreviousPage?: boolean;
     };
-    return { 
-      data: paginated.items as T, 
+    return {
+      data: paginated.items as T,
       status: res.status,
       totalCount: paginated.totalCount,
       totalPages: paginated.totalPages,

@@ -207,11 +207,24 @@ export function OrdersDashboardClient({
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto pb-28">
-      {/* Toast Notification */}
+      {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#0B3C26] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-emerald-400/30 text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-top-2">
-          <Icon name="check_circle" className="w-5 h-5 text-emerald-400" />
-          <span>{toastMessage}</span>
+        <div
+          dir={isRtl ? "rtl" : "ltr"}
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[99999] bg-[#0B3C26] text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400/40 text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
+        >
+          <Icon
+            name="check_circle"
+            className="w-5 h-5 text-emerald-400 shrink-0"
+          />
+          <span className="leading-snug">{toastMessage}</span>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="mr-2 text-emerald-200 hover:text-white transition-colors cursor-pointer"
+          >
+            <Icon name="close" className="w-4 h-4" />
+          </button>
         </div>
       )}
 

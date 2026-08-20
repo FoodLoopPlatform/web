@@ -190,11 +190,7 @@ export function AnalyticsShell({ initialAnalytics }: AnalyticsShellProps = {}) {
       <div className="print:hidden">
         {activeTab === "overview" && (
           <div className="w-full max-w-5xl mx-auto">
-            <AnalyticsCharts
-              t={t}
-              lang={lang}
-              monthlyTrends={monthlyTrends}
-            />
+            <AnalyticsCharts t={t} lang={lang} monthlyTrends={monthlyTrends} />
           </div>
         )}
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
@@ -82,12 +83,22 @@ export function UserManagementShell({
       initialCharities.length === 0,
   );
 
-  const [consumersCount, setConsumersCount] = useState(initialAnalytics?.users?.customers ?? 0);
-  const [storesCount, setStoresCount] = useState(initialAnalytics?.users?.merchants ?? 0);
-  const [charitiesCount, setCharitiesCount] = useState(initialAnalytics?.users?.charities ?? 0);
-  const [pendingCount, setPendingCount] = useState(initialAnalytics?.organizations?.pending ?? 0);
-  
-  const [activeTotalCount, setActiveTotalCount] = useState(initialAnalytics?.users?.customers ?? 0);
+  const [consumersCount, setConsumersCount] = useState(
+    initialAnalytics?.users?.customers ?? 0,
+  );
+  const [storesCount, setStoresCount] = useState(
+    initialAnalytics?.users?.merchants ?? 0,
+  );
+  const [charitiesCount, setCharitiesCount] = useState(
+    initialAnalytics?.users?.charities ?? 0,
+  );
+  const [pendingCount, setPendingCount] = useState(
+    initialAnalytics?.organizations?.pending ?? 0,
+  );
+
+  const [activeTotalCount, setActiveTotalCount] = useState(
+    initialAnalytics?.users?.customers ?? 0,
+  );
   const [totalPages, setTotalPages] = useState(() => {
     const total = initialAnalytics?.users?.customers ?? 0;
     return Math.ceil(total / 5) || 1;
@@ -112,25 +123,30 @@ export function UserManagementShell({
 
   // Sync tab and search query from URL query params
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam) {
-      const lower = tabParam.toLowerCase();
-      if ((lower === "commissions" || lower === "commission") && activeTab !== "Commissions") {
-        setActiveTab("Commissions");
-      } else if (lower === "stores" && activeTab !== "Stores") {
-        setActiveTab("Stores");
-      } else if (lower === "charities" && activeTab !== "Charities") {
-        setActiveTab("Charities");
-      } else if (lower === "consumers" && activeTab !== "Consumers") {
-        setActiveTab("Consumers");
+    Promise.resolve().then(() => {
+      const tabParam = searchParams.get("tab");
+      if (tabParam) {
+        const lower = tabParam.toLowerCase();
+        if (
+          (lower === "commissions" || lower === "commission") &&
+          activeTab !== "Commissions"
+        ) {
+          setActiveTab("Commissions");
+        } else if (lower === "stores" && activeTab !== "Stores") {
+          setActiveTab("Stores");
+        } else if (lower === "charities" && activeTab !== "Charities") {
+          setActiveTab("Charities");
+        } else if (lower === "consumers" && activeTab !== "Consumers") {
+          setActiveTab("Consumers");
+        }
       }
-    }
-    const q = searchParams.get("search") || searchParams.get("q");
-    if (q !== null && q !== searchQuery) {
-      setSearchQuery(q);
-      setDebouncedSearchQuery(q);
-    }
-  }, [searchParams]);
+      const q = searchParams.get("search") || searchParams.get("q");
+      if (q !== null && q !== searchQuery) {
+        setSearchQuery(q);
+        setDebouncedSearchQuery(q);
+      }
+    });
+  }, [searchParams, activeTab, searchQuery]);
 
   // Debounce search query input
   useEffect(() => {
@@ -152,7 +168,10 @@ export function UserManagementShell({
             setStoresCount(res.data.users.merchants);
             setCharitiesCount(res.data.users.charities);
           }
-          if (res.data.organizations && res.data.organizations.pending !== undefined) {
+          if (
+            res.data.organizations &&
+            res.data.organizations.pending !== undefined
+          ) {
             setPendingCount(res.data.organizations.pending);
           }
         }
@@ -197,7 +216,11 @@ export function UserManagementShell({
             setConsumers(res.data);
             if (res.totalCount !== undefined) {
               setActiveTotalCount(res.totalCount);
-              setTotalPages(res.totalPages || Math.ceil(res.totalCount / ITEMS_PER_PAGE) || 1);
+              setTotalPages(
+                res.totalPages ||
+                  Math.ceil(res.totalCount / ITEMS_PER_PAGE) ||
+                  1,
+              );
             }
           }
         } else if (activeTab === "Stores") {
@@ -212,7 +235,11 @@ export function UserManagementShell({
             setStores(res.data);
             if (res.totalCount !== undefined) {
               setActiveTotalCount(res.totalCount);
-              setTotalPages(res.totalPages || Math.ceil(res.totalCount / ITEMS_PER_PAGE) || 1);
+              setTotalPages(
+                res.totalPages ||
+                  Math.ceil(res.totalCount / ITEMS_PER_PAGE) ||
+                  1,
+              );
             }
           }
         } else if (activeTab === "Charities") {
@@ -227,12 +254,17 @@ export function UserManagementShell({
             setCharities(res.data);
             if (res.totalCount !== undefined) {
               setActiveTotalCount(res.totalCount);
-              setTotalPages(res.totalPages || Math.ceil(res.totalCount / ITEMS_PER_PAGE) || 1);
+              setTotalPages(
+                res.totalPages ||
+                  Math.ceil(res.totalCount / ITEMS_PER_PAGE) ||
+                  1,
+              );
             }
           }
         }
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
+      } catch (err: unknown) {
+        const error = err as Error;
+        if (error?.name !== "AbortError") {
           console.error("Error loading user management data:", err);
         }
       } finally {
@@ -246,7 +278,13 @@ export function UserManagementShell({
       isSubscribed = false;
       abortController.abort();
     };
-  }, [activeTab, currentPage, debouncedSearchQuery, statusFilter, initialConsumers.length]);
+  }, [
+    activeTab,
+    currentPage,
+    debouncedSearchQuery,
+    statusFilter,
+    initialConsumers.length,
+  ]);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -346,7 +384,9 @@ export function UserManagementShell({
       );
     } else if (activeTab === "Charities") {
       setCharities((prev) =>
-        prev.map((ch) => (ch.id === userId ? { ...ch, status: newStatus } : ch)),
+        prev.map((ch) =>
+          ch.id === userId ? { ...ch, status: newStatus } : ch,
+        ),
       );
     }
 
@@ -369,7 +409,9 @@ export function UserManagementShell({
       }
     } else if (activeTab === "Charities") {
       setCharities((prev) =>
-        prev.map((ch) => (ch.id === actorId ? { ...ch, status: "ACTIVE" } : ch)),
+        prev.map((ch) =>
+          ch.id === actorId ? { ...ch, status: "ACTIVE" } : ch,
+        ),
       );
       try {
         await verifyCharity(actorId);
@@ -441,13 +483,13 @@ export function UserManagementShell({
       ) : (
         <>
           {/* Top Metrics Banner */}
-          <UserManagementStats 
-            t={t} 
-            consumersCount={consumersCount} 
-            storesCount={storesCount} 
-            charitiesCount={charitiesCount} 
-            pendingCount={pendingCount} 
-            isRtl={isRtl} 
+          <UserManagementStats
+            t={t}
+            consumersCount={consumersCount}
+            storesCount={storesCount}
+            charitiesCount={charitiesCount}
+            pendingCount={pendingCount}
+            isRtl={isRtl}
           />
 
           {/* Search and Toolbar */}
@@ -478,7 +520,9 @@ export function UserManagementShell({
           {/* Main Content Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
             {/* Table & Cards Column */}
-            <div className={`lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0 transition-opacity ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
+            <div
+              className={`lg:col-span-2 bg-white rounded-2xl border border-card-border shadow-sm overflow-hidden flex flex-col justify-between min-w-0 transition-opacity ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <div>
                 <UserCardList
                   users={paginatedItems}

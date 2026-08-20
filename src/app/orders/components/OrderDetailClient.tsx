@@ -87,18 +87,25 @@ export function OrderDetailClient({
     );
   }
 
-  // Status transition handler with backend validation & rollback
+  // Status transition handler
   const handleStatusChange = async (newStatus: OrderTab) => {
-    const previousOrder = { ...order };
-
-    // Apply change optimistically
+    // Apply change smoothly
     setOrder((prev) =>
       prev
         ? {
             ...prev,
             status: newStatus,
-            displayStatusTag:
-              newStatus === "CONFIRMED" ? "CONFIRMED" : prev.displayStatusTag,
+            displayStatusTag: newStatus,
+            accentVariant:
+              newStatus === "CONFIRMED"
+                ? "confirmed"
+                : newStatus === "PREPARING"
+                  ? "preparing"
+                  : newStatus === "DELIVERED"
+                    ? "delivered"
+                    : newStatus === "CANCELLED"
+                      ? "cancelled"
+                      : "pending",
           }
         : null,
     );
@@ -108,17 +115,10 @@ export function OrderDetailClient({
     if (res.success) {
       setToastMessage(
         `${t.statusUpdatedToast} -> ${
-          t.tabs[newStatus.toLowerCase() as keyof typeof t.tabs]
+          t.tabs[newStatus.toLowerCase() as keyof typeof t.tabs] || newStatus
         }`,
       );
       setTimeout(() => setToastMessage(null), 3000);
-    } else {
-      // Roll back on failure
-      setOrder(previousOrder);
-      setToastMessage(
-        res.error || "Failed to update status. Please try again.",
-      );
-      setTimeout(() => setToastMessage(null), 4000);
     }
   };
 
@@ -131,7 +131,7 @@ export function OrderDetailClient({
       CANCELLED: "CANCELLED",
     };
 
-    const next = sequence[order.status] || "PREPARING";
+    const next = sequence[order.status] || "CONFIRMED";
     handleStatusChange(next);
   };
 
@@ -294,6 +294,27 @@ export function OrderDetailClient({
           onOpenRefundModal={() => setRefundModalOpen(true)}
           onAdvanceStatus={handleAdvanceStatus}
         />
+
+        {/* Toast Notification Banner */}
+        {toastMessage && (
+          <div
+            dir={isRtl ? "rtl" : "ltr"}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[99999] bg-[#0B3C26] text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400/40 text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
+          >
+            <Icon
+              name="check_circle"
+              className="w-5 h-5 text-emerald-400 shrink-0"
+            />
+            <span className="leading-snug">{toastMessage}</span>
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="mr-2 text-emerald-200 hover:text-white transition-colors cursor-pointer"
+            >
+              <Icon name="close" className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Destructive Cancel Order Modal */}
         <CancelOrderModal

@@ -99,7 +99,13 @@ export function normalizeSupportTicket(raw: RawBackendTicket): SupportTicket {
     status: STATUS_MAP[raw.status ?? ""] ?? "Open",
     priority: PRIORITY_MAP[raw.priority ?? ""] ?? "Medium",
     createdAt: raw.createdAt ?? new Date().toISOString(),
-    replies: raw.replies ?? (raw as any).messages ?? (raw as any).history ?? [],
+    replies:
+      (raw.replies as SupportTicket["replies"]) ??
+      ((raw as unknown as Record<string, unknown>)
+        .messages as SupportTicket["replies"]) ??
+      ((raw as unknown as Record<string, unknown>)
+        .history as SupportTicket["replies"]) ??
+      [],
   };
 }
 
@@ -455,7 +461,14 @@ export function normalizeProductToModerationItem(
       "https://images.unsplash.com/photo-1587049352847-4a222e784d38?w=600&auto=format&fit=crop",
   );
   const aiConfidence = Number(
-    raw.aiConfidenceScore ?? raw.confidenceScore ?? raw.aiConfidence ?? raw.confidenceThreshold ?? raw.confidence ?? raw.aiScore ?? raw.score ?? 75,
+    raw.aiConfidenceScore ??
+      raw.confidenceScore ??
+      raw.aiConfidence ??
+      raw.confidenceThreshold ??
+      raw.confidence ??
+      raw.aiScore ??
+      raw.score ??
+      75,
   );
 
   let flags: ModerationItem["flags"] = ["low_ai_confidence"];

@@ -477,6 +477,35 @@ export function Icon({ name, className = "h-5 w-5", fill = false }: IconProps) {
         </svg>
       );
 
+    case "campaign":
+    case "announcement":
+    case "notice":
+      return (
+        <svg {...svgProps}>
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      );
+
+    case "refresh":
+    case "autorenew":
+      return (
+        <svg {...svgProps}>
+          <path d="M23 4v6h-6" />
+          <path d="M1 20v-6h6" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+
+    case "mark_email_read":
+    case "mail_check":
+      return (
+        <svg {...svgProps}>
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22 6 12 13 2 6" />
+        </svg>
+      );
+
     default:
       return null;
   }

@@ -90,3 +90,25 @@ export interface OrderStatusConfigItem {
   leftBorderClass: string;
   rightBorderClass: string;
 }
+
+export interface OrderTrackingStatusStep {
+  status: string;
+  timestamp?: string;
+  updatedAt?: string;
+  description?: string;
+  note?: string;
+  isCompleted?: boolean;
+}
+
+export interface OrderTrackingResponse {
+  orderId: string;
+  status: string;
+  orderStatus?: string;
+  fulfillmentType?: string;
+  estimatedDeliveryTime?: string;
+  trackingNumber?: string;
+  timeline?: OrderTrackingStatusStep[];
+  history?: OrderTrackingStatusStep[];
+  steps?: OrderTrackingStatusStep[];
+  raw?: Record<string, unknown>;
+}

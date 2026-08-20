@@ -488,7 +488,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <div className="flex items-center">
-              <NotificationsDropdown />
+              <NotificationsDropdown scope="admin" />
 
               <button
                 type="button"

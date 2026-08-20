@@ -202,6 +202,8 @@ export const getMany = <T>(url: string, options?: FetchOptions) => {
   });
 };
 
+export const getOne = getMany;
+
 export const createOne = <T, B = unknown>(
   url: string,
   body: B,

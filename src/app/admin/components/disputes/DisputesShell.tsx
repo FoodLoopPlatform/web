@@ -231,10 +231,10 @@ export function DisputesShell({
         ];
         const fullTicket = { ...ticketRes.data, replies: mergedReplies };
         setSelectedTicket(fullTicket);
-        
+
         // Save back to tickets array so it persists on next open without flashing empty
-        setTickets((prev) => prev.map((t) => t.id === id ? fullTicket : t));
-        
+        setTickets((prev) => prev.map((t) => (t.id === id ? fullTicket : t)));
+
         setShowTicketDrawer(true);
       }
     } catch {
@@ -387,22 +387,31 @@ export function DisputesShell({
     currentPage * PAGE_SIZE,
   );
 
-  const disputeStats = useMemo(() => ({
-    total: disputes.length,
-    open: disputes.filter(d => !d.isResolved).length,
-    resolved: disputes.filter(d => d.isResolved).length,
-  }), [disputes]);
+  const disputeStats = useMemo(
+    () => ({
+      total: disputes.length,
+      open: disputes.filter((d) => !d.isResolved).length,
+      resolved: disputes.filter((d) => d.isResolved).length,
+    }),
+    [disputes],
+  );
 
-  const ticketStats = useMemo(() => ({
-    total: tickets.length,
-    open: tickets.filter(t => t.status !== "Closed").length,
-    closed: tickets.filter(t => t.status === "Closed").length,
-  }), [tickets]);
+  const ticketStats = useMemo(
+    () => ({
+      total: tickets.length,
+      open: tickets.filter((t) => t.status !== "Closed").length,
+      closed: tickets.filter((t) => t.status === "Closed").length,
+    }),
+    [tickets],
+  );
 
-  const reviewStats = useMemo(() => ({
-    total: reviews.length,
-    flagged: reviews.filter(r => r.flagged).length,
-  }), [reviews]);
+  const reviewStats = useMemo(
+    () => ({
+      total: reviews.length,
+      flagged: reviews.filter((r) => r.flagged).length,
+    }),
+    [reviews],
+  );
 
   const tabOptions: TabOption<DisputeTab>[] = [
     { id: "Disputes", label: t.disputesTabLabel },

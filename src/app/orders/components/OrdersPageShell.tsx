@@ -23,16 +23,12 @@ export function OrdersPageShell({
   children,
 }: OrdersPageShellProps) {
   const store = useStoreProfile();
-  const { lang, setLang } = useAppLang();
+  const { lang } = useAppLang();
   const isRtl = lang === "ar";
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const toggleLanguage = () => {
-    setLang(lang === "ar" ? "en" : "ar");
-  };
 
   const getPageTitle = () => {
     if (pageTitleKey === "orderDetailsControl") {
@@ -166,7 +162,7 @@ export function OrdersPageShell({
 
             {!showFeedbackIcons && (
               <div className="flex items-center gap-1">
-                <NotificationsDropdown />
+                <NotificationsDropdown scope="merchant" />
 
                 <button
                   type="button"
@@ -180,18 +176,6 @@ export function OrdersPageShell({
                 </button>
               </div>
             )}
-
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
-              title={isRtl ? "تغيير اللغة" : "Switch Language"}
-            >
-              <Icon
-                name="language"
-                className="h-5 w-5 text-on-surface-variant"
-              />
-            </button>
 
             <div className="h-7 w-px bg-outline-variant/50" />
 
