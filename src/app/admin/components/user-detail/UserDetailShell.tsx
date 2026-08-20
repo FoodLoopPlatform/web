@@ -193,7 +193,9 @@ export function UserDetailShell({
   };
   const userWithDerivedStats = useMemo(() => {
     if (!user) return user;
-    const orderActivitiesCount = activities.filter(a => a.type === "order").length;
+    const orderActivitiesCount = activities.filter(
+      (a) => a.type === "order",
+    ).length;
     const updatedUser = { ...user, stats: { ...user.stats } };
 
     if (user.role === "Consumer") {
@@ -203,10 +205,11 @@ export function UserDetailShell({
     } else if (user.role === "Store") {
       const ts = user.stats.totalSales;
       if (!ts || ts === "EGP 0" || ts === "0" || ts === "—" || ts === "-") {
-        updatedUser.stats.totalSales = orderActivitiesCount > 0 ? `${orderActivitiesCount}` : "0";
+        updatedUser.stats.totalSales =
+          orderActivitiesCount > 0 ? `${orderActivitiesCount}` : "0";
       }
     }
-    
+
     return updatedUser;
   }, [user, activities]);
 

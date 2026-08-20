@@ -32,16 +32,17 @@ export function OrderFooterBar({
   const getPrimaryButtonText = () => {
     switch (currentStatus) {
       case "PENDING":
+        return t.confirmOrder || (isRtl ? "تأكيد الطلب" : "Confirm Order");
       case "CONFIRMED":
-        return t.startPreparing;
+        return t.startPreparing || (isRtl ? "بدء التحضير" : "Start Preparing");
       case "PREPARING":
-        return t.markDelivered;
+        return t.markDelivered || (isRtl ? "تم التسليم" : "Mark Delivered");
       case "DELIVERED":
-        return t.tags.delivered;
+        return isRtl ? "طلب مكتمل" : "Completed";
       case "CANCELLED":
-        return t.tags.cancelled;
+        return isRtl ? "طلب ملغى" : "Cancelled";
       default:
-        return t.startPreparing;
+        return t.confirmOrder || (isRtl ? "تأكيد الطلب" : "Confirm Order");
     }
   };
 

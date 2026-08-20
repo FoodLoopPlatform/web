@@ -33,6 +33,12 @@ export function AdminNotesDrawer({ isOpen, onClose }: AdminNotesDrawerProps) {
   useEffect(() => {
     let active = true;
     if (isOpen) {
+      Promise.resolve().then(() => {
+        if (active) {
+          setIsLoading(true);
+          setError(null);
+        }
+      });
       getStoreNotes({ pageSize: 50 }).then((res) => {
         if (active) {
           setIsLoading(false);

@@ -166,7 +166,7 @@ export function OrdersPageShell({
 
             {!showFeedbackIcons && (
               <div className="flex items-center gap-1">
-                <NotificationsDropdown />
+                <NotificationsDropdown scope="merchant" />
 
                 <button
                   type="button"

@@ -77,10 +77,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       ? statusBadgeTokens.ACTIVE
       : rawStatus.includes("BAN")
         ? statusBadgeTokens.BANNED
-      : rawStatus.includes("SUSPEND") ||
-          rawStatus.includes("REJECT")
-        ? statusBadgeTokens.SUSPENDED
-        : statusBadgeTokens.PENDING);
+        : rawStatus.includes("SUSPEND") || rawStatus.includes("REJECT")
+          ? statusBadgeTokens.SUSPENDED
+          : statusBadgeTokens.PENDING);
 
   const statusLabel =
     rawStatus.includes("ACTIVE") ||
@@ -93,14 +92,13 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
         ? isRtl
           ? "محظور"
           : "Banned"
-        : rawStatus.includes("SUSPEND") ||
-          rawStatus.includes("REJECT")
-        ? isRtl
-          ? "معطل"
-          : "Suspended"
-        : isRtl
-          ? "قيد المراجعة"
-          : "Pending";
+        : rawStatus.includes("SUSPEND") || rawStatus.includes("REJECT")
+          ? isRtl
+            ? "معطل"
+            : "Suspended"
+          : isRtl
+            ? "قيد المراجعة"
+            : "Pending";
 
   const roleLabel =
     {

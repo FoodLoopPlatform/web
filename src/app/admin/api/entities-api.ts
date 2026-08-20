@@ -16,18 +16,25 @@ import {
 } from "./admin-normalizers";
 
 /** GET /admin/stores */
-export function getAdminStores(params?: { page?: number; pageSize?: number; search?: string; status?: string; signal?: AbortSignal }) {
+export function getAdminStores(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  signal?: AbortSignal;
+}) {
   return withAuth<Store[]>(async (token) => {
     const query = new URLSearchParams();
     if (params?.page) query.append("page", params.page.toString());
-    
+
     if (params?.search) {
       query.append("search", params.search);
       query.set("pageSize", "1000"); // Fetch all for client-side filtering
     } else if (params?.pageSize) {
       query.append("pageSize", params.pageSize.toString());
     }
-    if (params?.status && params.status !== "ALL") query.append("status", params.status);
+    if (params?.status && params.status !== "ALL")
+      query.append("status", params.status);
     const qs = query.toString() ? `?${query.toString()}` : "";
 
     const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
@@ -46,21 +53,24 @@ export function getAdminStores(params?: { page?: number; pageSize?: number; sear
       let data = list.map(normalizeStore);
       if (params?.search) {
         const q = params.search.toLowerCase().trim();
-        data = data.filter(i => 
-          i.email.toLowerCase().includes(q) ||
-          i.name.toLowerCase().includes(q) ||
-          i.id.toLowerCase().includes(q)
+        data = data.filter(
+          (i) =>
+            i.email.toLowerCase().includes(q) ||
+            i.name.toLowerCase().includes(q) ||
+            i.id.toLowerCase().includes(q),
         );
       }
-      return { 
-        status: res.status, 
+      return {
+        status: res.status,
         data: data.slice(0, params?.pageSize || 5),
         totalCount: params?.search ? data.length : res.totalCount,
-        totalPages: params?.search ? Math.ceil(data.length / (params?.pageSize || 5)) : res.totalPages,
+        totalPages: params?.search
+          ? Math.ceil(data.length / (params?.pageSize || 5))
+          : res.totalPages,
         page: res.page,
         pageSize: res.pageSize,
         hasNextPage: res.hasNextPage,
-        hasPreviousPage: res.hasPreviousPage
+        hasPreviousPage: res.hasPreviousPage,
       };
     }
     return { status: res.status, data: [] as Store[] };
@@ -204,18 +214,25 @@ export function getCharityActivityLog(id: string) {
 }
 
 /** GET /admin/charities */
-export function getAdminCharities(params?: { page?: number; pageSize?: number; search?: string; status?: string; signal?: AbortSignal }) {
+export function getAdminCharities(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  signal?: AbortSignal;
+}) {
   return withAuth<Charity[]>(async (token) => {
     const query = new URLSearchParams();
     if (params?.page) query.append("page", params.page.toString());
-    
+
     if (params?.search) {
       query.append("search", params.search);
       query.set("pageSize", "1000");
     } else if (params?.pageSize) {
       query.append("pageSize", params.pageSize.toString());
     }
-    if (params?.status && params.status !== "ALL") query.append("status", params.status);
+    if (params?.status && params.status !== "ALL")
+      query.append("status", params.status);
     const qs = query.toString() ? `?${query.toString()}` : "";
 
     const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
@@ -223,7 +240,7 @@ export function getAdminCharities(params?: { page?: number; pageSize?: number; s
         `${Endpoints.admin.charities}${qs}`,
         {
           token,
-          signal: params?.signal
+          signal: params?.signal,
         },
       ),
     );
@@ -237,21 +254,24 @@ export function getAdminCharities(params?: { page?: number; pageSize?: number; s
       let data = list.map(normalizeCharity);
       if (params?.search) {
         const q = params.search.toLowerCase().trim();
-        data = data.filter(i => 
-          i.email.toLowerCase().includes(q) ||
-          i.name.toLowerCase().includes(q) ||
-          i.id.toLowerCase().includes(q)
+        data = data.filter(
+          (i) =>
+            i.email.toLowerCase().includes(q) ||
+            i.name.toLowerCase().includes(q) ||
+            i.id.toLowerCase().includes(q),
         );
       }
-      return { 
-        status: res.status, 
+      return {
+        status: res.status,
         data: data.slice(0, params?.pageSize || 5),
         totalCount: params?.search ? data.length : res.totalCount,
-        totalPages: params?.search ? Math.ceil(data.length / (params?.pageSize || 5)) : res.totalPages,
+        totalPages: params?.search
+          ? Math.ceil(data.length / (params?.pageSize || 5))
+          : res.totalPages,
         page: res.page,
         pageSize: res.pageSize,
         hasNextPage: res.hasNextPage,
-        hasPreviousPage: res.hasPreviousPage
+        hasPreviousPage: res.hasPreviousPage,
       };
     }
     return { status: res.status, data: [] as Charity[] };
@@ -259,18 +279,25 @@ export function getAdminCharities(params?: { page?: number; pageSize?: number; s
 }
 
 /** GET /users?role=Customer */
-export function getAdminConsumers(params?: { page?: number; pageSize?: number; search?: string; status?: string; signal?: AbortSignal }) {
+export function getAdminConsumers(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  signal?: AbortSignal;
+}) {
   return withAuth<Consumer[]>(async (token) => {
     const query = new URLSearchParams();
     if (params?.page) query.append("page", params.page.toString());
-    
+
     if (params?.search) {
       query.append("search", params.search);
       query.set("pageSize", "1000"); // Fetch all for client-side filtering
     } else if (params?.pageSize) {
       query.append("pageSize", params.pageSize.toString());
     }
-    if (params?.status && params.status !== "ALL") query.append("status", params.status);
+    if (params?.status && params.status !== "ALL")
+      query.append("status", params.status);
     const qs = query.toString() ? `&${query.toString()}` : ""; // already has ?role=Customer
 
     const res = await unwrapEnvelope<RawEntity[] | { items: RawEntity[] }>(
@@ -278,7 +305,7 @@ export function getAdminConsumers(params?: { page?: number; pageSize?: number; s
         `${Endpoints.admin.consumers}${qs}`,
         {
           token,
-          signal: params?.signal
+          signal: params?.signal,
         },
       ),
     );
@@ -292,21 +319,24 @@ export function getAdminConsumers(params?: { page?: number; pageSize?: number; s
       let data = list.map(normalizeConsumer);
       if (params?.search) {
         const q = params.search.toLowerCase().trim();
-        data = data.filter(i => 
-          i.email.toLowerCase().includes(q) ||
-          i.name.toLowerCase().includes(q) ||
-          i.id.toLowerCase().includes(q)
+        data = data.filter(
+          (i) =>
+            i.email.toLowerCase().includes(q) ||
+            i.name.toLowerCase().includes(q) ||
+            i.id.toLowerCase().includes(q),
         );
       }
-      return { 
-        status: res.status, 
+      return {
+        status: res.status,
         data: data.slice(0, params?.pageSize || 5),
         totalCount: params?.search ? data.length : res.totalCount,
-        totalPages: params?.search ? Math.ceil(data.length / (params?.pageSize || 5)) : res.totalPages,
+        totalPages: params?.search
+          ? Math.ceil(data.length / (params?.pageSize || 5))
+          : res.totalPages,
         page: res.page,
         pageSize: res.pageSize,
         hasNextPage: res.hasNextPage,
-        hasPreviousPage: res.hasPreviousPage
+        hasPreviousPage: res.hasPreviousPage,
       };
     }
     return { status: res.status, data: [] as Consumer[] };

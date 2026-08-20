@@ -42,6 +42,7 @@ export const Endpoints = {
     reviews: (id: string) => `/stores/${id}/reviews`,
     orders: "/stores/me/orders",
     orderById: (id: string) => `/stores/me/orders/${id}`,
+    orderTracking: (id: string) => `/stores/me/orders/${id}/tracking`,
     refundOrder: (id: string) => `/stores/me/orders/${id}/refund`,
     commission: "/stores/me/commission",
   },
@@ -106,6 +107,7 @@ export const Endpoints = {
   orders: {
     base: "/stores/me/orders",
     byId: (id: string) => `/stores/me/orders/${id}`,
+    tracking: (id: string) => `/stores/me/orders/${id}/tracking`,
     updateStatus: (id: string) => `/stores/me/orders/${id}/status`,
     refund: (id: string) => `/stores/me/orders/${id}/refund`,
   },
@@ -115,6 +117,6 @@ export const Endpoints = {
     read: (id: string) => `/notifications/${id}/read`,
     readAll: "/notifications/read-all",
     deviceToken: "/notifications/device-token",
-    hub: "", // Set exact backend hub route here (e.g. "/hubs/notifications") when ready
+    hub: "/hubs/notifications",
   },
 };

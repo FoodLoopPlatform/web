@@ -80,7 +80,8 @@ function extractCharityStats(u: RawUserObj) {
 
 function extractConsumerStats(u: RawUserObj) {
   return {
-    totalOrders: u.totalOrders ?? u.ordersCount ?? u.orders ?? u.purchasesCount ?? 0,
+    totalOrders:
+      u.totalOrders ?? u.ordersCount ?? u.orders ?? u.purchasesCount ?? 0,
     savedAmount:
       u.savedAmount !== undefined
         ? String(u.savedAmount)
