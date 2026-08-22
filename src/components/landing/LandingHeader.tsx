@@ -47,6 +47,11 @@ export function LandingHeader({
       label: isAr ? "للجمعيات" : "For Charities",
       href: "#charities",
     },
+    {
+      id: "faq",
+      label: isAr ? "الأسئلة الشائعة" : "FAQ",
+      href: "#faq",
+    },
   ];
 
   const handleNavClick = (id: string, href?: string) => {

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
+import { LandingFaqSection } from "@/components/landing/LandingFaqSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { HowItWorksModal } from "@/components/landing/HowItWorksModal";
 
@@ -33,6 +34,7 @@ export default function LandingPage() {
       "business",
       "consumers",
       "charities",
+      "faq",
     ];
 
     const observerOptions: IntersectionObserverInit = {
@@ -71,6 +73,9 @@ export default function LandingPage() {
 
         {/* Detailed Feature Sections */}
         <LandingFeatures />
+
+        {/* FAQ Interactive Accordion Section */}
+        <LandingFaqSection />
       </main>
 
       {/* Footer matching design */}
