@@ -101,7 +101,9 @@ export function LandingConsumerSection() {
 
             <div className="pt-2">
               <Link
-                href="/register"
+                href="https://drive.google.com/drive/folders/1V0SYmpNhS637Qd-LJNLtPBhk8SJv1LBv"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#005129] hover:bg-[#00381a] text-white font-semibold text-sm rounded-full shadow-md transition-all"
               >
                 <span>
