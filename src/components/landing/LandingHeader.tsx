@@ -120,7 +120,7 @@ export function LandingHeader({
         </div>
 
         {/* Right Section: Actions & Buttons */}
-        <div className="hidden md:flex items-center gap-3.5 flex-1 justify-end">
+        <div className="hidden lg:flex items-center gap-3.5 flex-1 justify-end">
           {/* Sign up as Business */}
           <Link
             href="/register"
