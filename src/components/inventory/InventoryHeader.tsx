@@ -31,11 +31,11 @@ export function InventoryHeader({
           </p>
         </div>
 
-        <div className="flex items-center gap-sm shrink-0">
+        <div className="flex items-center gap-sm shrink-0 flex-wrap">
           {/* Entry point to AI-powered inventory risk analysis */}
           <Link
             href="/inventory/risk-analysis"
-            className="border border-primary text-primary px-lg py-3 rounded-xl flex items-center gap-sm font-bold text-label-md hover:bg-light-green transition-all active:scale-95 cursor-pointer"
+            className="border border-primary text-primary px-4 py-2.5 sm:px-lg sm:py-3 rounded-xl flex items-center gap-sm font-bold text-xs sm:text-label-md hover:bg-light-green transition-all active:scale-95 cursor-pointer"
           >
             <SparklesIcon className="h-4 w-4" />
             <span>تحليل مخاطر المخزون</span>
@@ -45,7 +45,7 @@ export function InventoryHeader({
           <div className="relative inline-block text-right shrink-0">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="bg-primary text-white px-lg py-3 rounded-xl flex items-center gap-sm font-bold text-label-md hover:opacity-90 transition-all active:scale-95 shadow-sm cursor-pointer"
+              className="bg-primary text-white px-4 py-2.5 sm:px-lg sm:py-3 rounded-xl flex items-center gap-sm font-bold text-xs sm:text-label-md hover:opacity-90 transition-all active:scale-95 shadow-sm cursor-pointer"
             >
               <Icon name="add" className="h-4 w-4" />
               <span>إضافة منتج</span>
@@ -102,8 +102,8 @@ export function InventoryHeader({
         onClose={() => setBulkModalOpen(false)}
       />
 
-      {/* Search bar inside content area. Explicit min-width prevents input collapsing into a circle in RTL/flexbox layout. */}
-      <div className="relative w-full max-w-3xl min-w-[280px] sm:min-w-[320px]">
+      {/* Search bar inside content area */}
+      <div className="relative w-full max-w-3xl min-w-0">
         <Icon
           name="search"
           className="h-5 w-5 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"

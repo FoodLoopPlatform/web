@@ -157,7 +157,7 @@ export function AdminNotesDrawer({ isOpen, onClose }: AdminNotesDrawerProps) {
               <h4 className="text-base font-bold text-on-surface">
                 لا توجد ملاحظات إدارية جديدة
               </h4>
-              <p className="text-sm max-w-sm text-outline">
+              <p className="text-sm  text-outline">
                 لم تقم إدارة المنصة بإرسال أي ملاحظات أو تنبيهات خاصة لمتجرك حتى
                 الآن.
               </p>

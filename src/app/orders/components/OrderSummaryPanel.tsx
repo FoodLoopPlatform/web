@@ -26,9 +26,9 @@ export function OrderSummaryPanel({
   return (
     <div
       dir={isRtl ? "rtl" : "ltr"}
-      className={`fixed bottom-6 ${
-        isRtl ? "left-6 sm:left-12" : "right-6 sm:right-12"
-      } z-40 bg-[#0B3C26] text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-6 sm:gap-8 min-w-max shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
+      className={`fixed bottom-4 sm:bottom-6 ${
+        isRtl ? "left-4 sm:left-12" : "right-4 sm:right-12"
+      } z-40 bg-[#0B3C26] text-white p-3.5 sm:p-5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-4 sm:gap-8 max-w-[calc(100vw-2rem)] sm:max-w-none transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
     >
       {/* Total Pending Volume */}
       <div className="flex flex-col gap-1 min-w-0">

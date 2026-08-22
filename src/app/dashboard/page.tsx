@@ -37,7 +37,7 @@ function DashboardPage() {
     <MerchantShell className="bg-surface-container-lowest text-on-surface font-sans min-h-screen flex">
       {({ sidebarCollapsed, setMobileSidebarOpen }) => (
         <main
-          className={`flex-grow min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
+          className={`flex-grow min-h-screen flex flex-col transition-all duration-300 mr-0 w-full min-w-0 max-w-full overflow-x-hidden ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
         >
           <MerchantTopHeader
             onMenuClick={() => setMobileSidebarOpen(true)}

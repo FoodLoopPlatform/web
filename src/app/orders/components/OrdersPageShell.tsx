@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
@@ -30,6 +30,18 @@ export function OrdersPageShell({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileSidebarOpen]);
+
   const getPageTitle = () => {
     if (pageTitleKey === "orderDetailsControl") {
       return isRtl
@@ -41,7 +53,7 @@ export function OrdersPageShell({
 
   return (
     <div
-      className="bg-[#FAF9F5] text-on-surface min-h-screen flex font-sans select-none"
+      className="bg-[#FAF9F5] text-on-surface min-h-screen flex font-sans select-none w-full max-w-full overflow-x-hidden"
       dir={isRtl ? "rtl" : "ltr"}
     >
       {/* Desktop Sidebar */}
@@ -60,17 +72,26 @@ export function OrdersPageShell({
 
       {/* Mobile Drawer Sidebar */}
       {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+        <div className="fixed inset-0 z-50 lg:hidden">
           <div
             onClick={() => setMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
           />
-          <aside className="relative z-50 flex flex-col h-full w-64 animate-in slide-in-from-right duration-250">
-            <div className="absolute top-4 left-4 z-50">
+          <aside
+            className={`fixed top-0 ${
+              isRtl
+                ? "right-0 slide-in-from-right"
+                : "left-0 slide-in-from-left"
+            } bottom-0 z-50 flex flex-col h-full w-72 max-w-[85vw] bg-light-green shadow-2xl animate-in duration-250`}
+          >
+            <div
+              className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} z-50`}
+            >
               <button
                 type="button"
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-full bg-light-green border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center"
+                className="p-1.5 rounded-full bg-surface border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center shadow-xs"
+                title={isRtl ? "إغلاق القائمة" : "Close menu"}
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>
@@ -82,7 +103,7 @@ export function OrdersPageShell({
 
       {/* Main Container Area */}
       <main
-        className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ${
+        className={`flex-1 min-h-screen flex flex-col transition-all duration-300 w-full min-w-0 max-w-full overflow-x-hidden ${
           isRtl
             ? sidebarCollapsed
               ? "lg:mr-20"
@@ -110,7 +131,7 @@ export function OrdersPageShell({
             </span>
 
             {/* Integrated Top Bar Search Bar */}
-            <div className="relative w-full max-w-md min-w-[180px] sm:min-w-[280px]">
+            <div className="relative w-full max-w-md min-w-0">
               <Icon
                 name="search"
                 className={`h-4 w-4 absolute ${

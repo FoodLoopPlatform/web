@@ -72,7 +72,7 @@ function PricingPage() {
       {({ sidebarCollapsed, setMobileSidebarOpen }) => (
         <>
           <main
-            className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
+            className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 w-full min-w-0 max-w-full overflow-x-hidden ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
           >
             <MerchantTopHeader
               onMenuClick={() => setMobileSidebarOpen(true)}
@@ -98,49 +98,51 @@ function PricingPage() {
               {/* Header Section */}
               <div className="flex items-end justify-between flex-wrap gap-4">
                 <div className="flex flex-col gap-1">
-                  <h1 className="font-sans text-3xl font-bold text-primary">
+                  <h1 className="font-sans text-2xl sm:text-3xl font-bold text-primary">
                     لوحة التسعير
                   </h1>
-                  <p className="text-body-lg text-on-surface-variant max-w-2xl">
+                  <p className="text-sm sm:text-body-lg text-on-surface-variant max-w-2xl">
                     حسّن هوامش مخزونك من خلال التسعير الديناميكي الفوري وإدارة
                     دورات التخفيض وسجل الأسعار.
                   </p>
                 </div>
-                <div className="flex gap-4 shrink-0 flex-wrap">
+                <div className="flex gap-2.5 sm:gap-4 shrink-0 flex-wrap w-full sm:w-auto">
                   <button
                     type="button"
-                    className="flex items-center gap-2 border border-outline px-6 py-4 rounded-xl text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 border border-outline px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl text-xs sm:text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
                   >
                     <Icon name="download" className="h-4 w-4" />
-                    تصدير التقرير
+                    <span>تصدير التقرير</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleRunAutoAdjustment}
                     disabled={isRunningAutomation}
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-4 rounded-xl text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-primary text-white px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl text-xs sm:text-body-md font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isRunningAutomation ? (
                       <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                     ) : (
                       <Icon name="bolt" className="h-4 w-4" fill />
                     )}
-                    {isRunningAutomation
-                      ? "جارٍ التشغيل..."
-                      : "تشغيل الضبط التلقائي"}
+                    <span>
+                      {isRunningAutomation
+                        ? "جارٍ التشغيل..."
+                        : "تشغيل الضبط التلقائي"}
+                    </span>
                   </button>
                   <Link
                     href="/pricing/automation-settings"
-                    className="flex items-center gap-2 border border-outline px-6 py-4 rounded-xl text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 border border-outline px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl text-xs sm:text-body-md text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
                   >
                     <Icon name="settings" className="h-4 w-4" />
-                    إعدادات الأتمتة
+                    <span>إعدادات الأتمتة</span>
                   </Link>
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-6 border-b border-outline-variant/20">
+              <div className="flex gap-6 border-b border-outline-variant/20 overflow-x-auto scrollbar-none w-full">
                 <button
                   onClick={() => setActiveTab("live")}
                   className={`pb-2.5 px-2 text-body-md font-medium border-b-2 -mb-px transition-colors cursor-pointer ${

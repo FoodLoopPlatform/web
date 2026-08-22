@@ -85,11 +85,11 @@ export function MerchantSidebar({
 
   return (
     <div
-      className={`flex flex-col h-full bg-light-green border-l border-outline-variant select-none justify-between transition-[width,padding] duration-300 ${
-        isCollapsed ? "w-20 p-4" : "w-64 p-6"
+      className={`flex flex-col h-full bg-light-green border-l border-outline-variant select-none justify-between overflow-y-auto overflow-x-hidden transition-[width,padding] duration-300 ${
+        isCollapsed ? "w-20 p-4" : "w-full lg:w-64 p-5 sm:p-6"
       }`}
     >
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6 sm:gap-8">
         {/* Brand Header */}
         <div
           className={`flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"} px-2`}

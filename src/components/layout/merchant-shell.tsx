@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { MerchantSidebar } from "@/components/ui/merchant-sidebar";
 import { Icon } from "@/components/ui/icon";
 
@@ -29,6 +29,18 @@ export function MerchantShell({ className, children }: MerchantShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Prevent background scrolling when mobile sidebar drawer is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileSidebarOpen]);
+
   const renderProps: MerchantShellRenderProps = {
     mobileSidebarOpen,
     setMobileSidebarOpen,
@@ -40,7 +52,7 @@ export function MerchantShell({ className, children }: MerchantShellProps) {
     <div
       className={
         className ??
-        "bg-surface-container-lowest text-on-surface min-h-screen flex font-sans"
+        "bg-surface-container-lowest text-on-surface min-h-screen flex font-sans w-full max-w-full overflow-x-hidden"
       }
       dir="rtl"
     >
@@ -58,16 +70,20 @@ export function MerchantShell({ className, children }: MerchantShellProps) {
 
       {/* Mobile Drawer Sidebar */}
       {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Semi-transparent backdrop */}
           <div
             onClick={() => setMobileSidebarOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
           />
-          <aside className="relative z-50 flex flex-col h-full w-64 animate-in slide-in-from-right duration-250">
+          {/* Drawer container firmly positioned at right edge */}
+          <aside className="fixed top-0 right-0 bottom-0 z-50 flex flex-col h-full w-72 max-w-[85vw] bg-light-green shadow-2xl animate-in slide-in-from-right duration-250">
             <div className="absolute top-4 left-4 z-50">
               <button
+                type="button"
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-full bg-light-green border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center"
+                className="p-1.5 rounded-full bg-surface border border-outline-variant text-primary hover:bg-surface-container-highest transition-all cursor-pointer flex items-center justify-center shadow-xs"
+                title="إغلاق القائمة"
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>

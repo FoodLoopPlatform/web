@@ -141,7 +141,7 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
         } ${isOutOfStock && !isExpired ? "grayscale-[0.4]" : ""}`}
       >
         {/* Card Image */}
-        <div className="aspect-square relative overflow-hidden bg-surface-container-high">
+        <div className="h-44 sm:h-52 md:h-auto md:aspect-square relative overflow-hidden bg-surface-container-high">
           <Image
             src={imageSrc}
             alt={product.name}
@@ -152,7 +152,7 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
           />
 
           {/* Top Left: Trash Bin Delete Button */}
-          <div className="absolute top-3 left-3 z-20">
+          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20">
             <button
               type="button"
               onClick={(e) => {
@@ -160,15 +160,15 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
                 e.stopPropagation();
                 setDeleteModalOpen(true);
               }}
-              className="p-2 rounded-full bg-white/95 text-error hover:bg-error hover:text-white backdrop-blur-sm shadow-md transition-all cursor-pointer flex items-center justify-center border border-error/20 hover:border-error"
+              className="p-1.5 sm:p-2 rounded-full bg-white/95 text-error hover:bg-error hover:text-white backdrop-blur-sm shadow-md transition-all cursor-pointer flex items-center justify-center border border-error/20 hover:border-error"
               title="حذف المنتج"
             >
-              <Trash2 className="h-4 w-4 stroke-[2.2]" />
+              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[2.2]" />
             </button>
           </div>
 
           {/* Top Right Badges: Right Aligned */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1 items-start z-10 text-right">
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 flex flex-col gap-1 items-start z-10 text-right">
             {isExpired ? (
               <span className="px-3 py-1 rounded-full text-[10px] font-bold shadow-md bg-error text-white flex items-center gap-1">
                 <Icon name="event_busy" className="h-3 w-3" />

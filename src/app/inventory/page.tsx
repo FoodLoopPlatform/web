@@ -42,7 +42,7 @@ function InventoryPage() {
     <MerchantShell>
       {({ sidebarCollapsed, setMobileSidebarOpen }) => (
         <main
-          className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
+          className={`flex-1 min-h-screen flex flex-col transition-all duration-300 mr-0 w-full min-w-0 max-w-full overflow-x-hidden ${sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"}`}
         >
           <MerchantTopHeader
             onMenuClick={() => setMobileSidebarOpen(true)}
