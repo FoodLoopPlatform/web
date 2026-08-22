@@ -93,7 +93,7 @@ export function PriceHistoryTimeline({
           <p className="text-body-lg font-bold text-on-surface">
             لا يوجد سجل تعديلات سابقة لهذا المنتج
           </p>
-          <p className="text-body-md text-on-surface-variant max-w-2xl">
+          <p className="text-body-md text-on-surface-variant max-w-[550px]">
             يتم تسجيل التعديلات تلقائيًا عند تغيير السعر يدويًا أو عبر محرك
             التسعير الذكي.
           </p>

@@ -41,48 +41,134 @@ export interface ExtractedProductImage {
  * - images: { id?: string; url?: string; path?: string; imageUrl?: string }[]
  * - productImages: string[] or object[]
  * - imageUrls: string[]
+ * - productImageUrl: string
+ * - productImage: string or object
  * - image: string
  * - imageUrl: string
+ * - nested in product, productInfo, item, data
  */
 export function extractProductImageRecords(
   product: unknown,
 ): ExtractedProductImage[] {
-  if (!product || typeof product !== "object") return [];
+  if (!product) return [];
+
+  // If a string URL is passed directly
+  if (typeof product === "string") {
+    const resolvedUrl = resolveImageUrl(product);
+    return resolvedUrl ? [{ id: null, url: resolvedUrl }] : [];
+  }
+
+  if (typeof product !== "object") return [];
   const obj = product as Record<string, unknown>;
 
   const raw: { id: string | null; url: string }[] = [];
 
-  const rawList =
-    obj.images || obj.productImages || obj.imageUrls || obj.imagesList;
-
-  if (Array.isArray(rawList)) {
-    for (const item of rawList) {
-      if (typeof item === "string") {
-        raw.push({ id: null, url: item });
+  const extractFromList = (list: unknown) => {
+    if (!Array.isArray(list)) return;
+    for (const item of list) {
+      if (typeof item === "string" && item.trim()) {
+        raw.push({ id: null, url: item.trim() });
       } else if (item && typeof item === "object") {
         const itemObj = item as Record<string, unknown>;
         const itemUrl =
+          itemObj.imageUrl ||
           itemObj.url ||
           itemObj.path ||
-          itemObj.imageUrl ||
           itemObj.src ||
-          itemObj.image;
-        const itemId = itemObj.id;
-        if (typeof itemUrl === "string") {
+          itemObj.image ||
+          itemObj.fileUrl;
+        const itemId = itemObj.id || itemObj.imageId;
+        if (typeof itemUrl === "string" && itemUrl.trim()) {
           raw.push({
             id: typeof itemId === "string" ? itemId : null,
-            url: itemUrl,
+            url: itemUrl.trim(),
           });
         }
       }
     }
+  };
+
+  // Direct lists
+  extractFromList(obj.images);
+  extractFromList(obj.productImages);
+  extractFromList(obj.imageUrls);
+  extractFromList(obj.imagesList);
+
+  // Nested lists in product / productInfo
+  if (obj.product && typeof obj.product === "object") {
+    const nested = obj.product as Record<string, unknown>;
+    extractFromList(nested.images);
+    extractFromList(nested.productImages);
+    extractFromList(nested.imageUrls);
+  }
+  if (obj.productInfo && typeof obj.productInfo === "object") {
+    const nested = obj.productInfo as Record<string, unknown>;
+    extractFromList(nested.images);
+    extractFromList(nested.productImages);
+    extractFromList(nested.imageUrls);
   }
 
+  // Single string / object properties
   if (raw.length === 0) {
     const single =
-      obj.image || obj.imageUrl || obj.thumbnail || obj.thumbnailUrl;
-    if (typeof single === "string") {
-      raw.push({ id: null, url: single });
+      obj.productImageUrl ||
+      obj.productImage ||
+      obj.imageUrl ||
+      obj.image ||
+      obj.thumbnail ||
+      obj.thumbnailUrl ||
+      obj.pictureUrl ||
+      obj.picture ||
+      obj.photoUrl ||
+      obj.photo;
+
+    if (typeof single === "string" && single.trim()) {
+      raw.push({ id: null, url: single.trim() });
+    } else if (single && typeof single === "object") {
+      const singleObj = single as Record<string, unknown>;
+      const url =
+        singleObj.imageUrl ||
+        singleObj.url ||
+        singleObj.path ||
+        singleObj.src ||
+        singleObj.image;
+      if (typeof url === "string" && url.trim()) {
+        raw.push({ id: (singleObj.id as string) || null, url: url.trim() });
+      }
+    }
+  }
+
+  // Nested single properties
+  if (raw.length === 0) {
+    for (const nestedKey of ["product", "productInfo", "item", "data"]) {
+      if (obj[nestedKey] && typeof obj[nestedKey] === "object") {
+        const nested = obj[nestedKey] as Record<string, unknown>;
+        const single =
+          nested.productImageUrl ||
+          nested.productImage ||
+          nested.imageUrl ||
+          nested.image ||
+          nested.thumbnail ||
+          nested.thumbnailUrl ||
+          nested.pictureUrl ||
+          nested.picture;
+        if (typeof single === "string" && single.trim()) {
+          raw.push({ id: null, url: single.trim() });
+          break;
+        } else if (single && typeof single === "object") {
+          const singleObj = single as Record<string, unknown>;
+          const url =
+            singleObj.imageUrl ||
+            singleObj.url ||
+            singleObj.path ||
+            singleObj.src ||
+            singleObj.image;
+          if (typeof url === "string" && url.trim()) {
+            raw.push({ id: (singleObj.id as string) || null, url: url.trim() });
+            break;
+          }
+        }
+      }
     }
   }
 

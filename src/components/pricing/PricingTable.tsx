@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
-import { resolveImageUrl } from "@/utils/image-utils";
+import { PricingProductImage } from "./PricingProductImage";
 import type { ProductPricingItem } from "@/app/pricing/api/types";
 
 function formatEGP(value: number) {
@@ -169,9 +168,6 @@ export function PricingTable({
                   ? "bg-error-container text-on-error-container"
                   : "bg-[#ecefe8] text-on-surface-variant";
 
-                const displayImage =
-                  resolveImageUrl(listing.image) || "/pricing/sourdough.jpg";
-
                 return (
                   <tr
                     key={listing.id}
@@ -179,16 +175,13 @@ export function PricingTable({
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative">
-                          <Image
-                            src={displayImage}
-                            alt={listing.name}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                            unoptimized={displayImage.startsWith("http")}
-                          />
-                        </div>
+                        <PricingProductImage
+                          src={listing.image}
+                          alt={listing.name}
+                          sizes="48px"
+                          containerClassName="h-12 w-12 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative flex items-center justify-center"
+                          iconClassName="h-6 w-6 text-primary/40"
+                        />
                         <div className="flex flex-col">
                           <span className="text-body-md font-medium text-on-surface">
                             {listing.name}

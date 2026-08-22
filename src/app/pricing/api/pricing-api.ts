@@ -1,13 +1,16 @@
-import { getMany } from "@/utils/server";
+import { getMany, createOne } from "@/utils/server";
 import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import { withAuth } from "@/utils/api-client";
-import { extractProductImages } from "@/utils/image-utils";
+import { extractProductImages, resolveImageUrl } from "@/utils/image-utils";
 import type {
   ProductPricingItem,
   PricingStatsData,
   PriceHistoryEntry,
   ProductPriceHistoryData,
+  AiRecommendation,
+  AiRecommendationsSchedule,
+  RejectRecommendationPayload,
 } from "./types";
 import type { AutomationMode } from "../lib/mock-data";
 
@@ -147,11 +150,48 @@ export function normalizePricingItem(
 }
 
 /**
+ * Calculates human-readable countdown and progress from schedule nextPricingBatchAt timestamp.
+ */
+export function formatScheduleCountdown(nextBatchAt?: string): {
+  label: string;
+  progressPercent: number;
+} {
+  if (!nextBatchAt) {
+    return { label: "--:--:--", progressPercent: 50 };
+  }
+  const target = new Date(nextBatchAt).getTime();
+  const now = Date.now();
+  const diffMs = target - now;
+
+  if (diffMs <= 0) {
+    return { label: "جارٍ التنفيذ", progressPercent: 100 };
+  }
+
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const label = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+  // Default duration interval of 60m
+  const totalDurationMs = 60 * 60 * 1000;
+  const elapsedMs = Math.max(0, totalDurationMs - diffMs);
+  const progressPercent = Math.min(
+    100,
+    Math.max(10, Math.round((elapsedMs / totalDurationMs) * 100)),
+  );
+
+  return { label, progressPercent };
+}
+
+/**
  * Calculates pricing stats dynamically from the backend summary or list of products.
  */
 export function calculatePricingStats(
   items: ProductPricingItem[],
   summary?: Record<string, unknown>,
+  schedule?: AiRecommendationsSchedule | null,
 ): PricingStatsData {
   const activeListingsCount =
     Number(summary?.totalActiveProducts) || items.length;
@@ -166,17 +206,24 @@ export function calculatePricingStats(
         : 0;
 
   const urgentCount = items.filter((it) => it.cycleUrgent).length;
-  const nextCycleLabel = urgentCount > 0 ? "00:45:10" : "01:24:10";
+  let nextCycleLabel = urgentCount > 0 ? "00:45:10" : "01:24:10";
+  let nextCycleProgress = Math.min(100, Math.max(20, urgentCount * 25 || 65));
+
+  if (schedule?.isPricingBatchRunning) {
+    nextCycleLabel = "جارٍ التشغيل";
+    nextCycleProgress = 100;
+  } else if (schedule?.nextPricingBatchAt) {
+    const formatted = formatScheduleCountdown(schedule.nextPricingBatchAt);
+    nextCycleLabel = formatted.label;
+    nextCycleProgress = formatted.progressPercent;
+  }
 
   return {
     activeListingsCount,
     activeListingsDelta: Math.max(0, Math.round(activeListingsCount * 0.1)),
     averageDiscountPercent,
     nextCycleCountdownLabel: nextCycleLabel,
-    nextCycleProgressPercent: Math.min(
-      100,
-      Math.max(20, urgentCount * 25 || 65),
-    ),
+    nextCycleProgressPercent: nextCycleProgress,
   };
 }
 
@@ -343,6 +390,203 @@ export function normalizeHistoryEntry(
 }
 
 /**
+ * Normalizes an arbitrary AI recommendation from the backend into an AiRecommendation object.
+ */
+export function normalizeAiRecommendation(
+  raw: Record<string, unknown>,
+  index: number = 0,
+  imageLookup?: Record<string, string>,
+): AiRecommendation {
+  const id = String(
+    raw.id || raw.recommendationId || raw._id || `rec-${index + 1}`,
+  );
+  const productId = String(
+    raw.productId ||
+      raw.product_id ||
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).id ||
+          (raw.product as Record<string, unknown>).productId
+        : "") ||
+      "",
+  );
+
+  const productName = String(
+    raw.productName ||
+      raw.productTitle ||
+      raw.title ||
+      raw.titleAr ||
+      raw.name ||
+      raw.nameAr ||
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).title ||
+          (raw.product as Record<string, unknown>).titleAr ||
+          (raw.product as Record<string, unknown>).name ||
+          (raw.product as Record<string, unknown>).nameAr
+        : "") ||
+      `منتج ${index + 1}`,
+  );
+
+  const productCode = String(
+    raw.productCode ||
+      raw.code ||
+      raw.sku ||
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).code ||
+          (raw.product as Record<string, unknown>).sku
+        : "") ||
+      (productId ? `PRD-${productId.slice(-5).toUpperCase()}` : ""),
+  );
+
+  // Extract images from raw, raw.product, raw.productInfo, etc.
+  const rawImages = extractProductImages(raw);
+  const nestedImages =
+    raw.product && typeof raw.product === "object"
+      ? extractProductImages(raw.product)
+      : [];
+  const allImages = [...rawImages, ...nestedImages];
+
+  const productImageUrl =
+    allImages[0] ||
+    (productId ? imageLookup?.[productId] : undefined) ||
+    (raw.productImageUrl ? resolveImageUrl(String(raw.productImageUrl)) : "") ||
+    (raw.imageUrl ? resolveImageUrl(String(raw.imageUrl)) : "") ||
+    (raw.image ? resolveImageUrl(String(raw.image)) : "") ||
+    "";
+
+  const originalPrice = Number(
+    raw.originalPrice ??
+      raw.basePrice ??
+      raw.price ??
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).originalPrice ??
+          (raw.product as Record<string, unknown>).price
+        : 0) ??
+      0,
+  );
+
+  const currentPrice = Number(
+    raw.currentPrice ??
+      raw.discountedPrice ??
+      raw.priceAfterDiscount ??
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).discountedPrice ??
+          (raw.product as Record<string, unknown>).currentPrice
+        : originalPrice) ??
+      originalPrice,
+  );
+
+  const recommendedPrice = Number(
+    raw.recommendedPrice ??
+      raw.suggestedPrice ??
+      raw.newPrice ??
+      raw.targetPrice ??
+      raw.priceRecommendation ??
+      Math.round(currentPrice * 0.8),
+  );
+
+  let discountPercentage = Number(
+    raw.discountPercentage ??
+      raw.discountPercent ??
+      (originalPrice > 0 && recommendedPrice < originalPrice
+        ? Math.round(((originalPrice - recommendedPrice) / originalPrice) * 100)
+        : currentPrice > 0 && recommendedPrice < currentPrice
+          ? Math.round(((currentPrice - recommendedPrice) / currentPrice) * 100)
+          : 0),
+  );
+  if (isNaN(discountPercentage) || discountPercentage < 0) discountPercentage = 0;
+
+  const discountAmount = Number(
+    raw.discountAmount ??
+      raw.savingsAmount ??
+      Math.max(
+        0,
+        originalPrice - recommendedPrice || currentPrice - recommendedPrice,
+      ),
+  );
+
+  const quantityAvailable = Number(
+    raw.quantityAvailable ??
+      raw.quantity ??
+      raw.stockAvailable ??
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).quantityAvailable ??
+          (raw.product as Record<string, unknown>).quantity
+        : 0) ??
+      0,
+  );
+
+  const expirationDate = String(
+    raw.expirationDate ||
+      raw.expiryDate ||
+      (raw.product && typeof raw.product === "object"
+        ? (raw.product as Record<string, unknown>).expirationDate ||
+          (raw.product as Record<string, unknown>).expiryDate
+        : "") ||
+      "",
+  );
+
+  let daysRemaining = Number(raw.daysRemaining ?? raw.daysToExpiry ?? 0);
+  if (!daysRemaining && expirationDate) {
+    const diffMs = new Date(expirationDate).getTime() - Date.now();
+    daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  }
+
+  const riskLevel = String(
+    raw.riskLevel ||
+      raw.risk ||
+      (daysRemaining <= 2
+        ? "Critical"
+        : daysRemaining <= 5
+          ? "High"
+          : "Medium"),
+  );
+  const reason = String(
+    raw.reason ||
+      raw.rationale ||
+      raw.explanation ||
+      raw.aiReason ||
+      "اقتراح تسعير ديناميكي مدعوم بالذكاء الاصطناعي لتحسين تصريف المخزون.",
+  );
+  const confidence = Number(raw.confidence ?? raw.confidenceScore ?? 0.92);
+  const actionRequirement = raw.actionRequirement
+    ? String(raw.actionRequirement)
+    : undefined;
+  const actionReason = raw.actionReason ? String(raw.actionReason) : undefined;
+  const status = String(raw.status || "Pending");
+  const correlationId = raw.correlationId
+    ? String(raw.correlationId)
+    : undefined;
+  const createdAt = String(
+    raw.createdAt || raw.date || new Date().toISOString(),
+  );
+
+  return {
+    id,
+    productId,
+    productName,
+    productCode,
+    originalPrice,
+    currentPrice,
+    recommendedPrice,
+    discountPercentage,
+    discountAmount,
+    quantityAvailable,
+    expirationDate,
+    daysRemaining,
+    productImageUrl: productImageUrl || undefined,
+    productImages: allImages.length > 0 ? allImages : undefined,
+    riskLevel,
+    reason,
+    confidence,
+    actionRequirement,
+    actionReason,
+    status,
+    correlationId,
+    createdAt,
+  };
+}
+
+/**
  * Fetch actual price history for a specific product via GET /stores/me/products/{id}/price-history
  */
 export async function getProductPriceHistory(
@@ -360,6 +604,8 @@ export async function getProductPriceHistory(
             history?: Record<string, unknown>[];
             items?: Record<string, unknown>[];
             priceHistory?: Record<string, unknown>[];
+            product?: Record<string, unknown>;
+            [key: string]: unknown;
           }
       >(
         getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
@@ -377,20 +623,44 @@ export async function getProductPriceHistory(
     }
 
     let rawList: Record<string, unknown>[] = [];
+    let historyProductImage: string | undefined = undefined;
+    let historyProductTitle: string | undefined = undefined;
+    let historyProductCode: string | undefined = undefined;
+
     if (Array.isArray(res.data)) {
       rawList = res.data;
     } else if (res.data && typeof res.data === "object") {
-      const obj = res.data as {
-        history?: unknown[];
-        items?: unknown[];
-        priceHistory?: unknown[];
-      };
+      const obj = res.data as Record<string, unknown>;
       if (Array.isArray(obj.history)) {
         rawList = obj.history as Record<string, unknown>[];
       } else if (Array.isArray(obj.priceHistory)) {
         rawList = obj.priceHistory as Record<string, unknown>[];
       } else if (Array.isArray(obj.items)) {
         rawList = obj.items as Record<string, unknown>[];
+      } else if (Array.isArray(obj.data)) {
+        rawList = obj.data as Record<string, unknown>[];
+      }
+
+      const extractedImages = extractProductImages(obj.product || obj);
+      if (extractedImages.length > 0) {
+        historyProductImage = extractedImages[0];
+      }
+
+      if (obj.product && typeof obj.product === "object") {
+        const prod = obj.product as Record<string, unknown>;
+        historyProductTitle = String(
+          prod.title || prod.name || prod.productName || "",
+        );
+        historyProductCode = String(prod.code || prod.sku || "");
+      } else {
+        if (obj.productTitle || obj.title || obj.name) {
+          historyProductTitle = String(
+            obj.productTitle || obj.title || obj.name,
+          );
+        }
+        if (obj.productCode || obj.code || obj.sku) {
+          historyProductCode = String(obj.productCode || obj.code || obj.sku);
+        }
       }
     }
 
@@ -402,10 +672,11 @@ export async function getProductPriceHistory(
     return {
       data: {
         productId,
-        productTitle: productInfo?.name,
-        productCode: productInfo?.code,
+        productTitle: historyProductTitle || productInfo?.name,
+        productCode: historyProductCode || productInfo?.code,
         originalPrice: productInfo?.originalPrice,
         currentPrice: productInfo?.currentPrice,
+        productImage: historyProductImage || productInfo?.image,
         history,
       },
     };
@@ -420,3 +691,190 @@ export async function getProductPriceHistory(
     };
   }
 }
+
+/**
+ * Fetch pending AI price recommendations for the store via GET /stores/me/ai-recommendations
+ */
+export async function getAiRecommendations(
+  imageLookup?: Record<string, string>,
+): Promise<{
+  data: AiRecommendation[];
+  error?: string;
+}> {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<
+        | Record<string, unknown>[]
+        | {
+            recommendations?: Record<string, unknown>[];
+            items?: Record<string, unknown>[];
+            data?: Record<string, unknown>[];
+          }
+      >(
+        getMany<FoodLoopEnvelope<Record<string, unknown>[]>>(
+          Endpoints.stores.aiRecommendations,
+          { token },
+        ),
+      ),
+    );
+
+    if (res.error) {
+      return {
+        data: [],
+        error: res.error,
+      };
+    }
+
+    let rawList: Record<string, unknown>[] = [];
+    if (Array.isArray(res.data)) {
+      rawList = res.data;
+    } else if (res.data && typeof res.data === "object") {
+      const obj = res.data as {
+        recommendations?: Record<string, unknown>[];
+        items?: Record<string, unknown>[];
+        data?: Record<string, unknown>[];
+      };
+      if (Array.isArray(obj.recommendations)) {
+        rawList = obj.recommendations;
+      } else if (Array.isArray(obj.items)) {
+        rawList = obj.items;
+      } else if (Array.isArray(obj.data)) {
+        rawList = obj.data;
+      }
+    }
+
+    const recommendations = rawList.map((item, idx) =>
+      normalizeAiRecommendation(item, idx, imageLookup),
+    );
+
+    return {
+      data: recommendations,
+    };
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر الاتصال بالخادم لجلب توصيات الذكاء الاصطناعي";
+    return {
+      data: [],
+      error: message,
+    };
+  }
+}
+
+/**
+ * Fetch store AI recommendations schedule via GET /stores/me/ai-recommendations/schedule
+ */
+export async function getAiRecommendationsSchedule(): Promise<{
+  data: AiRecommendationsSchedule | null;
+  error?: string;
+}> {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<AiRecommendationsSchedule>(
+        getMany<FoodLoopEnvelope<AiRecommendationsSchedule>>(
+          Endpoints.stores.aiRecommendationsSchedule,
+          { token },
+        ),
+      ),
+    );
+
+    if (res.error) {
+      return {
+        data: null,
+        error: res.error,
+      };
+    }
+
+    return {
+      data: res.data ?? null,
+    };
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : "تعذر الاتصال بالخادم لجلب جدول دورات الذكاء الاصطناعي";
+    return {
+      data: null,
+      error: message,
+    };
+  }
+}
+
+/**
+ * Approve and apply an AI recommendation via POST /stores/me/ai-recommendations/{id}/approve
+ */
+export async function approveAiRecommendation(
+  id: string,
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<unknown>(
+        createOne<FoodLoopEnvelope<unknown>>(
+          Endpoints.stores.approveAiRecommendation(id),
+          {},
+          { token },
+        ),
+      ),
+    );
+
+    if (res.error) {
+      return {
+        success: false,
+        error: res.error,
+      };
+    }
+
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "فشل في اعتماد توصية التسعير";
+    return {
+      success: false,
+      error: message,
+    };
+  }
+}
+
+/**
+ * Reject an AI recommendation with optional reason via POST /stores/me/ai-recommendations/{id}/reject
+ */
+export async function rejectAiRecommendation(
+  id: string,
+  reason?: string,
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  try {
+    const res = await withAuth((token) =>
+      unwrapEnvelope<unknown>(
+        createOne<FoodLoopEnvelope<unknown>, RejectRecommendationPayload>(
+          Endpoints.stores.rejectAiRecommendation(id),
+          { reason },
+          { token },
+        ),
+      ),
+    );
+
+    if (res.error) {
+      return {
+        success: false,
+        error: res.error,
+      };
+    }
+
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "فشل في رفض توصية التسعير";
+    return {
+      success: false,
+      error: message,
+    };
+  }
+}
+

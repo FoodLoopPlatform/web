@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   LeafIcon,
   MenuIcon,
@@ -95,11 +94,7 @@ export function LandingHeader({
                 {Icon && <Icon className="w-4 h-4 text-[#005129]" />}
                 <span>{item.label}</span>
                 {isActive && (
-                  <motion.span
-                    layoutId="activeLandingNavUnderline"
-                    className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
+                  <span className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full transition-all duration-300" />
                 )}
               </a>
             );
