@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { LeafIcon, GlobeIcon, MenuIcon, CloseIcon } from "@/components/icons";
+import { motion } from "framer-motion";
+import {
+  LeafIcon,
+  MenuIcon,
+  CloseIcon,
+  DownloadIcon,
+  MapPinIcon,
+} from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 interface LandingHeaderProps {
@@ -11,7 +18,7 @@ interface LandingHeaderProps {
 }
 
 export function LandingHeader({
-  activeTab = "home",
+  activeTab = "hero",
   onNavigate,
 }: LandingHeaderProps) {
   const { lang, setLang } = useAppLang();
@@ -19,7 +26,12 @@ export function LandingHeader({
   const isAr = lang === "ar";
 
   const navItems = [
-    { id: "home", label: isAr ? "الرئيسية" : "Home", href: "#hero" },
+    {
+      id: "consumers",
+      label: isAr ? "عروض قريبة" : "Food Nearby",
+      href: "#consumers",
+      icon: MapPinIcon,
+    },
     {
       id: "how-it-works",
       label: isAr ? "كيف يعمل؟" : "How it Works",
@@ -31,11 +43,6 @@ export function LandingHeader({
       href: "#business",
     },
     {
-      id: "consumers",
-      label: isAr ? "للمستهلكين" : "For Consumers",
-      href: "#consumers",
-    },
-    {
       id: "charities",
       label: isAr ? "للجمعيات" : "For Charities",
       href: "#charities",
@@ -45,8 +52,7 @@ export function LandingHeader({
   const handleNavClick = (id: string, href?: string) => {
     if (onNavigate) {
       onNavigate(id);
-    }
-    if (href) {
+    } else if (href) {
       const targetElement = document.querySelector(href);
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: "smooth" });
@@ -60,10 +66,43 @@ export function LandingHeader({
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#fafaf4]/90 backdrop-blur-md border-b border-gray-200/50 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 bg-[#fafaf4]/95 backdrop-blur-md border-b border-gray-200/60 transition-all">
+      <div className="w-full px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
+        {/* Left Section: Navigation Items */}
+        <nav className="hidden lg:flex items-center gap-6 flex-1 justify-start">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            const Icon = item.icon;
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(item.id, item.href);
+                }}
+                className={`relative py-2 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                  isActive
+                    ? "text-[#00381a] font-bold"
+                    : "text-[#404941] hover:text-[#00381a]"
+                }`}
+              >
+                {Icon && <Icon className="w-4 h-4 text-[#005129]" />}
+                <span>{item.label}</span>
+                {isActive && (
+                  <motion.span
+                    layoutId="activeLandingNavUnderline"
+                    className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </a>
+            );
+          })}
+        </nav>
+
+        {/* Center Section: Brand Logo */}
+        <div className="flex items-center justify-center shrink-0">
           <Link
             href="/"
             className="flex items-center gap-2 text-[#00381a] group focus:outline-hidden"
@@ -75,73 +114,59 @@ export function LandingHeader({
           </Link>
         </div>
 
-        {/* Center: Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(item.id, item.href);
-                }}
-                className={`relative py-2 text-base font-medium transition-colors ${
-                  isActive
-                    ? "text-[#00381a] font-bold"
-                    : "text-[#404941] hover:text-[#00381a]"
-                }`}
-              >
-                {item.label}
-                {isActive && (
-                  <span className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full animate-in fade-in zoom-in-75 duration-200" />
-                )}
-              </a>
-            );
-          })}
-        </nav>
+        {/* Right Section: Actions & Buttons */}
+        <div className="hidden md:flex items-center gap-3.5 flex-1 justify-end">
+          {/* Sign up as Business */}
+          <Link
+            href="/register"
+            className="text-xs sm:text-sm font-semibold text-[#404941] hover:text-[#00381a] transition-colors whitespace-nowrap"
+          >
+            {isAr ? "سجّل كمتجر" : "Sign up as Business"}
+          </Link>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
+          <span className="text-gray-300 font-light">|</span>
+
+          {/* Store Login */}
+          <Link
+            href="/login"
+            className="text-xs sm:text-sm font-semibold text-[#404941] hover:text-[#00381a] transition-colors whitespace-nowrap"
+          >
+            {isAr ? "دخول المتاجر" : "MyStore Login"}
+          </Link>
+
+          {/* Download App CTA Button */}
+          <a
+            href="#consumers"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick("consumers", "#consumers");
+            }}
+            className="inline-flex items-center gap-1.5 bg-[#00381a] hover:bg-[#005129] text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
+          >
+            <DownloadIcon className="w-4 h-4 shrink-0" />
+            <span>{isAr ? "تحميل التطبيق" : "Download App"}</span>
+          </a>
+
           {/* Language Switcher Selector */}
           <button
             type="button"
             onClick={toggleLanguage}
-            className="p-2 text-[#404941] bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer shadow-2xs active:scale-95"
+            className="px-3 py-1.5 text-xs font-bold text-[#005129] bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer shadow-2xs active:scale-95 whitespace-nowrap"
             aria-label={isAr ? "Switch to English" : "التحويل للغة العربية"}
             title={isAr ? "Switch to English" : "التحويل للغة العربية"}
           >
-            <GlobeIcon className="w-5 h-5 text-[#005129]" />
+            {isAr ? "EN" : "عربي"}
           </button>
-
-          {/* Login Link */}
-          <Link
-            href="/login"
-            className="text-[#1a1c19] hover:text-[#00381a] text-sm font-semibold px-3 py-2 transition-colors"
-          >
-            {isAr ? "تسجيل الدخول" : "Log In"}
-          </Link>
-
-          {/* Start Now CTA Button */}
-          <Link
-            href="/register"
-            className="bg-[#00381a] hover:bg-[#005129] text-white text-sm font-semibold px-6 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            {isAr ? "ابدأ الآن" : "Get Started"}
-          </Link>
         </div>
 
-        {/* Mobile Buttons */}
-        <div className="flex md:hidden items-center gap-3">
+        {/* Mobile Action Controls */}
+        <div className="flex lg:hidden items-center gap-2">
           <button
             type="button"
             onClick={toggleLanguage}
-            className="p-2 text-[#404941] bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-95"
-            aria-label={isAr ? "Switch to English" : "التحويل للغة العربية"}
-            title={isAr ? "Switch to English" : "التحويل للغة العربية"}
+            className="px-2.5 py-1 text-xs font-bold text-[#005129] bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer active:scale-95"
           >
-            <GlobeIcon className="w-5 h-5 text-[#005129]" />
+            {isAr ? "EN" : "عربي"}
           </button>
 
           <button
@@ -161,41 +186,59 @@ export function LandingHeader({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#fafaf4] border-b border-gray-200 px-4 pt-2 pb-6 space-y-4 shadow-lg animate-in slide-in-from-top duration-200">
-          <nav className="flex flex-col space-y-3">
-            {navItems.map((item) => (
-              <a
-                key={item.id}
-                href={item.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(item.id, item.href);
-                }}
-                className={`py-2 px-3 rounded-lg text-base font-medium transition-colors ${
-                  activeTab === item.id
-                    ? "bg-[#005129]/10 text-[#00381a] font-bold"
-                    : "text-[#404941] hover:bg-gray-100"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
+        <div className="lg:hidden bg-[#fafaf4] border-b border-gray-200 px-4 pt-3 pb-6 space-y-4 shadow-lg animate-in slide-in-from-top duration-200">
+          <nav className="flex flex-col space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id, item.href);
+                  }}
+                  className={`py-2 px-3 rounded-lg text-base font-medium transition-colors flex items-center gap-2 ${
+                    activeTab === item.id
+                      ? "bg-[#005129]/10 text-[#00381a] font-bold"
+                      : "text-[#404941] hover:bg-gray-100"
+                  }`}
+                >
+                  {Icon && <Icon className="w-4 h-4 text-[#005129]" />}
+                  <span>{item.label}</span>
+                </a>
+              );
+            })}
           </nav>
           <div className="pt-4 border-t border-gray-200/80 flex flex-col gap-2.5">
-            <Link
-              href="/login"
-              className="w-full text-center py-2.5 text-sm font-semibold text-[#1a1c19] border border-gray-300 rounded-full hover:bg-gray-50"
-              onClick={() => setMobileMenuOpen(false)}
+            <a
+              href="#consumers"
+              className="w-full text-center py-2.5 text-sm font-semibold text-white bg-[#00381a] rounded-full hover:bg-[#005129] shadow-md flex items-center justify-center gap-2"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick("consumers", "#consumers");
+              }}
             >
-              {isAr ? "تسجيل الدخول" : "Log In"}
-            </Link>
-            <Link
-              href="/register"
-              className="w-full text-center py-2.5 text-sm font-semibold text-white bg-[#00381a] rounded-full hover:bg-[#005129] shadow-md"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {isAr ? "ابدأ الآن" : "Get Started"}
-            </Link>
+              <DownloadIcon className="w-4 h-4 shrink-0" />
+              <span>{isAr ? "تحميل التطبيق" : "Download App"}</span>
+            </a>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Link
+                href="/register"
+                className="text-center py-2 text-xs font-semibold text-[#00381a] bg-emerald-50 border border-emerald-200 rounded-full hover:bg-emerald-100"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {isAr ? "سجّل كمتجر" : "Sign up as Business"}
+              </Link>
+              <Link
+                href="/login"
+                className="text-center py-2 text-xs font-semibold text-[#1a1c19] border border-gray-300 rounded-full hover:bg-gray-50"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {isAr ? "دخول المتاجر" : "MyStore Login"}
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
@@ -8,16 +8,56 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { HowItWorksModal } from "@/components/landing/HowItWorksModal";
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("hero");
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const isManualScrollRef = useRef(false);
 
   const handleNavigate = (sectionId: string) => {
     setActiveTab(sectionId);
+    isManualScrollRef.current = true;
+
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
+
+    setTimeout(() => {
+      isManualScrollRef.current = false;
+    }, 800);
   };
+
+  useEffect(() => {
+    const sectionIds = [
+      "hero",
+      "how-it-works",
+      "business",
+      "consumers",
+      "charities",
+    ];
+
+    const observerOptions: IntersectionObserverInit = {
+      root: null,
+      rootMargin: "-20% 0px -50% 0px",
+      threshold: 0,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (isManualScrollRef.current) return;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveTab(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#fafaf4] text-[#1a1c19] selection:bg-[#005129]/20 selection:text-[#00381a]">
