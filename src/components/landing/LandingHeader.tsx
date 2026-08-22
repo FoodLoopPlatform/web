@@ -110,12 +110,21 @@ export function LandingHeader({
         <div className="flex items-center justify-center shrink-0">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[#00381a] group focus:outline-hidden"
+            dir="ltr"
+            onClick={(e) => {
+              if (window.location.pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="inline-flex flex-row items-center gap-2 sm:gap-2.5 text-[#00381a] group focus:outline-hidden whitespace-nowrap shrink-0 select-none cursor-pointer p-1 rounded-xl transition-all"
+            aria-label={isAr ? "الرئيسية - FoodLoop" : "FoodLoop Home"}
+            title={isAr ? "الرئيسية - FoodLoop" : "FoodLoop Home"}
           >
-            <LeafIcon className="w-8 h-8 text-[#005129] group-hover:scale-110 transition-transform duration-300 shrink-0" />
-            <span className="text-2xl sm:text-3xl font-bold font-brand tracking-tight text-[#00381a]">
+            <span className="text-2xl sm:text-3xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
               FoodLoop
             </span>
+            <LeafIcon className="w-7 sm:w-8 h-7 sm:h-8 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
           </Link>
         </div>
 

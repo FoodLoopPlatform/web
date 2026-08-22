@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowForwardIcon } from "@/components/icons";
+import {
+  ArrowForwardIcon,
+  HeartHandshakeIcon,
+  TruckIcon,
+  ShieldCheckIcon,
+  TrendingUpIcon,
+  SparklesIcon,
+  ZapIcon,
+  ClockIcon,
+  CheckCircleIcon,
+} from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 export function LandingCharitySection() {
@@ -20,7 +30,7 @@ export function LandingCharitySection() {
             className={`space-y-6 min-w-0 ${isAr ? "text-right" : "text-left"}`}
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#5c4100] text-white text-xs font-bold shadow-2xs">
-              <span className="text-sm">🤝</span>
+              <HeartHandshakeIcon className="w-4 h-4 shrink-0" />
               <span>
                 {isAr
                   ? "للجمعيات والمؤسسات الخيرية"
@@ -42,8 +52,11 @@ export function LandingCharitySection() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
-                <div className="text-[#5c4100] font-bold text-sm">
-                  {isAr ? "🚛 استلام لوجستي آلي" : "Automated Pickup Routing"}
+                <div className="text-[#5c4100] font-bold text-sm flex items-center gap-1.5">
+                  <TruckIcon className="w-4 h-4 shrink-0 text-[#5c4100]" />
+                  <span>
+                    {isAr ? "استلام لوجستي آلي" : "Automated Pickup Routing"}
+                  </span>
                 </div>
                 <p className="text-xs text-[#5a605a] leading-relaxed">
                   {isAr
@@ -53,8 +66,11 @@ export function LandingCharitySection() {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
-                <div className="text-[#5c4100] font-bold text-sm">
-                  {isAr ? "🛡️ سلامة غذائية مضمونة" : "Food Safety Compliance"}
+                <div className="text-[#5c4100] font-bold text-sm flex items-center gap-1.5">
+                  <ShieldCheckIcon className="w-4 h-4 shrink-0 text-[#5c4100]" />
+                  <span>
+                    {isAr ? "سلامة غذائية مضمونة" : "Food Safety Compliance"}
+                  </span>
                 </div>
                 <p className="text-xs text-[#5a605a] leading-relaxed">
                   {isAr
@@ -64,10 +80,13 @@ export function LandingCharitySection() {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
-                <div className="text-[#5c4100] font-bold text-sm">
-                  {isAr
-                    ? "📈 تقارير شفافة للمانحين"
-                    : "Transparent Donor Reporting"}
+                <div className="text-[#5c4100] font-bold text-sm flex items-center gap-1.5">
+                  <TrendingUpIcon className="w-4 h-4 shrink-0 text-[#5c4100]" />
+                  <span>
+                    {isAr
+                      ? "تقارير شفافة للمانحين"
+                      : "Transparent Donor Reporting"}
+                  </span>
                 </div>
                 <p className="text-xs text-[#5a605a] leading-relaxed">
                   {isAr
@@ -77,8 +96,9 @@ export function LandingCharitySection() {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
-                <div className="text-[#5c4100] font-bold text-sm">
-                  {isAr ? "💚 مجاني بالكامل" : "100% Free Platform"}
+                <div className="text-[#5c4100] font-bold text-sm flex items-center gap-1.5">
+                  <SparklesIcon className="w-4 h-4 shrink-0 text-[#5c4100]" />
+                  <span>{isAr ? "مجاني بالكامل" : "100% Free Platform"}</span>
                 </div>
                 <p className="text-xs text-[#5a605a] leading-relaxed">
                   {isAr
@@ -124,19 +144,25 @@ export function LandingCharitySection() {
 
               <div className="space-y-3 text-xs font-medium text-gray-700">
                 <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50/70 border border-amber-100">
-                  <span>
-                    {isAr
-                      ? "⚡ نسبة استجابة الجمعيات السريعة"
-                      : "NGO Fast Response Rate"}
+                  <span className="flex items-center gap-1.5">
+                    <ZapIcon className="w-3.5 h-3.5 text-[#5c4100] shrink-0" />
+                    <span>
+                      {isAr
+                        ? "نسبة استجابة الجمعيات السريعة"
+                        : "NGO Fast Response Rate"}
+                    </span>
                   </span>
                   <span className="font-bold text-[#5c4100]">98.5%</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50/70 border border-amber-100">
-                  <span>
-                    {isAr
-                      ? "⏱️ متوسط وقت وصول التبرعات"
-                      : "Avg Donation Delivery Time"}
+                  <span className="flex items-center gap-1.5">
+                    <ClockIcon className="w-3.5 h-3.5 text-[#5c4100] shrink-0" />
+                    <span>
+                      {isAr
+                        ? "متوسط وقت وصول التبرعات"
+                        : "Avg Donation Delivery Time"}
+                    </span>
                   </span>
                   <span className="font-bold text-[#5c4100]">
                     {isAr ? "35 دقيقة" : "35 mins"}
@@ -144,10 +170,13 @@ export function LandingCharitySection() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50/70 border border-amber-100">
-                  <span>
-                    {isAr
-                      ? "✅ نسبة سلامة الوجبات الموجهة للتبرع"
-                      : "Donation Food Safety Compliance"}
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircleIcon className="w-3.5 h-3.5 text-[#5c4100] shrink-0" />
+                    <span>
+                      {isAr
+                        ? "نسبة سلامة الوجبات الموجهة للتبرع"
+                        : "Donation Food Safety Compliance"}
+                    </span>
                   </span>
                   <span className="font-bold text-[#5c4100]">100%</span>
                 </div>

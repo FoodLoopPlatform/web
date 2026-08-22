@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import {
+  HelpCircleIcon,
+  UserIcon,
+  StoreIcon,
+  HeartHandshakeIcon,
+  ChevronDownIcon,
+} from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 interface FaqItem {
@@ -74,7 +81,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     id: "ngo-1",
     category: "ngo",
-    questionAr: "هل توجد أي رسوم خفية لاشتراك الجمعيات الخيرية؟",
+    questionAr: "هل توجد أي رسوم خفية لااشتراك الجمعيات الخيرية؟",
     questionEn: "Are there any hidden fees for charity subscription?",
     answerAr:
       "منصة FoodLoop مجانية بالكامل (100%) للجمعيات والمؤسسات الخيرية المعتمدة إيماناً منا بدعم المجتمع.",
@@ -120,7 +127,7 @@ export function LandingFaqSection() {
           className={`text-center space-y-3 ${isAr ? "text-right" : "text-left"} sm:text-center`}
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#005129]/10 text-[#005129] text-xs sm:text-sm font-bold border border-[#005129]/20">
-            <span>❓</span>
+            <HelpCircleIcon className="w-4 h-4 shrink-0 text-[#005129]" />
             <span>
               {isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
             </span>
@@ -160,7 +167,7 @@ export function LandingFaqSection() {
                 : "bg-white text-[#404941] border border-gray-200 hover:border-[#005129]/40 hover:bg-emerald-50/50"
             }`}
           >
-            <span>🛍️</span>
+            <UserIcon className="w-4 h-4 shrink-0" />
             <span>{isAr ? "أسئلة المستهلكين (B2C)" : "Consumers (B2C)"}</span>
           </button>
 
@@ -173,7 +180,7 @@ export function LandingFaqSection() {
                 : "bg-white text-[#404941] border border-gray-200 hover:border-[#005129]/40 hover:bg-emerald-50/50"
             }`}
           >
-            <span>🏪</span>
+            <StoreIcon className="w-4 h-4 shrink-0" />
             <span>{isAr ? "أسئلة المتاجر (B2B)" : "Business (B2B)"}</span>
           </button>
 
@@ -186,7 +193,7 @@ export function LandingFaqSection() {
                 : "bg-white text-[#404941] border border-gray-200 hover:border-[#005129]/40 hover:bg-emerald-50/50"
             }`}
           >
-            <span>🤝</span>
+            <HeartHandshakeIcon className="w-4 h-4 shrink-0" />
             <span>{isAr ? "أسئلة الجمعيات (NGOs)" : "Charities (NGOs)"}</span>
           </button>
         </div>
@@ -221,7 +228,7 @@ export function LandingFaqSection() {
                       isOpen ? "rotate-180 bg-[#005129] text-white" : ""
                     }`}
                   >
-                    ↓
+                    <ChevronDownIcon className="w-4 h-4" />
                   </span>
                 </button>
 
