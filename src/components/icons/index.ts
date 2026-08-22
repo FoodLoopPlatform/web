@@ -35,3 +35,4 @@ export * from "./edit-icon";
 export * from "./globe-icon";
 export * from "./sliders-icon";
 export * from "./user-icon";
+export * from "./play-circle-icon";
