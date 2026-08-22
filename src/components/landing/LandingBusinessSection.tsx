@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { StoreIcon, ArrowForwardIcon, BarChartIcon } from "@/components/icons";
+import {
+  StoreIcon,
+  ArrowForwardIcon,
+  BarChartIcon,
+  ZapIcon,
+  LeafIcon,
+} from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 export function LandingBusinessSection() {
@@ -43,7 +49,7 @@ export function LandingBusinessSection() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-2">
                 <div className="w-9 h-9 rounded-lg bg-[#005129]/10 text-[#005129] flex items-center justify-center font-bold">
-                  ⚡
+                  <ZapIcon className="w-5 h-5" />
                 </div>
                 <h4 className="font-bold text-[#1a1c19] text-base">
                   {isAr ? "تسعير ديناميكي آلي" : "AI Dynamic Pricing"}
@@ -57,7 +63,7 @@ export function LandingBusinessSection() {
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-2">
                 <div className="w-9 h-9 rounded-lg bg-[#005129]/10 text-[#005129] flex items-center justify-center font-bold">
-                  📊
+                  <BarChartIcon className="w-5 h-5" />
                 </div>
                 <h4 className="font-bold text-[#1a1c19] text-base">
                   {isAr ? "لوحة تحكم وتحليلات" : "Real-time Analytics"}
@@ -71,7 +77,7 @@ export function LandingBusinessSection() {
 
               <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-2">
                 <div className="w-9 h-9 rounded-lg bg-[#005129]/10 text-[#005129] flex items-center justify-center font-bold">
-                  🌿
+                  <LeafIcon className="w-5 h-5" />
                 </div>
                 <h4 className="font-bold text-[#1a1c19] text-base">
                   {isAr ? "علامة الاستدامة الخضراء" : "Green Brand Status"}

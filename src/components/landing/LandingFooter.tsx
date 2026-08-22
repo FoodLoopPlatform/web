@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowUpIcon, LeafIcon } from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 export function LandingFooter() {
@@ -19,14 +20,29 @@ export function LandingFooter() {
       className="bg-[#002d15] text-[#fafaf4] pt-16 pb-10 overflow-hidden transition-all relative border-t border-[#005129]/30"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Massive Brand Statement Typography (Inspired by modern impact footers) */}
+        {/* Massive Brand Statement Typography */}
         <div
           dir="ltr"
           className="w-full flex items-center justify-center py-2 select-none overflow-hidden"
         >
-          <h1 className="text-[10.5vw] sm:text-[11vw] font-black tracking-tight leading-none text-[#fafaf4] opacity-95 uppercase font-brand transition-all hover:opacity-100 drop-shadow-sm whitespace-nowrap">
-            FOODLOOP
-          </h1>
+          <Link
+            href="/"
+            dir="ltr"
+            onClick={(e) => {
+              if (window.location.pathname === "/") {
+                e.preventDefault();
+                scrollToTop();
+              }
+            }}
+            className="group inline-flex flex-row items-center gap-3 sm:gap-4 cursor-pointer focus:outline-hidden"
+            aria-label="FoodLoop Home"
+            title="FoodLoop Home"
+          >
+            <h1 className="text-[9.5vw] sm:text-[10vw] font-black tracking-tight leading-none text-[#fafaf4] opacity-95 uppercase font-brand transition-all group-hover:opacity-100 group-hover:text-emerald-300 drop-shadow-sm whitespace-nowrap">
+              FOODLOOP
+            </h1>
+            <LeafIcon className="w-[6vw] h-[6vw] max-w-[60px] max-h-[60px] aspect-square text-emerald-400 group-hover:scale-115 group-hover:rotate-12 transition-all duration-300 shrink-0" />
+          </Link>
         </div>
 
         {/* Primary Links Bar */}
@@ -75,7 +91,7 @@ export function LandingFooter() {
           </Link>
           <a
             href="mailto:contact@foodloop.eg"
-            className="hover:text-white hover:underline transition-all"
+            className="hover:text-[#fafaf4] hover:underline transition-all"
           >
             {isAr ? "تواصل معنا" : "Contact Us"}
           </a>
@@ -96,7 +112,7 @@ export function LandingFooter() {
             aria-label={isAr ? "العودة للأعلى" : "Back to top"}
             title={isAr ? "العودة للأعلى" : "Back to top"}
           >
-            ↑
+            <ArrowUpIcon className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>

@@ -1,6 +1,11 @@
 "use client";
 
-import { CloseIcon, SparklesIcon, CheckCircleIcon } from "@/components/icons";
+import {
+  CloseIcon,
+  SparklesIcon,
+  CheckCircleIcon,
+  PlayCircleIcon,
+} from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
 interface HowItWorksModalProps {
@@ -49,8 +54,8 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
 
         {/* Mock Interactive Video / Demo Player */}
         <div className="relative aspect-video rounded-2xl bg-gradient-to-br from-slate-900 via-[#00381a] to-slate-800 border border-slate-700 flex flex-col items-center justify-center text-white p-6 shadow-inner group overflow-hidden">
-          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-2xl text-white shadow-lg group-hover:scale-110 transition-transform cursor-pointer">
-            ▶
+          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform cursor-pointer">
+            <PlayCircleIcon className="w-10 h-10 text-white" />
           </div>
           <p className="text-sm font-semibold mt-4 text-emerald-100">
             {isAr

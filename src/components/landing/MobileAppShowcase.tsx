@@ -11,6 +11,8 @@ import {
   HomeIcon,
   BagIcon,
   UserIcon,
+  AlertCircleIcon,
+  LockIcon,
 } from "@/components/icons";
 import { useAppLang } from "@/store/use-app-lang";
 
@@ -179,7 +181,8 @@ export function MobileAppShowcase() {
                 <div
                   className={`absolute top-2 bg-red-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${isAr ? "right-2" : "left-2"}`}
                 >
-                  <span>{isAr ? "⚠️ كمية محدودة" : "⚠️ Limited Quantity"}</span>
+                  <AlertCircleIcon className="w-3 h-3 text-white shrink-0" />
+                  <span>{isAr ? "كمية محدودة" : "Limited Quantity"}</span>
                 </div>
               </div>
               <div className="p-2.5 flex items-center justify-between">
@@ -229,8 +232,8 @@ export function MobileAppShowcase() {
       <div
         className={`absolute -bottom-4 z-30 bg-white/95 backdrop-blur-md border border-gray-100 rounded-2xl px-4 py-3 shadow-xl transition-all hover:scale-105 duration-300 flex items-center gap-3.5 ${isAr ? "left-4 sm:left-2" : "right-4 sm:right-2"}`}
       >
-        <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/60 flex items-center justify-center shrink-0 text-base">
-          🔒
+        <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/60 flex items-center justify-center shrink-0">
+          <LockIcon className="w-4 h-4 text-amber-800" />
         </div>
         <div className={isAr ? "text-right" : "text-left"}>
           <h5 className="text-xs font-bold text-[#1a1c19]">
