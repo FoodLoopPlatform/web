@@ -240,14 +240,57 @@ export const updateOne = <T, B = unknown>(
   });
 };
 
-export const deleteOne = <T = void, B = unknown>(
+function isFetchOptions(obj: unknown): obj is FetchOptions {
+  if (!obj || typeof obj !== "object") return false;
+  const knownKeys = new Set([
+    "token",
+    "headers",
+    "cache",
+    "revalidate",
+    "tags",
+    "retries",
+    "signal",
+    "lang",
+  ]);
+  const keys = Object.keys(obj);
+  return keys.length > 0 && keys.every((k) => knownKeys.has(k));
+}
+
+export function deleteOne<T = void>(
   url: string,
-  body?: B,
   options?: FetchOptions,
-) => {
+): Promise<ApiResponse<T>>;
+export function deleteOne<T = void, B = unknown>(
+  url: string,
+  body: B,
+  options?: FetchOptions,
+): Promise<ApiResponse<T>>;
+export function deleteOne<T = void, B = unknown>(
+  url: string,
+  bodyOrOptions?: B | FetchOptions,
+  options?: FetchOptions,
+): Promise<ApiResponse<T>> {
+  let resolvedBody: B | undefined;
+  let resolvedOptions: FetchOptions | undefined;
+
+  if (options !== undefined) {
+    resolvedBody = bodyOrOptions as B;
+    resolvedOptions = options;
+  } else if (isFetchOptions(bodyOrOptions)) {
+    resolvedBody = undefined;
+    resolvedOptions = bodyOrOptions;
+  } else {
+    resolvedBody = bodyOrOptions as B;
+    resolvedOptions = undefined;
+  }
+
   return apiFetch<T>(url, {
     method: "DELETE",
-    body: body ? JSON.stringify(body) : undefined,
-    ...options,
+    body: resolvedBody
+      ? resolvedBody instanceof FormData
+        ? resolvedBody
+        : JSON.stringify(resolvedBody)
+      : undefined,
+    ...resolvedOptions,
   });
-};
+}

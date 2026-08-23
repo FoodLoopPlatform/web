@@ -221,35 +221,32 @@ export async function deleteMerchantProduct(id: string) {
   try {
     const res = await withAuth((token) =>
       unwrapEnvelope<boolean>(
-        deleteOne<FoodLoopEnvelope<boolean>>(Endpoints.stores.productById(id), {
-          token,
-        }),
+        deleteOne<FoodLoopEnvelope<boolean>>(
+          Endpoints.stores.productById(id),
+          undefined,
+          { token },
+        ),
       ),
     );
 
-    if (res.status !== 200) {
-      const errorMsg =
-        res.status === 401
-          ? "غير مصرح - يرجى إعادة تسجيل الدخول كتاجر لحذف المنتجات"
-          : res.error || "فشلت عملية حذف المنتج من السيرفر";
-      return { error: errorMsg, status: res.status };
+    if (res.status && res.status >= 200 && res.status < 300 && !res.error) {
+      deleteMockItem(id);
+      return { data: true, status: res.status };
     }
 
-    if (res.data !== undefined) {
-      deleteMockItem(id);
-      return { data: true };
-    }
+    const errorMsg =
+      res.status === 401
+        ? "غير مصرح - يرجى إعادة تسجيل الدخول كتاجر لحذف المنتجات"
+        : res.error || "فشلت عملية حذف المنتج من السيرفر";
+    return { error: errorMsg, status: res.status };
   } catch (err: unknown) {
-    console.log(err);
+    console.error(err);
     const message =
       err instanceof Error
         ? err.message
         : "تعذر التواصل مع السيرفر لحذف المنتج";
     return { error: message };
   }
-
-  deleteMockItem(id);
-  return { data: true };
 }
 
 /**
