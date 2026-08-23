@@ -3,6 +3,7 @@ import { Endpoints } from "@/utils/endpoints";
 import { unwrapEnvelope, type FoodLoopEnvelope } from "@/utils/api-envelope";
 import {
   GlobalAutomationDefaults,
+  RawBackendSystemSettings,
   GuidelineDocument,
   PlatformAdmin,
   SecuritySettings,
@@ -15,27 +16,34 @@ export function getAutomationDefaults(): Promise<
 > {
   return withAuth<GlobalAutomationDefaults>(async (token) => {
     try {
-      const res = await unwrapEnvelope<unknown>(
-        getMany<FoodLoopEnvelope<unknown>>(Endpoints.admin.systemSettings, {
-          token,
-        }),
+      const res = await unwrapEnvelope<RawBackendSystemSettings>(
+        getMany<FoodLoopEnvelope<RawBackendSystemSettings>>(
+          Endpoints.admin.systemSettings,
+          { token },
+        ),
       );
 
-      const resData = res.data as Record<string, unknown>;
+      const resData = res.data;
       if (resData) {
         return {
           data: {
             maxDiscountPerCycle: Number(
-              resData.maxDiscountPerCyclePercent ?? 15,
+              resData.maxDiscountPerCyclePercent ?? 10,
             ),
-            defaultPriceFloorPolicy: (resData.defaultPriceFloorPolicy ??
-              "DYNAMIC_AI") as
-              "DYNAMIC_AI" | "FIXED_PERCENTAGE" | "COMPETITOR_MATCH",
-            newBusinessDefaultMode: (resData.newBusinessDefaultAutomationMode ??
-              "Manual") as "Manual" | "Shadow" | "Autonomous",
+            defaultPriceFloorPolicy:
+              resData.defaultPriceFloorPolicy ?? "DynamicAi",
+            newBusinessDefaultMode:
+              resData.newBusinessDefaultAutomationMode ?? "Assisted",
             autoVerifyStores: !!resData.autoVerifyPartnerStores,
             bulkUploads: !!resData.bulkProductUploadEnabled,
-          } as GlobalAutomationDefaults,
+            platformCommissionPercent: Number(
+              resData.platformCommissionPercent ?? 10,
+            ),
+            apiRequestRateLimitPerMinute: Number(
+              resData.apiRequestRateLimitPerMinute ?? 10000,
+            ),
+            lastUpdatedAt: resData.lastUpdatedAt,
+          },
         };
       }
       return { error: "Failed to fetch automation defaults" };
@@ -49,29 +57,67 @@ export function getAutomationDefaults(): Promise<
 export function updateAutomationDefaults(
   defaults: GlobalAutomationDefaults,
 ): Promise<ApiResponse<GlobalAutomationDefaults>> {
-  return withAuth(async (token) => {
+  return withAuth<GlobalAutomationDefaults>(async (token) => {
     const clampedMaxDiscount = Math.min(
       15,
       Math.max(1, defaults.maxDiscountPerCycle),
     );
-    try {
-      const payload = {
-        platformCommissionPercent: 10,
-        apiRequestRateLimitPerMinute: 10000,
-      };
+    const payload = {
+      maxDiscountPerCyclePercent: clampedMaxDiscount,
+      defaultPriceFloorPolicy: defaults.defaultPriceFloorPolicy || "DynamicAi",
+      newBusinessDefaultAutomationMode:
+        defaults.newBusinessDefaultMode || "Assisted",
+      autoVerifyPartnerStores: defaults.autoVerifyStores,
+      bulkProductUploadEnabled: defaults.bulkUploads,
+      platformCommissionPercent: defaults.platformCommissionPercent ?? 10,
+      apiRequestRateLimitPerMinute:
+        defaults.apiRequestRateLimitPerMinute ?? 10000,
+    };
 
-      await unwrapEnvelope<unknown>(
-        createOne<FoodLoopEnvelope<unknown>, unknown>(
+    try {
+      const res = await unwrapEnvelope<RawBackendSystemSettings>(
+        createOne<FoodLoopEnvelope<RawBackendSystemSettings>, typeof payload>(
           Endpoints.admin.systemSettings,
           payload,
           { token },
         ),
       );
-    } catch (e) {
-      // Ignore error for now, return the optimistically updated local values
-    }
 
-    return { data: { ...defaults, maxDiscountPerCycle: clampedMaxDiscount } };
+      if (res.data) {
+        return {
+          data: {
+            maxDiscountPerCycle: Number(
+              res.data.maxDiscountPerCyclePercent ?? clampedMaxDiscount,
+            ),
+            defaultPriceFloorPolicy:
+              res.data.defaultPriceFloorPolicy ??
+              payload.defaultPriceFloorPolicy,
+            newBusinessDefaultMode:
+              res.data.newBusinessDefaultAutomationMode ??
+              payload.newBusinessDefaultAutomationMode,
+            autoVerifyStores:
+              res.data.autoVerifyPartnerStores ??
+              payload.autoVerifyPartnerStores,
+            bulkUploads:
+              res.data.bulkProductUploadEnabled ??
+              payload.bulkProductUploadEnabled,
+            platformCommissionPercent: Number(
+              res.data.platformCommissionPercent ??
+                payload.platformCommissionPercent,
+            ),
+            apiRequestRateLimitPerMinute: Number(
+              res.data.apiRequestRateLimitPerMinute ??
+                payload.apiRequestRateLimitPerMinute,
+            ),
+            lastUpdatedAt: res.data.lastUpdatedAt,
+          },
+        };
+      }
+      return { data: { ...defaults, maxDiscountPerCycle: clampedMaxDiscount } };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update settings";
+      return { error: msg };
+    }
   });
 }
 

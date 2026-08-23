@@ -485,12 +485,26 @@ export interface AuditLogFetchResult {
 
 // ─── System Settings Domain Types ──────────────────────────────────────────
 
+export interface RawBackendSystemSettings {
+  maxDiscountPerCyclePercent?: number;
+  defaultPriceFloorPolicy?: string;
+  newBusinessDefaultAutomationMode?: "Manual" | "Assisted" | "Autonomous";
+  autoVerifyPartnerStores?: boolean;
+  bulkProductUploadEnabled?: boolean;
+  platformCommissionPercent?: number;
+  apiRequestRateLimitPerMinute: number;
+  lastUpdatedAt?: string;
+}
+
 export interface GlobalAutomationDefaults {
   maxDiscountPerCycle: number; // Hard-clamped 1-15%
-  defaultPriceFloorPolicy: "DYNAMIC_AI" | "FIXED_30" | "FIXED_50";
-  newBusinessDefaultMode: "Manual" | "Assisted" | "Autonomous";
+  defaultPriceFloorPolicy: string;
+  newBusinessDefaultMode: string;
   autoVerifyStores: boolean;
   bulkUploads: boolean;
+  platformCommissionPercent?: number;
+  apiRequestRateLimitPerMinute?: number;
+  lastUpdatedAt?: string;
 }
 
 export type DocumentCategory =
