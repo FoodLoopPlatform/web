@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
-import { resolveImageUrl } from "@/utils/image-utils";
+import { PricingProductImage } from "./PricingProductImage";
 import type { ProductPricingItem } from "@/app/pricing/api/types";
 import type { AutomationMode } from "@/app/pricing/lib/mock-data";
 
@@ -122,8 +121,6 @@ export function ProductSelectorSidebar({
         ) : (
           filteredProducts.map((product) => {
             const isSelected = selectedProductId === product.id;
-            const displayImg =
-              resolveImageUrl(product.image) || "/pricing/sourdough.jpg";
 
             return (
               <div
@@ -135,16 +132,13 @@ export function ProductSelectorSidebar({
                     : "bg-[#fafcf7] border-outline-variant/30 hover:border-primary/40 hover:bg-surface-container-lowest"
                 }`}
               >
-                <div className="h-13 w-13 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative">
-                  <Image
-                    src={displayImg}
-                    alt={product.name}
-                    fill
-                    sizes="52px"
-                    className="object-cover"
-                    unoptimized={displayImg.startsWith("http")}
-                  />
-                </div>
+                <PricingProductImage
+                  src={product.image}
+                  alt={product.name}
+                  sizes="52px"
+                  containerClassName="h-13 w-13 rounded-lg overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative flex items-center justify-center"
+                  iconClassName="h-6 w-6 text-primary/40"
+                />
 
                 <div className="flex flex-1 flex-col min-w-0">
                   <div className="flex items-center justify-between gap-1">

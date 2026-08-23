@@ -45,6 +45,12 @@ export const Endpoints = {
     orderTracking: (id: string) => `/stores/me/orders/${id}/tracking`,
     refundOrder: (id: string) => `/stores/me/orders/${id}/refund`,
     commission: "/stores/me/commission",
+    aiRecommendations: "/stores/me/ai-recommendations",
+    aiRecommendationsSchedule: "/stores/me/ai-recommendations/schedule",
+    approveAiRecommendation: (id: string) =>
+      `/stores/me/ai-recommendations/${id}/approve`,
+    rejectAiRecommendation: (id: string) =>
+      `/stores/me/ai-recommendations/${id}/reject`,
   },
 
   admin: {

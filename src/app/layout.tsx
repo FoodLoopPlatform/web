@@ -32,7 +32,12 @@ export const metadata: Metadata = {
   description:
     "FoodLoop — high-efficiency logistics with the tactile, approachable nature of sustainability.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/logo-green.png", type: "image/png" },
+      { url: "/icon.jpeg", type: "image/jpeg" },
+    ],
+    shortcut: "/logo-green.png",
+    apple: "/logo-green.png",
   },
 };
 

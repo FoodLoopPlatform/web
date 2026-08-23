@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   LeafIcon,
   MenuIcon,
@@ -95,11 +94,7 @@ export function LandingHeader({
                 {Icon && <Icon className="w-4 h-4 text-[#005129]" />}
                 <span>{item.label}</span>
                 {isActive && (
-                  <motion.span
-                    layoutId="activeLandingNavUnderline"
-                    className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
+                  <span className="absolute bottom-0 right-0 left-0 h-0.5 bg-[#005129] rounded-full transition-all duration-300" />
                 )}
               </a>
             );
@@ -149,17 +144,15 @@ export function LandingHeader({
           </Link>
 
           {/* Download App CTA Button */}
-          <a
-            href="#consumers"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavClick("consumers", "#consumers");
-            }}
+          <Link
+            href="https://drive.google.com/drive/folders/1V0SYmpNhS637Qd-LJNLtPBhk8SJv1LBv"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 bg-[#00381a] hover:bg-[#005129] text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
           >
             <DownloadIcon className="w-4 h-4 shrink-0" />
             <span>{isAr ? "تحميل التطبيق" : "Download App"}</span>
-          </a>
+          </Link>
 
           {/* Language Switcher Selector */}
           <button
@@ -225,17 +218,16 @@ export function LandingHeader({
             })}
           </nav>
           <div className="pt-4 border-t border-gray-200/80 flex flex-col gap-2.5">
-            <a
-              href="#consumers"
+            <Link
+              href="https://drive.google.com/drive/folders/1V0SYmpNhS637Qd-LJNLtPBhk8SJv1LBv"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full text-center py-2.5 text-sm font-semibold text-white bg-[#00381a] rounded-full hover:bg-[#005129] shadow-md flex items-center justify-center gap-2"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavClick("consumers", "#consumers");
-              }}
+              onClick={() => setMobileMenuOpen(false)}
             >
               <DownloadIcon className="w-4 h-4 shrink-0" />
               <span>{isAr ? "تحميل التطبيق" : "Download App"}</span>
-            </a>
+            </Link>
 
             <div className="grid grid-cols-2 gap-2 pt-1">
               <Link

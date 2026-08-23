@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import Image from "next/image";
 import { Icon } from "@/components/ui/icon";
-import { resolveImageUrl } from "@/utils/image-utils";
 import { getProductPriceHistory } from "@/app/pricing/api/pricing-api";
 import { ProductSelectorSidebar } from "./ProductSelectorSidebar";
 import { PriceHistoryTimeline } from "./PriceHistoryTimeline";
+import { PricingProductImage } from "./PricingProductImage";
 import type {
   ProductPricingItem,
   ProductPriceHistoryData,
@@ -148,21 +147,13 @@ export function PricingHistoryView({
             <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.05)] flex flex-col gap-6">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-xl overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative">
-                    <Image
-                      src={
-                        resolveImageUrl(selectedProduct.image) ||
-                        "/pricing/sourdough.jpg"
-                      }
-                      alt={selectedProduct.name}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                      unoptimized={Boolean(
-                        selectedProduct.image?.startsWith("http"),
-                      )}
-                    />
-                  </div>
+                  <PricingProductImage
+                    src={selectedProduct.image || historyData?.productImage}
+                    alt={selectedProduct.name}
+                    sizes="80px"
+                    containerClassName="h-20 w-20 rounded-xl overflow-hidden bg-[#ecefe8] border border-outline-variant/20 shrink-0 relative flex items-center justify-center"
+                    iconClassName="h-9 w-9 text-primary/40"
+                  />
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="font-sans text-2xl font-bold text-primary">
@@ -265,7 +256,7 @@ export function PricingHistoryView({
             <h3 className="font-sans text-xl font-bold text-on-surface">
               اختر منتجًا لعرض سجله
             </h3>
-            <p className="text-body-md text-on-surface-variant max-w-lg">
+            <p className="text-body-md text-on-surface-variant max-w-[500px]">
               حدد أي منتج من القائمة الجانبية لعرض التغييرات السابقة على أسعاره
               وتفاصيل الخصومات.
             </p>

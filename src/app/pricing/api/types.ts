@@ -63,5 +63,61 @@ export type ProductPriceHistoryData = {
   productCode?: string;
   currentPrice?: number;
   originalPrice?: number;
+  productImage?: string;
   history: PriceHistoryEntry[];
 };
+
+export type AiRecommendationRiskLevel =
+  | "Critical"
+  | "High"
+  | "Medium"
+  | "Low"
+  | string;
+
+export type AiRecommendationStatus =
+  | "Pending"
+  | "Approved"
+  | "Rejected"
+  | "Applied"
+  | string;
+
+/** Item shape returned by GET /stores/me/ai-recommendations. */
+export type AiRecommendation = {
+  id: string;
+  productId: string;
+  productName: string;
+  productCode?: string;
+  originalPrice: number;
+  currentPrice: number;
+  recommendedPrice: number;
+  discountPercentage: number;
+  discountAmount: number;
+  quantityAvailable: number;
+  expirationDate: string;
+  daysRemaining: number;
+  productImageUrl?: string;
+  productImages?: string[];
+  riskLevel: AiRecommendationRiskLevel;
+  reason: string;
+  confidence: number;
+  actionRequirement?: string;
+  actionReason?: string;
+  status: AiRecommendationStatus;
+  correlationId?: string;
+  createdAt: string;
+};
+
+/** Shape returned by GET /stores/me/ai-recommendations/schedule. */
+export type AiRecommendationsSchedule = {
+  nextPricingBatchAt: string;
+  nextMonitoringScanAt: string;
+  pricingIntervalMinutes: number;
+  isPricingBatchRunning: boolean;
+  automationMode: AutomationMode | string;
+};
+
+/** Request payload for POST /stores/me/ai-recommendations/{id}/reject. */
+export type RejectRecommendationPayload = {
+  reason?: string;
+};
+
