@@ -8,6 +8,12 @@ import {
 } from "./api/server-admin-api";
 import { getAuditLogsServer } from "./api/server-audit-log-api";
 
+export const metadata = {
+  title: "إدارة المستخدمين والمنشآت | User Management",
+  description:
+    "FoodLoop Admin Portal - User, Store, and Charity Governance Dashboard",
+};
+
 export default async function UserManagementPage() {
   const [analyticsRes, consumersRes, storesRes, charitiesRes, auditRes] =
     await Promise.all([

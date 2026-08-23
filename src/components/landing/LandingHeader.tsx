@@ -116,10 +116,10 @@ export function LandingHeader({
             aria-label={isAr ? "الرئيسية - FoodLoop" : "FoodLoop Home"}
             title={isAr ? "الرئيسية - FoodLoop" : "FoodLoop Home"}
           >
-            <LeafIcon className="w-7 sm:w-8 h-7 sm:h-8 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
             <span className="text-2xl sm:text-3xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
               FoodLoop
             </span>
+            <LeafIcon className="w-7 sm:w-8 h-7 sm:h-8 aspect-square text-[#00381a] group-hover:text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
           </Link>
         </div>
 

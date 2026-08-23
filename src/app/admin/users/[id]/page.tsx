@@ -10,6 +10,16 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export async function generateMetadata({ params }: PageProps) {
+  const { id } = await params;
+  const userRes = await getUserDetailServer(id);
+  const userName = userRes.data?.name || "المستخدم";
+  return {
+    title: `${userName} | تفاصيل الحساب | User Profile`,
+    description: `FoodLoop Admin Portal - Account Details for ${userName}`,
+  };
+}
+
 export default async function UserDetailPage({ params }: PageProps) {
   const { id } = await params;
 

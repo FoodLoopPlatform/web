@@ -24,6 +24,7 @@ import { adminDictionary } from "../../constants/dictionary";
 import { AdminUserItem, AuditLogItem } from "../../types/admin.types";
 import { UserManagementStats } from "./UserManagementStats";
 import { UserManagementToolbarActions } from "./UserManagementToolbarActions";
+import { useDebounce } from "../../hooks/useDebounce";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
 import { SmartInsightCard } from "../common/SmartInsightCard";
@@ -141,7 +142,7 @@ export function UserManagementShell({
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("search") || searchParams.get("q") || "",
   );
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
 
@@ -176,18 +177,9 @@ export function UserManagementShell({
       const q = searchParams.get("search") || searchParams.get("q");
       if (q !== null && q !== searchQuery) {
         setSearchQuery(q);
-        setDebouncedSearchQuery(q);
       }
     });
   }, [searchParams, activeTab, searchQuery]);
-
-  // Debounce search query input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   // Decoupled Background Metrics Polling
   useEffect(() => {
@@ -475,6 +467,18 @@ export function UserManagementShell({
     exportAdminCSV(activeTab, consumers, stores, charities);
   };
 
+  const formattedAuditLogs = useMemo(
+    () =>
+      auditLogs.map((log) => ({
+        id: log.id,
+        adminName: log.actorName,
+        action: isRtl ? log.detailsAr : log.detailsEn,
+        timestamp: log.timestamp,
+        details: log.detailsEn,
+      })),
+    [auditLogs, isRtl],
+  );
+
   const tabOptions: TabOption<ActorTab>[] = [
     { id: "Consumers", label: t.consumers, badge: consumersCount },
     { id: "Stores", label: t.stores, badge: storesCount },
@@ -591,13 +595,7 @@ export function UserManagementShell({
             <div className="flex flex-col gap-6">
               <AuditLogsWidget
                 title={t.auditLogsTitle}
-                logs={auditLogs.map((log) => ({
-                  id: log.id,
-                  adminName: log.actorName,
-                  action: isRtl ? log.detailsAr : log.detailsEn,
-                  timestamp: log.timestamp,
-                  details: log.detailsEn,
-                }))}
+                logs={formattedAuditLogs}
                 isRtl={isRtl}
               />
             </div>

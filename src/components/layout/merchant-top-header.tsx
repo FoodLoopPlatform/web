@@ -37,26 +37,28 @@ export function MerchantTopHeader({
           "h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full bg-light-green border-b border-outline-variant sticky top-0 z-40"
         }
       >
-        <div className="flex items-center gap-md flex-1">
+        <div className="flex items-center gap-2 sm:gap-md flex-1 min-w-0 pr-1">
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer"
+            className="lg:hidden p-2 rounded-full hover:bg-surface-container-highest transition-colors flex items-center justify-center cursor-pointer shrink-0"
+            aria-label="القائمة"
           >
             <Icon name="menu" className="h-5 w-5 text-primary" />
           </button>
 
           <Link
-            href="/dashboard"
-            className="inline-flex lg:hidden items-center gap-2 group select-none cursor-pointer shrink-0"
+            href="/"
+            dir="ltr"
+            className="inline-flex lg:hidden items-center gap-1.5 group select-none cursor-pointer shrink-0"
             aria-label="FoodLoop Home"
           >
-            <LeafIcon className="w-6 h-6 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
-            <span className="text-xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
+            <span className="text-lg sm:text-xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
               FoodLoop
             </span>
+            <LeafIcon className="w-5 h-5 sm:w-6 sm:h-6 aspect-square text-[#00381a] group-hover:text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
           </Link>
 
-          {left}
+          {left && <div className="min-w-0 flex-1 truncate">{left}</div>}
         </div>
 
         {/* Right Section: Notifications + Admin Notes + Store Profile */}

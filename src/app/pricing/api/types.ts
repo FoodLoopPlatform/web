@@ -68,18 +68,10 @@ export type ProductPriceHistoryData = {
 };
 
 export type AiRecommendationRiskLevel =
-  | "Critical"
-  | "High"
-  | "Medium"
-  | "Low"
-  | string;
+  "Critical" | "High" | "Medium" | "Low" | string;
 
 export type AiRecommendationStatus =
-  | "Pending"
-  | "Approved"
-  | "Rejected"
-  | "Applied"
-  | string;
+  "Pending" | "Approved" | "Rejected" | "Applied" | string;
 
 /** Item shape returned by GET /stores/me/ai-recommendations. */
 export type AiRecommendation = {
@@ -120,4 +112,3 @@ export type AiRecommendationsSchedule = {
 export type RejectRecommendationPayload = {
   reason?: string;
 };
-

@@ -354,6 +354,14 @@ export interface ModerationItem {
   productName?: string;
   storeName?: string;
   flagReasonQuote?: string;
+  originalPrice?: number;
+  discountedPrice?: number;
+  category?: string;
+  stockQuantity?: number;
+  expiryDate?: string;
+  description?: string;
+  storeId?: string;
+  status?: string;
 }
 
 export interface UserDetail {

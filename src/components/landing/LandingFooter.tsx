@@ -38,10 +38,10 @@ export function LandingFooter() {
             aria-label="FoodLoop Home"
             title="FoodLoop Home"
           >
-            <h1 className="text-[9.5vw] sm:text-[10vw] font-black tracking-tight leading-none text-white opacity-95 uppercase font-brand transition-all group-hover:opacity-100 drop-shadow-sm whitespace-nowrap">
+            <h1 className="text-[9.5vw] sm:text-[10vw] font-black tracking-tight leading-none text-[#fafaf4] opacity-95 uppercase font-brand transition-all group-hover:opacity-100 group-hover:text-emerald-300 drop-shadow-sm whitespace-nowrap">
               FOODLOOP
             </h1>
-            <LeafIcon className="w-[6vw] h-[6vw] max-w-[60px] max-h-[60px] aspect-square text-white group-hover:scale-115 group-hover:rotate-12 transition-all duration-300 shrink-0" />
+            <LeafIcon className="w-[7vw] h-[7vw] max-w-[70px] max-h-[70px] aspect-square text-white group-hover:scale-115 group-hover:rotate-12 transition-all duration-300 shrink-0" />
           </Link>
         </div>
 

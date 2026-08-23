@@ -116,6 +116,7 @@ export const StoreDocumentsCard: React.FC<StoreDocumentsCardProps> = ({
       const link = document.createElement("a");
       link.href = fullUrl;
       link.target = "_blank";
+      link.rel = "noopener noreferrer";
       link.download = fileName;
       document.body.appendChild(link);
       link.click();

@@ -503,6 +503,30 @@ export function normalizeProductToModerationItem(
   );
   const createdAt = String(raw.createdAt ?? new Date().toISOString());
 
+  const originalPrice = Number(
+    raw.originalPrice ?? raw.price ?? raw.priceBeforeDiscount ?? 0,
+  );
+  const discountedPrice = Number(
+    raw.discountedPrice ??
+      raw.offerPrice ??
+      raw.priceAfterDiscount ??
+      raw.price ??
+      0,
+  );
+  const category = String(
+    raw.category ?? raw.categoryName ?? raw.businessCategory ?? "عام",
+  );
+  const stockQuantity = Number(
+    raw.stockQuantity ?? raw.quantity ?? raw.stock ?? 1,
+  );
+  const expiryDate = String(
+    raw.expiryDate ?? raw.expiresAt ?? raw.expirationDate ?? "",
+  );
+  const description = String(
+    raw.description ?? raw.descriptionAr ?? raw.details ?? "",
+  );
+  const storeId = String(raw.storeId ?? raw.vendorId ?? "");
+
   return {
     id,
     productNameAr,
@@ -515,6 +539,13 @@ export function normalizeProductToModerationItem(
     flagReasonQuoteAr,
     flagReasonQuoteEn,
     createdAt,
+    originalPrice: originalPrice > 0 ? originalPrice : undefined,
+    discountedPrice: discountedPrice > 0 ? discountedPrice : undefined,
+    category,
+    stockQuantity,
+    expiryDate,
+    description,
+    storeId,
   };
 }
 

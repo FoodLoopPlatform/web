@@ -458,8 +458,8 @@ export function normalizeAiRecommendation(
       raw.basePrice ??
       raw.price ??
       (raw.product && typeof raw.product === "object"
-        ? (raw.product as Record<string, unknown>).originalPrice ??
-          (raw.product as Record<string, unknown>).price
+        ? ((raw.product as Record<string, unknown>).originalPrice ??
+          (raw.product as Record<string, unknown>).price)
         : 0) ??
       0,
   );
@@ -469,8 +469,8 @@ export function normalizeAiRecommendation(
       raw.discountedPrice ??
       raw.priceAfterDiscount ??
       (raw.product && typeof raw.product === "object"
-        ? (raw.product as Record<string, unknown>).discountedPrice ??
-          (raw.product as Record<string, unknown>).currentPrice
+        ? ((raw.product as Record<string, unknown>).discountedPrice ??
+          (raw.product as Record<string, unknown>).currentPrice)
         : originalPrice) ??
       originalPrice,
   );
@@ -493,7 +493,8 @@ export function normalizeAiRecommendation(
           ? Math.round(((currentPrice - recommendedPrice) / currentPrice) * 100)
           : 0),
   );
-  if (isNaN(discountPercentage) || discountPercentage < 0) discountPercentage = 0;
+  if (isNaN(discountPercentage) || discountPercentage < 0)
+    discountPercentage = 0;
 
   const discountAmount = Number(
     raw.discountAmount ??
@@ -509,8 +510,8 @@ export function normalizeAiRecommendation(
       raw.quantity ??
       raw.stockAvailable ??
       (raw.product && typeof raw.product === "object"
-        ? (raw.product as Record<string, unknown>).quantityAvailable ??
-          (raw.product as Record<string, unknown>).quantity
+        ? ((raw.product as Record<string, unknown>).quantityAvailable ??
+          (raw.product as Record<string, unknown>).quantity)
         : 0) ??
       0,
   );
@@ -877,4 +878,3 @@ export async function rejectAiRecommendation(
     };
   }
 }
-

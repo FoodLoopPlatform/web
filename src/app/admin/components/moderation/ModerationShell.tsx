@@ -18,8 +18,10 @@ import { ModerationPageHeader } from "./ModerationPageHeader";
 import { ModerationListingCard } from "./ModerationListingCard";
 import { ModerationEmptyState } from "./ModerationEmptyState";
 import { ModerationFilterModal } from "./ModerationFilterModal";
+import { ProductDetailsModal } from "./ProductDetailsModal";
 import { ConfirmationModal } from "../common/ConfirmationModal";
 import { Pagination } from "../common/Pagination";
+import { useDebounce } from "../../hooks/useDebounce";
 
 interface ModerationShellProps {
   initialItems?: ModerationItem[];
@@ -41,6 +43,7 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("search") || searchParams.get("q") || "",
   );
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedFlagType, setSelectedFlagType] = useState<string>("ALL");
   const [confidenceRange, setConfidenceRange] = useState<
     "ALL" | "low" | "medium" | "high"
@@ -49,7 +52,7 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset pagination on filter change
-  const modFilterKey = `${searchQuery}-${selectedFlagType}-${confidenceRange}`;
+  const modFilterKey = `${debouncedSearchQuery}-${selectedFlagType}-${confidenceRange}`;
   const [prevModFilterKey, setPrevModFilterKey] = useState(modFilterKey);
   if (prevModFilterKey !== modFilterKey) {
     setPrevModFilterKey(modFilterKey);
@@ -58,6 +61,10 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
 
   // Skip initial effect execution if initialItems were pre-fetched
   const isFirstRender = useRef(true);
+
+  // Product detail view state
+  const [selectedDetailItem, setSelectedDetailItem] =
+    useState<ModerationItem | null>(null);
 
   // Action Modals State
   const [activeActionModal, setActiveActionModal] = useState<{
@@ -99,7 +106,7 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
     setIsLoading(true);
 
     getModerationQueue({
-      search: searchQuery,
+      search: debouncedSearchQuery,
       flagType: selectedFlagType,
       minConfidence: minConf,
       maxConfidence: maxConf,
@@ -121,7 +128,12 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
     return () => {
       isSubscribed = false;
     };
-  }, [searchQuery, selectedFlagType, confidenceRange, initialItems.length]);
+  }, [
+    debouncedSearchQuery,
+    selectedFlagType,
+    confidenceRange,
+    initialItems.length,
+  ]);
 
   // Handle Refresh Queue from Empty State
   const handleRefreshQueue = async () => {
@@ -332,6 +344,9 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
                 onApprove={handleOpenApproveModal}
                 onReject={handleOpenRejectModal}
                 onRequestChanges={handleOpenRequestChangesModal}
+                onCardClick={(clickedItem) =>
+                  setSelectedDetailItem(clickedItem)
+                }
               />
             ))}
           </div>
@@ -463,6 +478,18 @@ export function ModerationShell({ initialItems = [] }: ModerationShellProps) {
         onClose={() =>
           setActiveActionModal({ isOpen: false, type: null, itemId: null })
         }
+      />
+
+      {/* Product Details Full Inspection Modal */}
+      <ProductDetailsModal
+        isOpen={Boolean(selectedDetailItem)}
+        item={selectedDetailItem}
+        t={t}
+        isRtl={isRtl}
+        onClose={() => setSelectedDetailItem(null)}
+        onApprove={handleOpenApproveModal}
+        onReject={handleOpenRejectModal}
+        onRequestChanges={handleOpenRequestChangesModal}
       />
     </div>
   );
