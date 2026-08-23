@@ -16,6 +16,7 @@ import {
   BarChartIcon,
   FileIcon,
   PlusIcon,
+  LeafIcon,
 } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
@@ -59,6 +60,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [headerSearchQuery, setHeaderSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileSearchExpanded, setIsMobileSearchExpanded] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Close search dropdown on outside click
@@ -208,18 +210,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const sidebarInnerContent = (
     <>
       <div className="flex flex-col gap-6 overflow-hidden flex-1">
-        <div className="flex items-center gap-3 px-2 shrink-0">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-xl font-headline-md shrink-0">
-            F
-          </div>
-          <div className="flex flex-col">
-            <span className="font-plus-jakarta-sans text-2xl font-extrabold text-primary tracking-tight leading-none">
+        <div className="flex items-center gap-2 px-2 shrink-0 flex-wrap">
+          <Link
+            href="/"
+            dir="ltr"
+            className="inline-flex items-center gap-2 group select-none cursor-pointer"
+            aria-label="FoodLoop Home"
+          >
+            <span className="text-2xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
               FoodLoop
             </span>
-            <span className="text-[11px] text-on-surface-variant opacity-75 font-bold font-sans mt-1">
-              {currentDict.platformAdmin}
-            </span>
-          </div>
+            <LeafIcon className="w-7 h-7 aspect-square text-[#00381a] group-hover:text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
+          </Link>
+          <span className="text-xs font-bold text-primary/80 shrink-0 border-r border-outline-variant/60 pr-2 mr-0.5 whitespace-nowrap">
+            {currentDict.platformAdmin}
+          </span>
         </div>
 
         <nav className="flex flex-col gap-1 overflow-y-auto flex-1 pr-1 pl-1">
@@ -318,15 +323,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
-            {/* Page title in Top Bar */}
-            <span className="font-bold text-lg text-primary shrink-0 hidden sm:block">
-              {lang === "ar" ? "لوحة تحكم المنصة" : "Platform Admin"}
-            </span>
+            {/* Page Title in Top Bar */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-bold text-sm text-primary/90 shrink-0">
+                {lang === "ar" ? "لوحة تحكم المنصة" : "Platform Admin"}
+              </span>
+            </div>
 
-            {/* Integrated Top Bar Search Bar */}
+            {/* Desktop Integrated Top Bar Search Bar */}
             <div
               ref={searchContainerRef}
-              className="relative w-full max-w-md min-w-[100px] sm:min-w-[280px]"
+              className="hidden md:block relative w-full max-w-md min-w-[200px]"
             >
               <form onSubmit={handleHeaderSearchSubmit} className="relative">
                 <Icon
@@ -486,7 +493,85 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
+          {/* Full-Width Expanded Search Overlay for Mobile */}
+          {isMobileSearchExpanded && (
+            <div className="md:hidden absolute inset-0 bg-white z-50 px-4 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-150 border-b border-outline-variant shadow-md">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileSearchExpanded(false);
+                  setIsSearchOpen(false);
+                }}
+                className="p-2 text-on-surface-variant hover:text-on-surface rounded-full cursor-pointer shrink-0"
+                aria-label="إغلاق البحث"
+              >
+                <Icon
+                  name="arrow_forward"
+                  className={`w-5 h-5 ${lang === "ar" ? "" : "rotate-180"}`}
+                />
+              </button>
+              <div className="relative flex-1">
+                <form
+                  onSubmit={(e) => {
+                    handleHeaderSearchSubmit(e);
+                    setIsMobileSearchExpanded(false);
+                  }}
+                  className="relative"
+                >
+                  <Icon
+                    name="search"
+                    className={`h-4 w-4 absolute ${
+                      lang === "ar" ? "right-3" : "left-3"
+                    } top-1/2 -translate-y-1/2 text-outline pointer-events-none`}
+                  />
+                  <input
+                    type="text"
+                    autoFocus
+                    value={headerSearchQuery}
+                    onChange={(e) => {
+                      setHeaderSearchQuery(e.target.value);
+                      setIsSearchOpen(e.target.value.trim().length > 0);
+                    }}
+                    placeholder={
+                      lang === "ar"
+                        ? "البحث في لوحة تحكم المنصة..."
+                        : "Search admin portal..."
+                    }
+                    className={`w-full bg-surface-container border border-outline-variant/60 rounded-xl py-2 ${
+                      lang === "ar" ? "pr-9 pl-8" : "pl-9 pr-8"
+                    } text-xs font-sans text-on-surface placeholder:text-outline focus:bg-white focus:border-primary outline-none transition-all`}
+                  />
+                  {headerSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHeaderSearchQuery("");
+                        setIsSearchOpen(false);
+                      }}
+                      className={`absolute top-1/2 -translate-y-1/2 text-xs font-bold text-outline hover:text-on-surface cursor-pointer ${
+                        lang === "ar" ? "left-2.5" : "right-2.5"
+                      }`}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </form>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+            {/* Mobile Search Trigger Icon */}
+            <button
+              type="button"
+              onClick={() => setIsMobileSearchExpanded(true)}
+              className="md:hidden p-2 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center cursor-pointer"
+              title={lang === "ar" ? "البحث" : "Search"}
+              aria-label="Search"
+            >
+              <Icon name="search" className="h-5 w-5 text-on-surface-variant" />
+            </button>
+
             <div className="flex items-center">
               <NotificationsDropdown scope="admin" />
 

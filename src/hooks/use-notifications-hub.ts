@@ -71,9 +71,8 @@ export function useNotificationsHub(
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
         accessTokenFactory: () => useAppStore.getState().accessToken || "",
-        transport:
-          signalR.HttpTransportType.WebSockets |
-          signalR.HttpTransportType.LongPolling,
+        transport: signalR.HttpTransportType.WebSockets,
+        skipNegotiation: true,
       })
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (retryContext) => {

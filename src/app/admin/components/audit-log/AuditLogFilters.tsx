@@ -8,6 +8,7 @@ import {
   AuditSeverity,
 } from "../../types/admin.types";
 import { SearchIcon, ChevronDownIcon, DownloadIcon } from "@/components/icons";
+import { useDebounce } from "../../hooks/useDebounce";
 
 interface AuditLogFiltersProps {
   t: AdminDictionary;
@@ -27,28 +28,18 @@ export const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({
   isExporting = false,
 }) => {
   const [searchInput, setSearchInput] = useState(filters.search || "");
-  const onFilterChangeRef = React.useRef(onFilterChange);
-  const filtersRef = React.useRef(filters);
+  const debouncedSearch = useDebounce(searchInput, 300);
 
+  // Trigger filter change when debounced search input changes
   useEffect(() => {
-    onFilterChangeRef.current = onFilterChange;
-    filtersRef.current = filters;
-  }, [onFilterChange, filters]);
-
-  // Debounce search input to avoid firing requests on every keypress
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (searchInput !== (filtersRef.current.search || "")) {
-        onFilterChangeRef.current({
-          ...filtersRef.current,
-          search: searchInput,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+    if (debouncedSearch !== (filters.search || "")) {
+      onFilterChange({
+        ...filters,
+        search: debouncedSearch,
+        page: 1,
+      });
+    }
+  }, [debouncedSearch, filters, onFilterChange]);
 
   const handleActionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as "ALL" | AuditActionType;

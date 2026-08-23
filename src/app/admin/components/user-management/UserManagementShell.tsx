@@ -24,6 +24,7 @@ import { adminDictionary } from "../../constants/dictionary";
 import { AdminUserItem, AuditLogItem } from "../../types/admin.types";
 import { UserManagementStats } from "./UserManagementStats";
 import { UserManagementToolbarActions } from "./UserManagementToolbarActions";
+import { useDebounce } from "../../hooks/useDebounce";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
 import { SmartInsightCard } from "../common/SmartInsightCard";
@@ -93,7 +94,40 @@ export function UserManagementShell({
     initialAnalytics?.users?.charities ?? 0,
   );
   const [pendingCount, setPendingCount] = useState(
-    initialAnalytics?.organizations?.pending ?? 0,
+    initialAnalytics?.organizations?.pending ??
+      initialAnalytics?.pendingStoresCount ??
+      0,
+  );
+
+  // Compute live pending counts from state as safety net
+  const pendingStoresCountInState = useMemo(() => {
+    return stores.filter((s) => s.status === "PENDING" || !s.verified).length;
+  }, [stores]);
+
+  const pendingCharitiesCountInState = useMemo(() => {
+    return charities.filter((c) => c.status === "PENDING" || !c.verified)
+      .length;
+  }, [charities]);
+
+  const effectivePendingCount = useMemo(() => {
+    const totalLocalPending =
+      pendingStoresCountInState + pendingCharitiesCountInState;
+    return Math.max(pendingCount, totalLocalPending);
+  }, [pendingCount, pendingStoresCountInState, pendingCharitiesCountInState]);
+
+  const effectiveConsumersCount = useMemo(
+    () => Math.max(consumersCount, consumers.length),
+    [consumersCount, consumers.length],
+  );
+
+  const effectiveStoresCount = useMemo(
+    () => Math.max(storesCount, stores.length),
+    [storesCount, stores.length],
+  );
+
+  const effectiveCharitiesCount = useMemo(
+    () => Math.max(charitiesCount, charities.length),
+    [charitiesCount, charities.length],
   );
 
   const [activeTotalCount, setActiveTotalCount] = useState(
@@ -108,7 +142,7 @@ export function UserManagementShell({
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("search") || searchParams.get("q") || "",
   );
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
 
@@ -143,18 +177,9 @@ export function UserManagementShell({
       const q = searchParams.get("search") || searchParams.get("q");
       if (q !== null && q !== searchQuery) {
         setSearchQuery(q);
-        setDebouncedSearchQuery(q);
       }
     });
   }, [searchParams, activeTab, searchQuery]);
-
-  // Debounce search query input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   // Decoupled Background Metrics Polling
   useEffect(() => {
@@ -442,6 +467,18 @@ export function UserManagementShell({
     exportAdminCSV(activeTab, consumers, stores, charities);
   };
 
+  const formattedAuditLogs = useMemo(
+    () =>
+      auditLogs.map((log) => ({
+        id: log.id,
+        adminName: log.actorName,
+        action: isRtl ? log.detailsAr : log.detailsEn,
+        timestamp: log.timestamp,
+        details: log.detailsEn,
+      })),
+    [auditLogs, isRtl],
+  );
+
   const tabOptions: TabOption<ActorTab>[] = [
     { id: "Consumers", label: t.consumers, badge: consumersCount },
     { id: "Stores", label: t.stores, badge: storesCount },
@@ -485,10 +522,10 @@ export function UserManagementShell({
           {/* Top Metrics Banner */}
           <UserManagementStats
             t={t}
-            consumersCount={consumersCount}
-            storesCount={storesCount}
-            charitiesCount={charitiesCount}
-            pendingCount={pendingCount}
+            consumersCount={effectiveConsumersCount}
+            storesCount={effectiveStoresCount}
+            charitiesCount={effectiveCharitiesCount}
+            pendingCount={effectivePendingCount}
             isRtl={isRtl}
           />
 
@@ -558,13 +595,7 @@ export function UserManagementShell({
             <div className="flex flex-col gap-6">
               <AuditLogsWidget
                 title={t.auditLogsTitle}
-                logs={auditLogs.map((log) => ({
-                  id: log.id,
-                  adminName: log.actorName,
-                  action: isRtl ? log.detailsAr : log.detailsEn,
-                  timestamp: log.timestamp,
-                  details: log.detailsEn,
-                }))}
+                logs={formattedAuditLogs}
                 isRtl={isRtl}
               />
             </div>

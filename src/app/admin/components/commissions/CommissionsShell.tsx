@@ -11,7 +11,7 @@ import { CommissionsCardList } from "./CommissionsCardList";
 import { WithdrawCommissionModal } from "./WithdrawCommissionModal";
 import { Pagination } from "../common/Pagination";
 import { SearchToolbar, FilterOption } from "../common/SearchToolbar";
-import { SmartInsightCard } from "../common/SmartInsightCard";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type CommissionFilterStatus = "ALL" | "WITHDRAWABLE" | "SETTLED" | "SUSPENDED";
 
@@ -30,10 +30,11 @@ export const CommissionsShell: React.FC<CommissionsShellProps> = ({
     useState<StoreCommission[]>(initialCommissions);
   const [isLoading, setIsLoading] = useState(initialCommissions.length === 0);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [statusFilter, setStatusFilter] =
     useState<CommissionFilterStatus>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 5;
 
   const [showFiltersDropdown, setShowFiltersDropdown] = useState(false);
 
@@ -109,7 +110,7 @@ export const CommissionsShell: React.FC<CommissionsShellProps> = ({
   // Filtered & Paginated items
   const filteredItems = useMemo(() => {
     return commissions.filter((item) => {
-      const q = searchQuery.toLowerCase();
+      const q = debouncedSearchQuery.toLowerCase();
       const matchesQuery =
         !q ||
         item.storeName.toLowerCase().includes(q) ||
@@ -130,7 +131,7 @@ export const CommissionsShell: React.FC<CommissionsShellProps> = ({
 
       return matchesQuery && matchesStatus;
     });
-  }, [commissions, searchQuery, statusFilter]);
+  }, [commissions, debouncedSearchQuery, statusFilter]);
 
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
   const paginatedItems = useMemo(() => {
@@ -215,16 +216,6 @@ export const CommissionsShell: React.FC<CommissionsShellProps> = ({
           </button>
         </div>
       )}
-
-      {/* Smart Insight Banner */}
-      <SmartInsightCard
-        title={isRtl ? "نظرة عامة على العوائد" : "Revenue Overview"}
-        heading={t.commissionsTitle}
-        bodyText={t.commissionsSubtitle}
-        actionLabel={t.exportCsv}
-        onActionClick={handleExportCSV}
-        isRtl={isRtl}
-      />
 
       {/* 4 KPI Metric Summary Cards */}
       <CommissionsStats commissions={commissions} t={t} isRtl={isRtl} />

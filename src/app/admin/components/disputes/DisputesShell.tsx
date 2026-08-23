@@ -19,6 +19,7 @@ import {
   type Dispute,
 } from "../../api/admin-api";
 import { adminDictionary } from "../../constants/dictionary";
+import { useDebounce } from "../../hooks/useDebounce";
 import { AuditLogItem } from "../../types/admin.types";
 import { StatsCard } from "../common/StatsCard";
 import { TabSwitcher, TabOption } from "../common/TabSwitcher";
@@ -69,12 +70,13 @@ export function DisputesShell({
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("search") || searchParams.get("q") || "",
   );
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset page when tab or filters change
-  const filterKey = `${activeTab}-${searchQuery}-${priorityFilter}`;
+  const filterKey = `${activeTab}-${debouncedSearchQuery}-${priorityFilter}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
   if (prevFilterKey !== filterKey) {
     setPrevFilterKey(filterKey);
@@ -344,7 +346,7 @@ export function DisputesShell({
   };
 
   const getFilteredItems = () => {
-    const q = searchQuery.toLowerCase().trim();
+    const q = debouncedSearchQuery.toLowerCase().trim();
     if (activeTab === "Disputes") {
       return disputes.filter((d) => {
         if (!q) return true;
@@ -411,6 +413,18 @@ export function DisputesShell({
       flagged: reviews.filter((r) => r.flagged).length,
     }),
     [reviews],
+  );
+
+  const formattedAuditLogs = useMemo(
+    () =>
+      auditLogs.map((log) => ({
+        id: log.id,
+        adminName: log.actorName,
+        action: isRtl ? log.detailsAr : log.detailsEn,
+        timestamp: log.timestamp,
+        details: log.detailsEn,
+      })),
+    [auditLogs, isRtl],
   );
 
   const tabOptions: TabOption<DisputeTab>[] = [
@@ -611,13 +625,7 @@ export function DisputesShell({
         <div className="flex flex-col gap-6">
           <AuditLogsWidget
             title={t.auditLogsTitle}
-            logs={auditLogs.map((log) => ({
-              id: log.id,
-              adminName: log.actorName,
-              action: isRtl ? log.detailsAr : log.detailsEn,
-              timestamp: log.timestamp,
-              details: log.detailsEn,
-            }))}
+            logs={formattedAuditLogs}
             isRtl={isRtl}
           />
         </div>

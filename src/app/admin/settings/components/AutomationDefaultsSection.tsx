@@ -17,10 +17,10 @@ export const AutomationDefaultsSection: React.FC<
   AutomationDefaultsSectionProps
 > = ({ defaults, t, isRtl = false, onSave }) => {
   const [formData, setFormData] = useState<GlobalAutomationDefaults>({
+    platformCommissionPercent: 10,
+    apiRequestRateLimitPerMinute: 10000,
     ...defaults,
   });
-  const [commissionRate, setCommissionRate] = useState("10");
-  const [rateLimit, setRateLimit] = useState("120");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleMaxDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,16 +114,20 @@ export const AutomationDefaultsSection: React.FC<
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    defaultPriceFloorPolicy: e.target
-                      .value as GlobalAutomationDefaults["defaultPriceFloorPolicy"],
+                    defaultPriceFloorPolicy: e.target.value,
                   }))
                 }
                 className="mt-2 w-full p-2.5 rounded-lg border border-outline-variant bg-white text-xs font-semibold text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
               >
-                <option value="DYNAMIC_AI">
+                <option value="DynamicAi">
                   {isRtl
                     ? "ذكاء اصطناعي ديناميكي (موصى به)"
                     : "Dynamic AI (Recommended)"}
+                </option>
+                <option value="DYNAMIC_AI">
+                  {isRtl
+                    ? "ذكاء اصطناعي ديناميكي (DYNAMIC_AI)"
+                    : "Dynamic AI (DYNAMIC_AI)"}
                 </option>
                 <option value="FIXED_30">
                   {isRtl
@@ -148,8 +152,7 @@ export const AutomationDefaultsSection: React.FC<
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    newBusinessDefaultMode: e.target
-                      .value as GlobalAutomationDefaults["newBusinessDefaultMode"],
+                    newBusinessDefaultMode: e.target.value,
                   }))
                 }
                 className="mt-2 w-full p-2.5 rounded-lg border border-outline-variant bg-white text-xs font-semibold text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
@@ -240,8 +243,15 @@ export const AutomationDefaultsSection: React.FC<
               </label>
               <input
                 type="number"
-                value={commissionRate}
-                onChange={(e) => setCommissionRate(e.target.value)}
+                min={0}
+                max={100}
+                value={formData.platformCommissionPercent ?? 10}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    platformCommissionPercent: Number(e.target.value),
+                  }))
+                }
                 className="w-full px-3 py-2.5 rounded-lg border border-outline-variant text-xs font-bold bg-surface focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
@@ -251,8 +261,14 @@ export const AutomationDefaultsSection: React.FC<
               </label>
               <input
                 type="number"
-                value={rateLimit}
-                onChange={(e) => setRateLimit(e.target.value)}
+                min={1}
+                value={formData.apiRequestRateLimitPerMinute ?? 10000}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    apiRequestRateLimitPerMinute: Number(e.target.value),
+                  }))
+                }
                 className="w-full px-3 py-2.5 rounded-lg border border-outline-variant text-xs font-bold bg-surface focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>

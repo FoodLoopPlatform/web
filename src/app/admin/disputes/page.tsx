@@ -7,6 +7,12 @@ import {
 } from "../api/server-admin-api";
 import { getAuditLogsServer } from "../api/server-audit-log-api";
 
+export const metadata = {
+  title: "النزاعات والتظلمات | Disputes & Support",
+  description:
+    "FoodLoop Admin Portal - Dispute Resolution, Customer Support Tickets, and Review Moderation",
+};
+
 export default async function DisputesPage() {
   const [disputesRes, ticketsRes, reviewsRes, auditRes] = await Promise.all([
     getDisputesServer(),

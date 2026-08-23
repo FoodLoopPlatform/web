@@ -209,9 +209,7 @@ export function PricingRecommendationModal({
                   />
                   <span className="font-bold text-on-surface">
                     رؤية الذكاء الاصطناعي (
-                    {Math.round(
-                      (activeRecommendation.confidence || 0.9) * 100,
-                    )}
+                    {Math.round((activeRecommendation.confidence || 0.9) * 100)}
                     % ثقة)
                   </span>
                 </div>

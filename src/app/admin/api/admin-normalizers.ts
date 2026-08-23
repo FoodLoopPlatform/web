@@ -474,10 +474,19 @@ export function normalizeProductToModerationItem(
   let flags: ModerationItem["flags"] = ["low_ai_confidence"];
   if (Array.isArray(raw.flags) && raw.flags.length > 0) {
     flags = raw.flags as ModerationItem["flags"];
+  } else if (
+    raw.isReported ||
+    raw.reportedBy ||
+    raw.userReport ||
+    raw.reported ||
+    raw.flag === "UserReport" ||
+    raw.flag === "user_report"
+  ) {
+    flags = ["user_report"];
   } else if (aiConfidence < 50) {
     flags = ["low_ai_confidence", "unverified_origin"];
   } else {
-    flags = ["user_report"];
+    flags = ["low_ai_confidence"];
   }
 
   const flagReasonQuoteAr = String(
@@ -494,6 +503,30 @@ export function normalizeProductToModerationItem(
   );
   const createdAt = String(raw.createdAt ?? new Date().toISOString());
 
+  const originalPrice = Number(
+    raw.originalPrice ?? raw.price ?? raw.priceBeforeDiscount ?? 0,
+  );
+  const discountedPrice = Number(
+    raw.discountedPrice ??
+      raw.offerPrice ??
+      raw.priceAfterDiscount ??
+      raw.price ??
+      0,
+  );
+  const category = String(
+    raw.category ?? raw.categoryName ?? raw.businessCategory ?? "عام",
+  );
+  const stockQuantity = Number(
+    raw.stockQuantity ?? raw.quantity ?? raw.stock ?? 1,
+  );
+  const expiryDate = String(
+    raw.expiryDate ?? raw.expiresAt ?? raw.expirationDate ?? "",
+  );
+  const description = String(
+    raw.description ?? raw.descriptionAr ?? raw.details ?? "",
+  );
+  const storeId = String(raw.storeId ?? raw.vendorId ?? "");
+
   return {
     id,
     productNameAr,
@@ -506,6 +539,13 @@ export function normalizeProductToModerationItem(
     flagReasonQuoteAr,
     flagReasonQuoteEn,
     createdAt,
+    originalPrice: originalPrice > 0 ? originalPrice : undefined,
+    discountedPrice: discountedPrice > 0 ? discountedPrice : undefined,
+    category,
+    stockQuantity,
+    expiryDate,
+    description,
+    storeId,
   };
 }
 
