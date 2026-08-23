@@ -475,35 +475,59 @@ export function normalizeAiRecommendation(
       originalPrice,
   );
 
-  const recommendedPrice = Number(
+  let discountPercentage = Number(
+    raw.discountPercentage ?? raw.discountPercent ?? 15,
+  );
+  if (isNaN(discountPercentage) || discountPercentage <= 0) {
+    discountPercentage = 15;
+  }
+
+  let recommendedPrice = Number(
     raw.recommendedPrice ??
       raw.suggestedPrice ??
       raw.newPrice ??
       raw.targetPrice ??
       raw.priceRecommendation ??
-      Math.round(currentPrice * 0.8),
+      0,
   );
 
-  let discountPercentage = Number(
-    raw.discountPercentage ??
-      raw.discountPercent ??
-      (originalPrice > 0 && recommendedPrice < originalPrice
-        ? Math.round(((originalPrice - recommendedPrice) / originalPrice) * 100)
-        : currentPrice > 0 && recommendedPrice < currentPrice
-          ? Math.round(((currentPrice - recommendedPrice) / currentPrice) * 100)
-          : 0),
-  );
-  if (isNaN(discountPercentage) || discountPercentage < 0)
-    discountPercentage = 0;
+  // If recommendedPrice was not provided OR is >= currentPrice, calculate strictly off currentPrice
+  if (
+    !recommendedPrice ||
+    (currentPrice > 0 && recommendedPrice >= currentPrice)
+  ) {
+    const rawDiscountFactor = discountPercentage / 100;
+    const baseTarget = currentPrice > 0 ? currentPrice : originalPrice;
+    recommendedPrice =
+      Math.round(baseTarget * (1 - rawDiscountFactor) * 100) / 100;
+  }
+
+  // Strict Guard Constraint: Recommended Price MUST be strictly less than Current Price
+  if (currentPrice > 0 && recommendedPrice >= currentPrice) {
+    recommendedPrice = Math.max(
+      0.5,
+      Math.round(currentPrice * 0.85 * 100) / 100,
+    );
+  }
 
   const discountAmount = Number(
     raw.discountAmount ??
       raw.savingsAmount ??
       Math.max(
         0,
-        originalPrice - recommendedPrice || currentPrice - recommendedPrice,
+        originalPrice > 0
+          ? originalPrice - recommendedPrice
+          : currentPrice - recommendedPrice,
       ),
   );
+
+  // Display discount percentage relative to Original Price (if present) or Current Price
+  const baseForPercent = originalPrice > 0 ? originalPrice : currentPrice;
+  if (baseForPercent > 0 && recommendedPrice < baseForPercent) {
+    discountPercentage = Math.round(
+      ((baseForPercent - recommendedPrice) / baseForPercent) * 100,
+    );
+  }
 
   const quantityAvailable = Number(
     raw.quantityAvailable ??
