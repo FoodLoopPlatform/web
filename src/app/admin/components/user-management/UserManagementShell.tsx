@@ -93,7 +93,40 @@ export function UserManagementShell({
     initialAnalytics?.users?.charities ?? 0,
   );
   const [pendingCount, setPendingCount] = useState(
-    initialAnalytics?.organizations?.pending ?? 0,
+    initialAnalytics?.organizations?.pending ??
+      initialAnalytics?.pendingStoresCount ??
+      0,
+  );
+
+  // Compute live pending counts from state as safety net
+  const pendingStoresCountInState = useMemo(() => {
+    return stores.filter((s) => s.status === "PENDING" || !s.verified).length;
+  }, [stores]);
+
+  const pendingCharitiesCountInState = useMemo(() => {
+    return charities.filter((c) => c.status === "PENDING" || !c.verified)
+      .length;
+  }, [charities]);
+
+  const effectivePendingCount = useMemo(() => {
+    const totalLocalPending =
+      pendingStoresCountInState + pendingCharitiesCountInState;
+    return Math.max(pendingCount, totalLocalPending);
+  }, [pendingCount, pendingStoresCountInState, pendingCharitiesCountInState]);
+
+  const effectiveConsumersCount = useMemo(
+    () => Math.max(consumersCount, consumers.length),
+    [consumersCount, consumers.length],
+  );
+
+  const effectiveStoresCount = useMemo(
+    () => Math.max(storesCount, stores.length),
+    [storesCount, stores.length],
+  );
+
+  const effectiveCharitiesCount = useMemo(
+    () => Math.max(charitiesCount, charities.length),
+    [charitiesCount, charities.length],
   );
 
   const [activeTotalCount, setActiveTotalCount] = useState(
@@ -485,10 +518,10 @@ export function UserManagementShell({
           {/* Top Metrics Banner */}
           <UserManagementStats
             t={t}
-            consumersCount={consumersCount}
-            storesCount={storesCount}
-            charitiesCount={charitiesCount}
-            pendingCount={pendingCount}
+            consumersCount={effectiveConsumersCount}
+            storesCount={effectiveStoresCount}
+            charitiesCount={effectiveCharitiesCount}
+            pendingCount={effectivePendingCount}
             isRtl={isRtl}
           />
 

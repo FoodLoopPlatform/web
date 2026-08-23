@@ -474,10 +474,19 @@ export function normalizeProductToModerationItem(
   let flags: ModerationItem["flags"] = ["low_ai_confidence"];
   if (Array.isArray(raw.flags) && raw.flags.length > 0) {
     flags = raw.flags as ModerationItem["flags"];
+  } else if (
+    raw.isReported ||
+    raw.reportedBy ||
+    raw.userReport ||
+    raw.reported ||
+    raw.flag === "UserReport" ||
+    raw.flag === "user_report"
+  ) {
+    flags = ["user_report"];
   } else if (aiConfidence < 50) {
     flags = ["low_ai_confidence", "unverified_origin"];
   } else {
-    flags = ["user_report"];
+    flags = ["low_ai_confidence"];
   }
 
   const flagReasonQuoteAr = String(
