@@ -16,6 +16,7 @@ import {
   BarChartIcon,
   FileIcon,
   PlusIcon,
+  LeafIcon,
 } from "@/components/icons";
 import { Icon } from "@/components/ui/icon";
 import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
@@ -208,18 +209,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const sidebarInnerContent = (
     <>
       <div className="flex flex-col gap-6 overflow-hidden flex-1">
-        <div className="flex items-center gap-3 px-2 shrink-0">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-xl font-headline-md shrink-0">
-            F
-          </div>
-          <div className="flex flex-col">
-            <span className="font-plus-jakarta-sans text-2xl font-extrabold text-primary tracking-tight leading-none">
+        <div className="flex flex-col gap-1 px-2 shrink-0">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-2 group select-none cursor-pointer"
+            aria-label="FoodLoop Admin"
+          >
+            <LeafIcon className="w-7 h-7 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
+            <span className="text-2xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
               FoodLoop
             </span>
-            <span className="text-[11px] text-on-surface-variant opacity-75 font-bold font-sans mt-1">
-              {currentDict.platformAdmin}
-            </span>
-          </div>
+          </Link>
+          <span className="text-[11px] text-on-surface-variant opacity-75 font-bold font-sans">
+            {currentDict.platformAdmin}
+          </span>
         </div>
 
         <nav className="flex flex-col gap-1 overflow-y-auto flex-1 pr-1 pl-1">
@@ -318,10 +321,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <Icon name="menu" className="h-5 w-5 text-primary" />
             </button>
 
-            {/* Page title in Top Bar */}
-            <span className="font-bold text-lg text-primary shrink-0 hidden sm:block">
-              {lang === "ar" ? "لوحة تحكم المنصة" : "Platform Admin"}
-            </span>
+            {/* Page title & Logo in Top Bar */}
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 group select-none cursor-pointer shrink-0"
+              aria-label="FoodLoop Admin"
+            >
+              <LeafIcon className="w-6 h-6 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
+              <span className="text-xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
+                FoodLoop
+              </span>
+              <span className="font-bold text-xs text-primary/70 shrink-0 hidden sm:block border-r border-outline-variant/60 pr-2.5 mr-1">
+                {lang === "ar" ? "لوحة تحكم المنصة" : "Platform Admin"}
+              </span>
+            </Link>
 
             {/* Integrated Top Bar Search Bar */}
             <div

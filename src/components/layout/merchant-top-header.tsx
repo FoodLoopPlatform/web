@@ -2,7 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
+import { LeafIcon } from "@/components/icons";
 import { NotificationsDropdown } from "@/components/layout/NotificationsDropdown";
 import { AdminNotesDrawer } from "@/components/common/AdminNotesDrawer";
 
@@ -42,6 +44,17 @@ export function MerchantTopHeader({
           >
             <Icon name="menu" className="h-5 w-5 text-primary" />
           </button>
+
+          <Link
+            href="/dashboard"
+            className="inline-flex lg:hidden items-center gap-2 group select-none cursor-pointer shrink-0"
+            aria-label="FoodLoop Home"
+          >
+            <LeafIcon className="w-6 h-6 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
+            <span className="text-xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
+              FoodLoop
+            </span>
+          </Link>
 
           {left}
         </div>

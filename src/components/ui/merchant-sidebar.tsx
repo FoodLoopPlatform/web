@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "./icon";
+import { LeafIcon } from "@/components/icons";
 import { useAppStore } from "@/store/use-app-store";
 import { logoutSession } from "@/app/register/api/auth-api";
 import { AdminNotesDrawer } from "@/components/common/AdminNotesDrawer";
@@ -94,21 +95,27 @@ export function MerchantSidebar({
         <div
           className={`flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"} px-2`}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-xl font-headline-md shrink-0">
-              F
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="font-plus-jakarta-sans text-2xl font-extrabold text-primary tracking-tight leading-none">
-                  FoodLoop
-                </span>
-                <span className="text-[11px] text-on-surface-variant opacity-70 font-bold font-sans mt-1">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 group select-none cursor-pointer"
+            aria-label="FoodLoop Home"
+          >
+            {!isCollapsed ? (
+              <div className="flex flex-col gap-1">
+                <div className="inline-flex items-center gap-2">
+                  <LeafIcon className="w-7 h-7 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
+                  <span className="text-2xl font-extrabold font-brand tracking-tight text-[#00381a] group-hover:text-[#005129] transition-colors duration-300 shrink-0 whitespace-nowrap leading-none">
+                    FoodLoop
+                  </span>
+                </div>
+                <span className="text-[11px] text-on-surface-variant opacity-70 font-bold font-sans">
                   لوحة تحكم التاجر
                 </span>
               </div>
+            ) : (
+              <LeafIcon className="w-8 h-8 aspect-square text-[#005129] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shrink-0 drop-shadow-2xs" />
             )}
-          </div>
+          </Link>
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
